@@ -5,16 +5,18 @@
 - [CMake](https://marketplace.visualstudio.com/items?itemName=twxs.cmake)
 - [CMake Tools](https://marketplace.visualstudio.com/items?itemName=ms-vscode.cmake-tools)
 
-## How to run
+## VS Code setup
 
 1. Clone repo
 ```bash
 git clone https://github.com/comp345proj/Warzone.git
 ```
 
-2. From `config` dir, copy json files to `.vscode` in root dir
+2. Make `.vscode` directory inside root
 
-3. From `Run and Debug` tab, run the Debug option of your machine
+2. Copy json files from `config` to `.vscode`
+
+3. From `Run and Debug` tab, run the `Warzone (Mac/Windows)` depending on your machine
 
 ## Contributors
 - Mohammad Alshikh
