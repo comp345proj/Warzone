@@ -1,0 +1,87 @@
+{
+	// MacOS paths
+	"clang-format.executable": "/opt/homebrew/opt/llvm/bin/clang-format",
+	"C_Cpp.clang_format_path": "/opt/homebrew/opt/llvm/bin/clang-format",
+	//
+	//
+	"[cpp]": {
+		"editor.defaultFormatter": "xaver.clang-format"
+	},
+	"[cmake]": {
+		"editor.defaultFormatter": "twxs.cmake"
+	},
+	//
+	"editor.wordWrap": "on",
+	"editor.cursorSmoothCaretAnimation": "on",
+	"editor.detectIndentation": false,
+	"editor.insertSpaces": false,
+	//
+	"hide-files.files": [
+		".gitignore"
+	],
+	// 
+	"files.trimTrailingWhitespace": false,
+	"files.autoSave": "onWindowChange",
+	"files.trimFinalNewlines": true,
+	"files.exclude": {
+		"**/.git": true,
+		"**/.svn": true,
+		"**/.hg": true,
+		"**/.DS_Store": true,
+		"**/Thumbs.db": true,
+		".gitignore": true
+	},
+	"files.associations": {
+		"*.cpp": "cpp",
+		"vector": "cpp",
+		"iostream": "cpp",
+		"cstdlib": "cpp",
+		"string": "cpp",
+		"__bit_reference": "cpp",
+		"__hash_table": "cpp",
+		"__locale": "cpp",
+		"__node_handle": "cpp",
+		"__split_buffer": "cpp",
+		"__verbose_abort": "cpp",
+		"array": "cpp",
+		"bitset": "cpp",
+		"cctype": "cpp",
+		"clocale": "cpp",
+		"cmath": "cpp",
+		"cstdarg": "cpp",
+		"cstdint": "cpp",
+		"cstdio": "cpp",
+		"cstring": "cpp",
+		"ctime": "cpp",
+		"cwchar": "cpp",
+		"cwctype": "cpp",
+		"deque": "cpp",
+		"execution": "cpp",
+		"initializer_list": "cpp",
+		"ios": "cpp",
+		"iosfwd": "cpp",
+		"istream": "cpp",
+		"limits": "cpp",
+		"locale": "cpp",
+		"mutex": "cpp",
+		"new": "cpp",
+		"optional": "cpp",
+		"print": "cpp",
+		"queue": "cpp",
+		"ratio": "cpp",
+		"stack": "cpp",
+		"stdexcept": "cpp",
+		"streambuf": "cpp",
+		"string_view": "cpp",
+		"typeinfo": "cpp",
+		"unordered_map": "cpp",
+		"variant": "cpp"
+	},
+	// 
+	"cSpell.words": [
+		"MSVC",
+		"Warzone",
+		"Wextra",
+		"Wpedantic"
+	],
+}
