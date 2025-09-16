@@ -15,10 +15,6 @@
 	"editor.cursorSmoothCaretAnimation": "on",
 	"editor.detectIndentation": false,
 	"editor.insertSpaces": false,
-	//
-	"hide-files.files": [
-		".gitignore"
-	],
 	// 
 	"files.trimTrailingWhitespace": false,
 	"files.autoSave": "onWindowChange",
@@ -28,8 +24,7 @@
 		"**/.svn": true,
 		"**/.hg": true,
 		"**/.DS_Store": true,
-		"**/Thumbs.db": true,
-		".gitignore": true
+		"**/Thumbs.db": true
 	},
 	"files.associations": {
 		"*.cpp": "cpp",
@@ -83,5 +78,5 @@
 		"Warzone",
 		"Wextra",
 		"Wpedantic"
-	],
+	]
 }
