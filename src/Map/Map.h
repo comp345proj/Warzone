@@ -18,10 +18,8 @@ class Territory {
   private:
 	std::string* name;
 	IntPtr x, y; // Coordinates on the map
-	// Player* owner;
 	IntPtr nbOfArmies;
 	std::vector<Territory*> adjacentTerritories;
-	// Continent* continent;
 
   public:
 	Territory(const std::string &name, int x, int y);
@@ -90,7 +88,9 @@ class Map {
 
   public:
 	Map(const Map &other);			  // Copy constructor
-	Map(bool wrap, bool warn, const std::string& author, const std::string &image, const std::string &scroll);
+	Map(bool wrap, bool warn, const std::string& author, 
+		const std::string &image, const std::string &name, 
+		const std::string &scroll);
 	Map &operator=(const Map &other); // Assignment operator
 	~Map();
 
