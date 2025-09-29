@@ -1,19 +1,16 @@
 #include "Map/Map.h"
 #include "Player/Player.h"
+#include "Utils/Utils.h"
+#include "Map/MapDriver.h"
 #include <iostream>
 
-// Function declarations from other drivers
-void runMapTests();
-void testPlayers();
 
 int main() {
-	std::cout << "Warzone Game Test Driver\n" << std::endl;
+	std::cout << "Warzone Game Test Driver\n" << std::endl 
+	<< SEPARATOR_LINE << std::endl
+	<< "Map Tests\n" << std::endl;
 
-	std::cout << "\n=== Testing Map Component ===\n";
-	runMapTests();
-
-	std::cout << "\n=== Testing Player Component ===\n";
-	testPlayers();
-
+	testLoadMaps();
+	
 	return 0;
 }
