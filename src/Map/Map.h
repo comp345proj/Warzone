@@ -28,7 +28,7 @@ class Territory {
 	~Territory();
 
 	// Getters
-	const std::string &getName() const;
+	std::string getName() const;
 
 	int getX() const;
 
@@ -53,7 +53,7 @@ class Territory {
 class Continent {
   private:
 	std::string* name;
-	int reinforcementBonus;
+	IntPtr reinforcementBonus;
 	std::vector<Territory*> territories;
 
   public:
@@ -82,7 +82,7 @@ class Map {
     std::vector<Continent*> continents;
 
 	void depthFirstSearch(Territory* start, std::unordered_set<Territory*>& visited) const;
-	void isConnectedGraph() const;
+	bool isConnectedGraph() const;
 	bool areContinentsConnected() const;
 	bool isTerritoryInOneContinent() const;
 
@@ -105,7 +105,6 @@ class Map {
 
 	void addTerritory(Territory* territory);
     void addContinent(Continent* continent);
-	const std::vector<Continent*>& getContinents() const;
 
 	bool validate() const;
 };

@@ -1,5 +1,5 @@
 #include "MapLoader.h"
-#include "Utils.h"
+#include "Utils/Utils.h"
 #include <algorithm>
 #include <fstream>
 #include <iostream>
@@ -32,7 +32,7 @@ std::string trim(std::string s) {
 
 // ---------- MapLoader class implementation -----------------
 
-MapLoader::MapLoader(const std::string &fname)
+MapLoader::MapLoader(const std::string& fname)
 	: filename(new std::string(fname)) {}
 
 MapLoader::~MapLoader() {
@@ -40,26 +40,27 @@ MapLoader::~MapLoader() {
 }
 
 // In [Map] section, convert "yes" to true, "no" to false
-bool MapLoader::convertStrToBool(const std::string &str) {
+bool MapLoader::convertStrToBool(const std::string& str) {
 	return str == "yes";
 }
 
 Map* MapLoader::loadMap() {
 	std::ifstream file(*filename);
+	std::unordered_map<Territory*, std::vector<std::string>> territoryToAdjacentNames;
 	std::string line;
 
 	if (!file.is_open()) {
-		std::cerr << "Could not open the file: " << *filename << std::endl;
+		std::cerr << "Could not open the file: " << filename << std::endl;
 		return nullptr;
 	}
 
 	std::string worldName = filename->substr(0, filename->size() - 4);
 
-	bool* wrap;
-	bool* warn;
-	std::string* author;
-	std::string* image;
-	std::string* scroll;
+	bool wrap;
+	bool warn;
+	std::string author;
+	std::string image;
+	std::string scroll;
 
 	while (std::getline(file, line)) {
 		line = trim(line);
@@ -72,11 +73,15 @@ Map* MapLoader::loadMap() {
 		if (line == CONTINENT_SECTION_HEADER)
 			break;
 
-		getMapDetails(line, *wrap, *warn, *author, *image, *scroll);
+		getMapDetails(line, wrap, warn, author, image, scroll);
 	}
 
-	Map* map = new Map(*wrap, *warn, *author, *image, worldName, *scroll);
+	std::cout << "Done reading [Map] section." << std::endl;
 
+	Map* map = new Map(wrap, warn, author, image, worldName, scroll);
+
+	std::cout << "Created Map: " << map->getName() << std::endl
+	<< map->getAuthor() << ", " << map->getImage();
 
 	// Parsing Continents
 	while (std::getline(file, line))
@@ -85,11 +90,13 @@ Map* MapLoader::loadMap() {
 		if (line.empty()) continue;
 		if (line == TERRITORY_SECTION_HEADER) break;
 
-		std::string* continentName;
-		IntPtr bonus;
+		std::string continentName;
+		int bonus;
 
-		getContinentDetails(line, *continentName, *bonus);
-		Continent* continent = new Continent(*continentName, *bonus);
+		getContinentDetails(line, continentName, bonus);
+		Continent* continent = new Continent(continentName, bonus);
+
+		std::cout << "Created Continent: " << continent->getName() << std::endl;
 		map->addContinent(continent);
 	}
 	
@@ -125,7 +132,42 @@ Map* MapLoader::loadMap() {
 
         //Add territory to the map
         map->addTerritory(territory);
+
+		if (nameToContinent.find(continentName) != nameToContinent.end()) {
+            Continent* continent = nameToContinent[continentName];
+            continent->addTerritory(territory);
+        } else {
+            //errod handling if territory doesn't exist
+            std::cout << "**ERROR**: Continent " << continentName 
+			<< " for Territory " << name 
+			<< " is not found." << std::endl;
+        }
+
+		std::vector<std::string> adjacentNames;
+        std::string adjacentName;
+        while (std::getline(ss, adjacentName, ',')) {
+            adjacentNames.push_back(trim(adjacentName));
+        }
+        territoryToAdjacentNames[territory] = adjacentNames;
 	}
+
+	for (auto& pair : territoryToAdjacentNames) {
+		Territory* territory = pair.first;
+		for (const std::string& adjName : pair.second) {
+			if (nameToTerritory.find(adjName) != nameToTerritory.end()) {
+				Territory* adjacentTerritory = nameToTerritory[adjName];
+				territory->addAdjacentTerritory(adjacentTerritory);
+			} else {
+				// Error handling if adjacent territory doesn't exist
+				std::cout << "**ERROR**: Adjacent Territory " << adjName 
+				<< " for Territory " << territory->getName() 
+				<< " is not found." << std::endl;
+			}
+		}
+	}
+
+	file.close();
+	return map;
 }
 
 void MapLoader::getMapDetails(const std::string line, bool &wrap, bool &warn,
@@ -152,26 +194,19 @@ void MapLoader::getMapDetails(const std::string line, bool &wrap, bool &warn,
 	}
 }
 
-void MapLoader::getContinentDetails(const std::string line, std::string &name,
-									int &bonus) {
-	size_t pos = line.find('=');
-	if (pos == std::string::npos) {
-		return; // not a key=value line
-	}
+void MapLoader::getContinentDetails(const std::string line,
+                                    std::string& name, int& bonus) {
+    size_t pos = line.find('=');
+    if (pos == std::string::npos) { name.clear(); bonus = 0; return; }
 
-	std::string key = trim(line.substr(0, pos));
-	std::string value = trim(line.substr(pos + 1));
+    name  = trim(line.substr(0, pos));
+    std::string bonusStr = trim(line.substr(pos + 1));
 
-	name = trim(name);
-
-	if (key == "name") {
-		name = value;
-	} else if (key == "bonus") {
-		try {
-			bonus = std::stoi(trim(value));
-		} catch (const std::invalid_argument &e) {
-			bonus = 0; // default to 0 if conversion fails
-		}
-	}
+    try {
+        bonus = std::stoi(bonusStr);
+    } catch (...) {
+        bonus = 0;
+    }
 }
+
 
