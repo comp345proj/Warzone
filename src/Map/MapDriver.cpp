@@ -8,8 +8,8 @@
 void testLoadMaps()
 {
     std::vector<std::string> mapFiles = {
-        "/workspaces/Warzone/res/World.map",
-        "/workspaces/Warzone/res/invalid.map",
+        "../res/World.map",
+        "../res/invalid.map",
         // "maps/Europe.map",
         // "maps/Canada.map",
         // "maps/InvalidAdjacency.map", // Invalid adjacency
