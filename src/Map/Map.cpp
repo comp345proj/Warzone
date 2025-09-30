@@ -6,44 +6,36 @@
 
 //---------------------------Territory-------------------------------
 
-// Constructor for Territory: Initializes the name, x-coordinate, and y-coordinate.
-Territory::Territory(const std::string& n, int xCord, int yCord){
-    name = new std::string(n);
-    x = new int(xCord);
-    y = new int(yCord);
-    nbOfArmies = new int (0);
+Territory::Territory(const std::string& name, int posX, int posY){
+    this->name = new std::string(name);
+    this->x = new int(posX);
+    this->y = new int(posY);
+    this->nbOfArmies = new int (0);
 }
 
-// Destructor for Territory: Deletes the dynamically allocated members. We should not delete adjacent territories.
 Territory::~Territory(){
-    delete name;
-    delete x;
-    delete y;
-    delete nbOfArmies;
-    name = nullptr;
-    x = nullptr;
-    y = nullptr;
-    nbOfArmies = nullptr;
-    /*for(Territory* adjacentTerritory : adjacentTerritories){
-        delete adjacentTerritory;
-    }*/
+    delete this->name;
+    delete this->x;
+    delete this->y;
+    delete this->nbOfArmies;
+    this->name = nullptr;
+    this->x = nullptr;
+    this->y = nullptr;
+    this->nbOfArmies = nullptr;
 }
 
-//Copy constuctor. Just copying the pointers to adjacent territories, not the territories themselves as it won't make any sense.
-Territory::Territory(const Territory& other) {
-    name = new std::string(*(other.name));
-    x = new int(*(other.x));
-    y = new int(*(other.y));
-    adjacentTerritories = other.adjacentTerritories; 
+Territory::Territory(const Territory& territory2) {
+    this->name = new std::string(*(territory2.name));
+    this->x = new int(*(territory2.x));
+    this->y = new int(*(territory2.y));
+    this->adjacentTerritories = territory2.adjacentTerritories; 
 }
 
 
-// Adds an adjacent territory to the current territory's adjacentTerritories vector.
 void Territory::addAdjacentTerritory(Territory* territory){
     adjacentTerritories.push_back(territory);
 }
 
-//Basic getters
 std::string Territory::getName() const{
     return *name;
 }
@@ -65,39 +57,42 @@ const std::vector<Territory*>& Territory::getAdjacentTerritories() const {
 
 //Basic setters
 void Territory::setName(const std::string& n){
-    delete name;
-    name = new std::string(n);
+    delete this->name;
+    this->name = new std::string(n);
 }
-void Territory::setX (int xCord){
-    delete x;
-    x = new int(xCord);
+void Territory::setX (int posX){
+    delete this->x;
+    this->x = new int(posX);
 }
-void Territory::setY (int yCord){
-    delete y;
-    y = new int(yCord);
+void Territory::setY (int posY){
+    delete this->y;
+    this->y = new int(posY);
 }
 
 void Territory::setNbOfArmies(int numOfArmies) {
-    delete nbOfArmies;
-    nbOfArmies = new int(numOfArmies);
+    delete this->nbOfArmies;
+    this->nbOfArmies = new int(numOfArmies);
 }
 
 //Assignment Operator
-Territory& Territory::operator=(const Territory& other) {
-    if (this == &other) return *this; 
+Territory& Territory::operator=(const Territory& territory2) {
+    if (this == &territory2) return *this;
     delete name;
     delete x;
     delete y;
-    name = new std::string(*(other.name));
-    x = new int(*(other.x));
-    y = new int(*(other.y));
-    adjacentTerritories = other.adjacentTerritories;
+    name = new std::string(*(territory2.name));
+    x = new int(*(territory2.x));
+    y = new int(*(territory2.y));
+    adjacentTerritories = territory2.adjacentTerritories;
     return *this;
 }
 
 //Stream insertion Operator
 std::ostream& operator<<(std::ostream& out, const Territory& territory) {
-    out << "Territory Name: " << territory.getName() << ", X: " << territory.getX() << ", Y: " << territory.getY() << ", Number of armies: " << territory.getNbOfArmies();
+    out << "Territory Name: " << territory.getName() 
+    << ", X: " << territory.getX() 
+    << ", Y: " << territory.getY() 
+    << ", Number of armies: " << territory.getNbOfArmies();
     return out;
 }
 
@@ -106,71 +101,71 @@ std::ostream& operator<<(std::ostream& out, const Territory& territory) {
 
 
 //-------------------------------Continent-----------------------------
-// Constructor for Continent: Initializes the name and the number of armies.
-Continent::Continent(const std::string& n, int bonus) {
-    name = new std::string(n);
-    this->reinforcementBonus = new int(bonus);
+
+Continent::Continent(const std::string& name, int reinforcementBonus) {
+    this->name = new std::string(name);
+    this->reinforcementBonus = new int(reinforcementBonus);
 }
 
-// Destructor for Continent: Deletes the dynamically allocated members. We should not delete territories of a continent when deleting it.
 Continent::~Continent(){
-    delete name;
-    delete reinforcementBonus;
-    name = nullptr;
-    reinforcementBonus = nullptr;
-    /*for (Territory* territory : territories){
-        delete territory;
-    }*/
+    delete this->name;
+    delete this->reinforcementBonus;
+    this->name = nullptr;
+    this->reinforcementBonus = nullptr;
 }
 
-//Copy constructor. Just copying the pointers of territorries. Not the territories themselves as it doesn't make sense.
-Continent::Continent(const Continent& other) {
-    name = new std::string(*(other.name));
-    reinforcementBonus = new int(*(other.reinforcementBonus));
-    territories = other.territories;
+Continent::Continent(const Continent& continent2) {
+    this->name = new std::string(*(continent2.name));
+    this->reinforcementBonus = new int(*(continent2.reinforcementBonus));
+    this->territories = continent2.territories;
 }
 
 
 // Adds a territory to the current continent's territories vector.
 void Continent::addTerritory(Territory* territory) {
-    territories.push_back(territory);
+    this->territories.push_back(territory);
 }
 
 //Basic getters
 const std::vector<Territory*>& Continent::getTerritories() const {
-    return territories;
+    return this->territories;
 }
 int Continent::getReinforcementBonus() const {
-    return *reinforcementBonus;
+    return *this->reinforcementBonus;
 }
 std::string Continent::getName() const {
-    return *name;
+    return *this->name;
 }
 
 //Assignment Operator
-Continent& Continent::operator=(const Continent& other) {
-    if (this == &other) return *this;
-    delete name;
-    delete reinforcementBonus;
-    name = new std::string(*(other.name));
-    reinforcementBonus = new int(*(other.reinforcementBonus));
-    territories = other.territories;
+Continent& Continent::operator=(const Continent& continent2) {
+    if (this == &continent2) return *this;
+    delete this->name;
+    delete this->reinforcementBonus;
+    this->name = new std::string(*(continent2.name));
+    this->reinforcementBonus = new int(*(continent2.reinforcementBonus));
+    this->territories = continent2.territories;
     return *this;
 }
 
 //Stream insertion Operator
 std::ostream& operator<<(std::ostream& out, const Continent& continent) {
-    out << "Continent Name: " << continent.getName() << ", Number of Armies: " << continent.getReinforcementBonus();
+    out << "Continent Name: " << continent.getName() 
+    << ", Number of Armies: " << continent.getReinforcementBonus();
     return out;
 }
 
 
 //---------------------------------Map----------------------------------
-// Constructor for Map: Initializes the image, scroll, author, name, wrap, and warn.
-Map::Map(bool wrap, bool warn, const std::string& author, 
-		const std::string& image, const std::string& name, 
-		const std::string& scroll)
-{
+
+Map::Map(
+    bool wrap, 
+    bool warn, 
+    const std::string& author, 
+    const std::string& image, 
+    const std::string& name, 
+    const std::string& scroll
+){
     this->wrap = new bool(wrap);
     this->warn = new bool(warn);
     this->author = new std::string(author);
@@ -179,7 +174,6 @@ Map::Map(bool wrap, bool warn, const std::string& author,
     this->scroll = new std::string(scroll);
 }
 
-// Destructor for Map: Deletes the dynamically allocated members and territories and continents vectors. This is where we delete territories and continent as well.
 Map::~Map(){
     delete image;
     delete scroll;
@@ -206,27 +200,27 @@ Map::~Map(){
 }
 
 // Copy constructor Just copying the pointers, not the territories and continents themselves as it doesn't make sense.
-Map::Map(const Map& other) {
-    image = new std::string(*(other.image));
-    scroll = new std::string(*(other.scroll));
-    author = new std::string(*(other.author));
-    name = new std::string(*(other.name));
-    wrap = new bool(*(other.wrap));
-    warn = new bool(*(other.warn));
+Map::Map(const Map& map2) {
+    this->image = new std::string(*(map2.image));
+    this->scroll = new std::string(*(map2.scroll));
+    this->author = new std::string(*(map2.author));
+    this->name = new std::string(*(map2.name));
+    this->wrap = new bool(*(map2.wrap));
+    this->warn = new bool(*(map2.warn));
 
-    territories = other.territories;
-    continents = other.continents;
+    this->territories = map2.territories;
+    this->continents = map2.continents;
 }
 
 
 // Adds a territory to the map's territories vector.
 void Map::addTerritory(Territory* territory){
-    territories.push_back(territory);
+    this->territories.push_back(territory);
 }
 
 // Adds a continent to the map's continents vector.
 void Map::addContinent(Continent* continent){
-    continents.push_back(continent);
+    this->continents.push_back(continent);
 }
 
 // Basic getters
@@ -253,36 +247,38 @@ const std::vector<Continent*>& Map::getContinents() const {
 }
 
 //Assignment Operator
-Map& Map::operator=(const Map& other) {
-    if (this == &other) return *this;
+Map& Map::operator=(const Map& map2) {
+    if (this == &map2) return *this;
     delete image;
     delete scroll;
     delete author;
     delete name;
     delete wrap;
     delete warn;
-    image = new std::string(*(other.image));
-    scroll = new std::string(*(other.scroll));
-    author = new std::string(*(other.author));
-    name = new std::string(*(other.name));
-    wrap = new bool(*(other.wrap));
-    warn = new bool(*(other.warn));
-    territories = other.territories;
-    continents = other.continents;
+    this->image = new std::string(*(map2.image));
+    this->scroll = new std::string(*(map2.scroll));
+    this->author = new std::string(*(map2.author));
+    this->name = new std::string(*(map2.name));
+    this->wrap = new bool(*(map2.wrap));
+    this->warn = new bool(*(map2.warn));
+    this->territories = map2.territories;
+    this->continents = map2.continents;
     return *this;
 }
 
 
-//Stream insertion Operation
+//Stream insertion Operator
 std::ostream& operator<<(std::ostream& out, const Map& map) {
-    out << "Map Name: " << map.getName() << ", Author: " << map.getAuthor();
+    out << "Map Name: " << map.getName() 
+    << ", Author: " << map.getAuthor();
     return out;
 }
 
 
 //--------------------------------Map Validation Helper methods----------------------------------
 // Depth-first search to visit territories and build the visited set.
-void Map::depthFirstSearch(Territory* start, std::unordered_set<Territory*>& visited) const {
+void Map::depthFirstSearch(Territory* start, 
+    std::unordered_set<Territory*>& visited) const {
     if (visited.find(start) != visited.end()) return;
 
     visited.insert(start);
