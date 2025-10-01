@@ -2,15 +2,19 @@
 #include "Map.h"
 #include "MapLoader.h"
 #include "Utils/Utils.h"
+#include <filesystem>
 #include <iostream>
 #include <vector>
 
 void testLoadMaps() {
+	// Get the current working directory and construct paths
+	std::filesystem::path currentPath = std::filesystem::current_path();
+	std::filesystem::path worldMap = currentPath / "res" / "World.map";
+	std::filesystem::path invalidMap = currentPath / "res" / "invalid.map";
+
 	std::vector<std::string> mapFiles = {
-		"../res/World.map",
-		"../res/invalid.map",
-		"../../res/World.map",
-		"../../res/invalid.map",
+		worldMap.string(),
+		invalidMap.string(),
 		// "maps/Europe.map",
 		// "maps/Canada.map",
 		// "maps/InvalidAdjacency.map", // Invalid adjacency

@@ -57,12 +57,13 @@ Map* MapLoader::loadMap() {
 
 	std::string worldName = filename->substr(0, filename->size() - 4);
 
-	bool wrap;
-	bool warn;
-	std::string author;
-	std::string image;
-	std::string scroll;
+	bool wrap = false;
+	bool warn = false;
+	std::string author = "";
+	std::string image = "";
+	std::string scroll = "";
 
+	std::cout << "Starting to read map file..." << std::endl;
 	while (std::getline(file, line)) {
 		line = trim(line);
 		if (line.empty())
@@ -82,15 +83,18 @@ Map* MapLoader::loadMap() {
 	Map* map = new Map(wrap, warn, author, image, worldName, scroll);
 
 	std::cout << "Created Map: " << map->getName() << std::endl
-			  << map->getAuthor() << ", " << map->getImage();
+			  << "Author: " << map->getAuthor() << ", Image: " << map->getImage() << std::endl;
 
+	std::cout << "Starting to parse continents..." << std::endl;
 	// Parsing Continents
 	while (std::getline(file, line)) {
 		line = trim(line);
 		if (line.empty())
 			continue;
-		if (line == TERRITORY_SECTION_HEADER)
+		if (line == TERRITORY_SECTION_HEADER) {
+			std::cout << "Finished parsing continents, moving to territories..." << std::endl;
 			break;
+		}
 
 		std::string continentName;
 		int bonus;
@@ -112,11 +116,13 @@ Map* MapLoader::loadMap() {
 	// Map of territory names to territory pointers
 	std::unordered_map<std::string, Territory*> nameToTerritory;
 
+	std::cout << "Starting to parse territories..." << std::endl;
 	while (std::getline(file, line)) {
 		line = trim(line);
 		if (line.empty())
 			continue;
 
+		std::cout << "Processing territory: " << line << std::endl;
 		std::istringstream ss(line);
 		std::string name, x_str, y_str, continentName;
 		std::getline(ss, name, ',');
@@ -130,7 +136,7 @@ Map* MapLoader::loadMap() {
 		continentName = trim(continentName);
 
 		Territory* territory = new Territory(name, x, y);
-		// Add the teirrotiry to name-to-territory map for looking up later (to
+		// Add the territory to name-to-territory map for looking up later (to
 		// associate with correct continent)
 		nameToTerritory[name] = territory;
 
@@ -141,7 +147,7 @@ Map* MapLoader::loadMap() {
 			Continent* continent = nameToContinent[continentName];
 			continent->addTerritory(territory);
 		} else {
-			// errod handling if territory doesn't exist
+			// error handling if territory doesn't exist
 			std::cout << "**ERROR**: Continent " << continentName
 					  << " for Territory " << name << " is not found."
 					  << std::endl;

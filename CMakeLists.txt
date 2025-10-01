@@ -27,12 +27,14 @@ include_directories(${PROJECT_SOURCE_DIR}/src)
 file(GLOB_RECURSE MAP_SOURCES "${PROJECT_SOURCE_DIR}/src/Map/*.cpp")
 file(GLOB_RECURSE PLAYER_SOURCES "${PROJECT_SOURCE_DIR}/src/Player/*.cpp")
 file(GLOB_RECURSE UTILS_SOURCES "${PROJECT_SOURCE_DIR}/src/Utils/*.cpp")
+file(GLOB_RECURSE ORDERS_SOURCES "${PROJECT_SOURCE_DIR}/src/Orders/*.cpp")
 
 # Create executable
 add_executable(${PROJECT_NAME} 
     ${MAP_SOURCES}
     ${PLAYER_SOURCES}
     ${UTILS_SOURCES}
+	${ORDERS_SOURCES}
     src/MainDriver.cpp
 )
 
