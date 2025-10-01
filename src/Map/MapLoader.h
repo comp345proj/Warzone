@@ -1,26 +1,23 @@
 #pragma once
-#include <string>
 #include "Map.h"
+#include <string>
 
 class MapLoader {
-private:
-    std::string* filename;
-    
-    bool convertStrToBool(const std::string& str);
+  private:
+	std::string* filename;
 
-    void getMapDetails(const std::string line,
-                       bool& wrap, bool& warn,
-                       std::string& author,
-                       std::string& image,
-                       std::string& scroll);
+	bool convertStrToBool(const std::string &str);
 
-    void getContinentDetails(const std::string line,
-                             std::string& name,
-                             int& bonus);
+	void getMapDetails(const std::string line, bool &wrap, bool &warn,
+					   std::string &author, std::string &image,
+					   std::string &scroll);
 
-public:
-    MapLoader(const std::string& filename);
-    ~MapLoader();
-    
-    Map* loadMap();
+	void getContinentDetails(const std::string line, std::string &name,
+							 int &bonus);
+
+  public:
+	MapLoader(const std::string &filename);
+	~MapLoader();
+
+	Map* loadMap();
 };

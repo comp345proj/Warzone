@@ -3,8 +3,8 @@
 #include <set>
 #include <string>
 #include <unordered_map>
-#include <vector>
 #include <unordered_set>
+#include <vector>
 
 typedef int* IntPtr;
 
@@ -73,38 +73,39 @@ class Continent {
 class Map {
   private:
 	bool* wrap;
-    bool* warn;
-  	std::string* author;
-    std::string* image;
+	bool* warn;
+	std::string* author;
+	std::string* image;
 	std::string* name;
-    std::string* scroll;
-    std::vector<Territory*> territories;
-    std::vector<Continent*> continents;
+	std::string* scroll;
+	std::vector<Territory*> territories;
+	std::vector<Continent*> continents;
 
-	void depthFirstSearch(Territory* start, std::unordered_set<Territory*>& visited) const;
+	void depthFirstSearch(Territory* start,
+						  std::unordered_set<Territory*> &visited) const;
 	bool isConnectedGraph() const;
 	bool areContinentsConnected() const;
 	bool isTerritoryInOneContinent() const;
 
   public:
-	Map(const Map &other);			  // Copy constructor
-	Map(bool wrap, bool warn, const std::string& author, 
-		const std::string &image, const std::string &name, 
+	Map(const Map &other); // Copy constructor
+	Map(bool wrap, bool warn, const std::string &author,
+		const std::string &image, const std::string &name,
 		const std::string &scroll);
 	Map &operator=(const Map &other); // Assignment operator
 	~Map();
 
 	// Getters
 	bool getWrap() const;
-    bool getWarn() const;
-    std::string getAuthor() const;
+	bool getWarn() const;
+	std::string getAuthor() const;
 	std::string getImage() const;
 	std::string getName() const;
-    std::string getScroll() const;
-	const std::vector<Continent*>& getContinents() const;
+	std::string getScroll() const;
+	const std::vector<Continent*> &getContinents() const;
 
 	void addTerritory(Territory* territory);
-    void addContinent(Continent* continent);
+	void addContinent(Continent* continent);
 
 	bool validate() const;
 };

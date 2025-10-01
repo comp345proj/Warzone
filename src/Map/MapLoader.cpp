@@ -3,8 +3,8 @@
 #include <algorithm>
 #include <fstream>
 #include <iostream>
-#include <unordered_map>
 #include <sstream>
+#include <unordered_map>
 
 // ---------- trim helpers -----------------
 namespace {
@@ -32,7 +32,7 @@ std::string trim(std::string s) {
 
 // ---------- MapLoader class implementation -----------------
 
-MapLoader::MapLoader(const std::string& fname)
+MapLoader::MapLoader(const std::string &fname)
 	: filename(new std::string(fname)) {}
 
 MapLoader::~MapLoader() {
@@ -40,13 +40,14 @@ MapLoader::~MapLoader() {
 }
 
 // In [Map] section, convert "yes" to true, "no" to false
-bool MapLoader::convertStrToBool(const std::string& str) {
+bool MapLoader::convertStrToBool(const std::string &str) {
 	return str == "yes";
 }
 
 Map* MapLoader::loadMap() {
 	std::ifstream file(*filename);
-	std::unordered_map<Territory*, std::vector<std::string>> territoryToAdjacentNames;
+	std::unordered_map<Territory*, std::vector<std::string>>
+		territoryToAdjacentNames;
 	std::string line;
 
 	if (!file.is_open()) {
@@ -81,14 +82,15 @@ Map* MapLoader::loadMap() {
 	Map* map = new Map(wrap, warn, author, image, worldName, scroll);
 
 	std::cout << "Created Map: " << map->getName() << std::endl
-	<< map->getAuthor() << ", " << map->getImage();
+			  << map->getAuthor() << ", " << map->getImage();
 
 	// Parsing Continents
-	while (std::getline(file, line))
-	{
+	while (std::getline(file, line)) {
 		line = trim(line);
-		if (line.empty()) continue;
-		if (line == TERRITORY_SECTION_HEADER) break;
+		if (line.empty())
+			continue;
+		if (line == TERRITORY_SECTION_HEADER)
+			break;
 
 		std::string continentName;
 		int bonus;
@@ -99,69 +101,71 @@ Map* MapLoader::loadMap() {
 		std::cout << "Created Continent: " << continent->getName() << std::endl;
 		map->addContinent(continent);
 	}
-	
-	//Create a map of continent names to continent pointers for easy lookup
-    std::unordered_map<std::string, Continent*> nameToContinent;
+
+	// Create a map of continent names to continent pointers for easy lookup
+	std::unordered_map<std::string, Continent*> nameToContinent;
 
 	for (Continent* cont : map->getContinents()) {
 		nameToContinent[cont->getName()] = cont;
-    }
+	}
 
 	// Map of territory names to territory pointers
 	std::unordered_map<std::string, Territory*> nameToTerritory;
 
-	while(std::getline(file, line)){
+	while (std::getline(file, line)) {
 		line = trim(line);
-		if (line.empty()) continue;
-		
+		if (line.empty())
+			continue;
+
 		std::istringstream ss(line);
-        std::string name, x_str, y_str, continentName;
-        std::getline(ss, name, ',');
-        std::getline(ss, x_str, ',');
-        std::getline(ss, y_str, ',');
-        std::getline(ss, continentName, ',');
+		std::string name, x_str, y_str, continentName;
+		std::getline(ss, name, ',');
+		std::getline(ss, x_str, ',');
+		std::getline(ss, y_str, ',');
+		std::getline(ss, continentName, ',');
 
-        name = trim(name);
-        int x = std::stoi(x_str);
-        int y = std::stoi(y_str);
-        continentName = trim(continentName);
+		name = trim(name);
+		int x = std::stoi(x_str);
+		int y = std::stoi(y_str);
+		continentName = trim(continentName);
 
-        Territory* territory = new Territory(name, x, y);
-        //Add the teirrotiry to name-to-territory map for looking up later (to associate with correct continent)
-        nameToTerritory[name] = territory;
+		Territory* territory = new Territory(name, x, y);
+		// Add the teirrotiry to name-to-territory map for looking up later (to
+		// associate with correct continent)
+		nameToTerritory[name] = territory;
 
-        //Add territory to the map
-        map->addTerritory(territory);
+		// Add territory to the map
+		map->addTerritory(territory);
 
 		if (nameToContinent.find(continentName) != nameToContinent.end()) {
-            Continent* continent = nameToContinent[continentName];
-            continent->addTerritory(territory);
-        } else {
-            //errod handling if territory doesn't exist
-            std::cout << "**ERROR**: Continent " << continentName 
-			<< " for Territory " << name 
-			<< " is not found." << std::endl;
-        }
+			Continent* continent = nameToContinent[continentName];
+			continent->addTerritory(territory);
+		} else {
+			// errod handling if territory doesn't exist
+			std::cout << "**ERROR**: Continent " << continentName
+					  << " for Territory " << name << " is not found."
+					  << std::endl;
+		}
 
 		std::vector<std::string> adjacentNames;
-        std::string adjacentName;
-        while (std::getline(ss, adjacentName, ',')) {
-            adjacentNames.push_back(trim(adjacentName));
-        }
-        territoryToAdjacentNames[territory] = adjacentNames;
+		std::string adjacentName;
+		while (std::getline(ss, adjacentName, ',')) {
+			adjacentNames.push_back(trim(adjacentName));
+		}
+		territoryToAdjacentNames[territory] = adjacentNames;
 	}
 
-	for (auto& pair : territoryToAdjacentNames) {
+	for (auto &pair : territoryToAdjacentNames) {
 		Territory* territory = pair.first;
-		for (const std::string& adjName : pair.second) {
+		for (const std::string &adjName : pair.second) {
 			if (nameToTerritory.find(adjName) != nameToTerritory.end()) {
 				Territory* adjacentTerritory = nameToTerritory[adjName];
 				territory->addAdjacentTerritory(adjacentTerritory);
 			} else {
 				// Error handling if adjacent territory doesn't exist
-				std::cout << "**ERROR**: Adjacent Territory " << adjName 
-				<< " for Territory " << territory->getName() 
-				<< " is not found." << std::endl;
+				std::cout << "**ERROR**: Adjacent Territory " << adjName
+						  << " for Territory " << territory->getName()
+						  << " is not found." << std::endl;
 			}
 		}
 	}
@@ -194,19 +198,21 @@ void MapLoader::getMapDetails(const std::string line, bool &wrap, bool &warn,
 	}
 }
 
-void MapLoader::getContinentDetails(const std::string line,
-                                    std::string& name, int& bonus) {
-    size_t pos = line.find('=');
-    if (pos == std::string::npos) { name.clear(); bonus = 0; return; }
+void MapLoader::getContinentDetails(const std::string line, std::string &name,
+									int &bonus) {
+	size_t pos = line.find('=');
+	if (pos == std::string::npos) {
+		name.clear();
+		bonus = 0;
+		return;
+	}
 
-    name  = trim(line.substr(0, pos));
-    std::string bonusStr = trim(line.substr(pos + 1));
+	name = trim(line.substr(0, pos));
+	std::string bonusStr = trim(line.substr(pos + 1));
 
-    try {
-        bonus = std::stoi(bonusStr);
-    } catch (...) {
-        bonus = 0;
-    }
+	try {
+		bonus = std::stoi(bonusStr);
+	} catch (...) {
+		bonus = 0;
+	}
 }
-
-
