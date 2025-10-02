@@ -46,8 +46,6 @@ bool MapLoader::convertStrToBool(const std::string &str) {
 
 Map* MapLoader::loadMap() {
 	std::ifstream file(*filename);
-	std::unordered_map<Territory*, std::vector<std::string>>
-		territoryToAdjacentNames;
 	std::string line;
 
 	if (!file.is_open()) {
@@ -83,7 +81,8 @@ Map* MapLoader::loadMap() {
 	Map* map = new Map(wrap, warn, author, image, worldName, scroll);
 
 	std::cout << "Created Map: " << map->getName() << std::endl
-			  << "Author: " << map->getAuthor() << ", Image: " << map->getImage() << std::endl;
+			  << "Author: " << map->getAuthor() 
+			  << ", Image: " << map->getImage() << std::endl;
 
 	std::cout << "Starting to parse continents..." << std::endl;
 	// Parsing Continents
@@ -107,14 +106,21 @@ Map* MapLoader::loadMap() {
 	}
 
 	// Create a map of continent names to continent pointers for easy lookup
+	//  This is needed to associate territories with correct continents
 	std::unordered_map<std::string, Continent*> nameToContinent;
 
-	for (Continent* cont : map->getContinents()) {
-		nameToContinent[cont->getName()] = cont;
+	// Associate continent names to continent pointers
+	for (Continent* continent : map->getContinents()) {
+		nameToContinent[continent->getName()] = continent;
 	}
 
-	// Map of territory names to territory pointers
+	// Create a map of territory names to territory pointers
+	// This is needed to associate adjacent territories correctly
 	std::unordered_map<std::string, Territory*> nameToTerritory;
+
+	// This will be later  used to associate territories with their adjacent territories
+	//  after all territories have been created
+	std::unordered_map<Territory*, std::vector<std::string>> territoryToAdjacentNames;
 
 	std::cout << "Starting to parse territories..." << std::endl;
 	while (std::getline(file, line)) {
@@ -124,25 +130,29 @@ Map* MapLoader::loadMap() {
 
 		std::cout << "Processing territory: " << line << std::endl;
 		std::istringstream ss(line);
-		std::string name, x_str, y_str, continentName;
+		std::string name, posX, posY, continentName;
+		// Split first 4 values by ','
 		std::getline(ss, name, ',');
-		std::getline(ss, x_str, ',');
-		std::getline(ss, y_str, ',');
+		std::getline(ss, posX, ',');
+		std::getline(ss, posY, ',');
 		std::getline(ss, continentName, ',');
 
 		name = trim(name);
-		int x = std::stoi(x_str);
-		int y = std::stoi(y_str);
+		int x = std::stoi(posX);
+		int y = std::stoi(posY);
 		continentName = trim(continentName);
 
 		Territory* territory = new Territory(name, x, y);
-		// Add the territory to name-to-territory map for looking up later (to
-		// associate with correct continent)
+		// Add the territory to name-to-territory 
+		// map for looking up later (to associate with correct continent)
 		nameToTerritory[name] = territory;
 
 		// Add territory to the map
 		map->addTerritory(territory);
 
+		// Associate territory with correct continent
+		//  If continent not found, print error
+		//  If found, add territory to continent's territory list
 		if (nameToContinent.find(continentName) != nameToContinent.end()) {
 			Continent* continent = nameToContinent[continentName];
 			continent->addTerritory(territory);
@@ -153,16 +163,29 @@ Map* MapLoader::loadMap() {
 					  << std::endl;
 		}
 
+
+		// After adding the territory continent, parse the rest of the line
+		//  The rest of the line are adjacent territories, separated by ','
 		std::vector<std::string> adjacentNames;
 		std::string adjacentName;
+		// Read remaining adjacent territory names
+		//  and store them in a map of territory to its adjacent names
 		while (std::getline(ss, adjacentName, ',')) {
 			adjacentNames.push_back(trim(adjacentName));
 		}
+		//< *terr -> [adj1, adj2, ...], ... >
 		territoryToAdjacentNames[territory] = adjacentNames;
 	}
 
+	// Now that all territories are created, associate adjacent territories
+	//  by looking up the names in nameToTerritory map
+
+	// use "auto" to avoid long type declaration
 	for (auto &pair : territoryToAdjacentNames) {
+		// get the key from the K-V pair
 		Territory* territory = pair.first;
+		// for each adjacent territory name, look up the territory pointer
+		//  and add it to the territory's adjacent list
 		for (const std::string &adjName : pair.second) {
 			if (nameToTerritory.find(adjName) != nameToTerritory.end()) {
 				Territory* adjacentTerritory = nameToTerritory[adjName];
@@ -180,6 +203,9 @@ Map* MapLoader::loadMap() {
 	return map;
 }
 
+// Helper functions to parse lines in [Map] 
+// Split line at '=', trim spaces, and assign to correct variables
+// substr (0, pos) is key | substr (pos+1) to end is value
 void MapLoader::getMapDetails(const std::string line, bool &wrap, bool &warn,
 							  std::string &author, std::string &image,
 							  std::string &scroll) {
@@ -204,6 +230,8 @@ void MapLoader::getMapDetails(const std::string line, bool &wrap, bool &warn,
 	}
 }
 
+// In [Continents] section, split line at '=', trim spaces,
+// assign left side to name, right side to bonus (convert to int)
 void MapLoader::getContinentDetails(const std::string line, std::string &name,
 									int &bonus) {
 	size_t pos = line.find('=');

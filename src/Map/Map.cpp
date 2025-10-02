@@ -6,6 +6,8 @@
 
 //---------------------------Territory-------------------------------
 
+// Constructor with parameters for name and coordinates.
+// Initializes number of armies to 0 
 Territory::Territory(const std::string &name, int posX, int posY) {
 	this->name = new std::string(name);
 	this->x = new int(posX);
@@ -13,6 +15,7 @@ Territory::Territory(const std::string &name, int posX, int posY) {
 	this->nbOfArmies = new int(0);
 }
 
+// Destructor to clean up dynamically allocated memory.
 Territory::~Territory() {
 	delete this->name;
 	delete this->x;
@@ -24,6 +27,7 @@ Territory::~Territory() {
 	this->nbOfArmies = nullptr;
 }
 
+// Copy constructor
 Territory::Territory(const Territory &territory2) {
 	this->name = new std::string(*(territory2.name));
 	this->x = new int(*(territory2.x));
@@ -31,10 +35,14 @@ Territory::Territory(const Territory &territory2) {
 	this->adjacentTerritories = territory2.adjacentTerritories;
 }
 
+// Adds an adjacent territory to the current territory's adjacency list.
 void Territory::addAdjacentTerritory(Territory* territory) {
 	adjacentTerritories.push_back(territory);
 }
 
+/*
+	** Getters for name, coordinates, number of armies, and adjacent territories. **
+*/
 std::string Territory::getName() const {
 	return *name;
 }
@@ -49,7 +57,6 @@ int Territory::getNbOfArmies() const {
 	return *nbOfArmies;
 }
 
-// Getter for the adjacent territories.
 const std::vector<Territory*> &Territory::getAdjacentTerritories() const {
 	return adjacentTerritories;
 }
@@ -74,6 +81,7 @@ void Territory::setNbOfArmies(int numOfArmies) {
 }
 
 // Assignment Operator
+// Custom Operator which handles self-assignment and deep copies the data. 
 Territory &Territory::operator=(const Territory &territory2) {
 	if (this == &territory2)
 		return *this;
@@ -88,6 +96,7 @@ Territory &Territory::operator=(const Territory &territory2) {
 }
 
 // Stream insertion Operator
+// Custom << operator to print the territory's details.
 std::ostream &operator<<(std::ostream &out, const Territory &territory) {
 	out << "Territory Name: " << territory.getName()
 		<< ", X: " << territory.getX() << ", Y: " << territory.getY()
@@ -96,23 +105,26 @@ std::ostream &operator<<(std::ostream &out, const Territory &territory) {
 }
 
 //-------------------------------Continent-----------------------------
-
+// Constructor with parameters for name and reinforcement bonus.
 Continent::Continent(const std::string &name, int reinforcementBonus) {
 	this->name = new std::string(name);
 	this->reinforcementBonus = new int(reinforcementBonus);
 }
 
+// Copy constructor
+Continent::Continent(const Continent &continent2) {
+	this->name = new std::string(*(continent2.name));
+	this->reinforcementBonus = new int(*(continent2.reinforcementBonus));
+	this->territories = continent2.territories;
+}
+
+// Custom Destructor to clean up dynamically allocated memory.
+// territories vector is not deleted here, will be handled by Map class destructor.
 Continent::~Continent() {
 	delete this->name;
 	delete this->reinforcementBonus;
 	this->name = nullptr;
 	this->reinforcementBonus = nullptr;
-}
-
-Continent::Continent(const Continent &continent2) {
-	this->name = new std::string(*(continent2.name));
-	this->reinforcementBonus = new int(*(continent2.reinforcementBonus));
-	this->territories = continent2.territories;
 }
 
 // Adds a territory to the current continent's territories vector.
@@ -131,7 +143,7 @@ std::string Continent::getName() const {
 	return *this->name;
 }
 
-// Assignment Operator
+// Assignment Operator, handles self-assignment and deep copies the data.
 Continent &Continent::operator=(const Continent &continent2) {
 	if (this == &continent2)
 		return *this;
@@ -143,7 +155,7 @@ Continent &Continent::operator=(const Continent &continent2) {
 	return *this;
 }
 
-// Stream insertion Operator
+// Stream insertion Operator for printing continent details.
 std::ostream &operator<<(std::ostream &out, const Continent &continent) {
 	out << "Continent Name: " << continent.getName()
 		<< ", Number of Armies: " << continent.getReinforcementBonus();
@@ -151,7 +163,7 @@ std::ostream &operator<<(std::ostream &out, const Continent &continent) {
 }
 
 //---------------------------------Map----------------------------------
-
+// Constructor with parameters for map properties.
 Map::Map(bool wrap, bool warn, const std::string &author,
 		 const std::string &image, const std::string &name,
 		 const std::string &scroll) {
@@ -163,6 +175,8 @@ Map::Map(bool wrap, bool warn, const std::string &author,
 	this->scroll = new std::string(scroll);
 }
 
+// Custom Destructor to clean up dynamically allocated memory.
+// Also deletes all territories and continents associated with the map.
 Map::~Map() {
 	delete image;
 	delete scroll;
@@ -188,8 +202,7 @@ Map::~Map() {
 	territories.clear();
 }
 
-// Copy constructor Just copying the pointers, not the territories and
-// continents themselves as it doesn't make sense.
+// Copy constructor for deep copying map properties and references to territories and continents.
 Map::Map(const Map &map2) {
 	this->image = new std::string(*(map2.image));
 	this->scroll = new std::string(*(map2.scroll));
@@ -262,14 +275,13 @@ std::ostream &operator<<(std::ostream &out, const Map &map) {
 	return out;
 }
 
-//--------------------------------Map Validation Helper
-//methods----------------------------------
+//----------------------- Map Validation Methods -----------------------
 // Depth-first search to visit territories and build the visited set.
-void Map::depthFirstSearch(Territory* start,
-						   std::unordered_set<Territory*> &visited) const {
+void Map::depthFirstSearch(Territory* start, std::unordered_set<Territory*> &visited) const {
+	// Base case: if already visited, return.
 	if (visited.find(start) != visited.end())
 		return;
-
+	// Mark the current territory as visited.
 	visited.insert(start);
 	for (Territory* adjacent : start->getAdjacentTerritories()) {
 		depthFirstSearch(adjacent, visited);
@@ -285,19 +297,22 @@ bool Map::isConnectedGraph() const {
 	std::unordered_set<Territory*> visited;
 	depthFirstSearch(territories[0], visited);
 
+	// If the number of visited territories equals total territories, it's connected.
 	return visited.size() == territories.size();
 }
 
-// Checks if all continents in the map are interconnected through their
-// territories.
-// Satisfies: 2) continents are connected subgraphs
+// Checks if all continents in the map are interconnected through their territories.
+// Satisfies: 2) all continents are connected subgraphs
 bool Map::areContinentsConnected() const {
 	if (continents.empty() || territories.empty())
 		return true;
 
+	// Perform DFS from the first territory and see if we can reach at least one territory in each continent.
 	std::unordered_set<Territory*> visited;
 	depthFirstSearch(territories[0], visited);
 
+	// Loops through each continent to check if at least one territory has been visited.
+	// If any continent has no visited territories, return false.
 	for (Continent* continent : continents) {
 		bool continentVisited = false;
 
