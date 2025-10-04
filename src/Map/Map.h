@@ -9,7 +9,6 @@
 typedef int* IntPtr;
 
 // Forward declarations
-class Player;
 class Territory;
 class Continent;
 class Map;

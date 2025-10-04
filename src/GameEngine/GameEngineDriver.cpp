@@ -7,7 +7,7 @@ void testGameStates() {
 		// Create a GameEngine instance
 		GameEngine* game = new GameEngine();
 		std::cout << "Created Game Engine " << std::endl;
-
+		// Start
 		bool isGameRunning = true;
 		while (!game->isGameOver()) {
 			std::cout << "Game is running..." << std::endl;

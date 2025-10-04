@@ -2,6 +2,7 @@
 #include "Player/Player.h"
 #include "Utils/Utils.h"
 #include "Map/MapDriver.h"
+#include "GameEngine/GameEngineDriver.h"
 #include <iostream>
 
 
@@ -11,6 +12,7 @@ int main() {
 	<< "Map Tests\n" << std::endl;
 
 	testLoadMaps();
+	testGameStates();
 	
 	return 0;
 }

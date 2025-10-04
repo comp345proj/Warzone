@@ -1,6 +1,15 @@
 #pragma once
 #include <iostream>
 #include <string>
+#include <vector>
+#include <../Map/MapLoader.h>
+#include <../Player/Player.h>
+#include "../Map/MapLoader.h"
+#include "../Utils/Utils.h"
+
+//forward declarations
+class State;
+class GameEngine;
 
 class State {
   public:
@@ -14,7 +23,7 @@ class State {
   private:
 	std::string name;
 	/* State Name possibilites:
-   * Start
+	 * Start
 	 * MapLoaded
 	 * MapValidated
 	 * PlayersAdded
@@ -24,6 +33,7 @@ class State {
 	 * Win
 	 * End
 	 */
+  std::string currentPlayerTurn; // name of the player whose turn it is
 };
 
 class GameEngine {
@@ -34,35 +44,37 @@ class GameEngine {
 	~GameEngine();
 
 	void command(const std::string &command);
-  /*
-    * Possible commands:
-    * MANUAL - Display this manual
-    * startup:
-    * LOADMAP <filename>
-    * ADDPLAYER <playername>
-    * 
-    * play:
-    * STARTDEPLOYMENT <# of armies> <target territory>
-    * DEPLOY <# of armies> <source territory> <target territory>
-    * ATTACK <# of armies> <source territory> <target territory>
-    * USECARD <card type> <location>
-      * ex// USECARD BOMB <territory name>
-      * ex// USECARD REINFORCEMENT <territory name>
-      * ex// USECARD BLOCKADE <territory name>
-      * ex// USECARD AIRLIFT <source territory> <target territory>
-      * ex// USECARD DIPLOMACY <player name>
-    * DRAWCARD
-    * VIEWHAND
-    * VIEWORDERS
-    * MOVEORDERS
-    * REMOVEORDER <order index>
-    * EXECUTEORDERS
-    * QUIT
-    * SHOWMAP
-    * SHOWPLAYERS
-  */
- 
+	/*
+	 * Possible commands:
+	 * MANUAL - Display this manual
+	 * startup commands:
+	 * LOADMAP <filename>
+	 * ADDPLAYER <playername>
+	 *
+	 * play commands:
+	 * STARTDEPLOYMENT <# of armies> <target territory>
+	 * DEPLOY <# of armies> <source territory> <target territory>
+	 * ATTACK <# of armies> <source territory> <target territory>
+	 * USECARD <card type> <location>
+	 * ex// USECARD BOMB <territory name>
+	 * ex// USECARD REINFORCEMENT <territory name>
+	 * ex// USECARD BLOCKADE <territory name>
+	 * ex// USECARD AIRLIFT <source territory> <target territory>
+	 * ex// USECARD DIPLOMACY <player name>
+	 * DRAWCARD
+	 * VIEWHAND
+	 * VIEWORDERS
+	 * MOVEORDERS
+	 * REMOVEORDER <order index>
+	 * EXECUTEORDERS
+	 * QUIT
+	 * SHOWMAP
+	 * SHOWPLAYERS
+	 */
+
 	void changeState(State* newState);
+
+  void addPlayer(const std::string &playerName);
 
 	friend std::ostream &operator<<(std::ostream &output,
 									const GameEngine &gameEngine);
@@ -73,4 +85,7 @@ class GameEngine {
 
   private:
 	State* currentState;
+  Player* players; // array of players
+  int numPlayers;
+  MapLoader* currentMap;
 };
