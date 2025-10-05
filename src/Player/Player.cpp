@@ -1,39 +1,105 @@
 #include "Player.h"
+#include <algorithm>
 #include <iostream>
+#include <utility> // for std::move
 
-Player::Player(const std::string &name) : name(name) {}
+Player::Player(const std::string &name, Hand* hand)
+	: name(name),
+	  hand(hand ? std::make_unique<Hand>(*hand) : std::make_unique<Hand>()) {}
 
-Player::Player(const Player &other)
-	: name(other.name), territories(other.territories), hand(other.hand),
-	  ordersList(other.ordersList) {}
+// Copy constructor (deep copy)
+Player::Player(const Player &copiedPlayer)
+	: name(copiedPlayer.name), territories(copiedPlayer.territories),
+	  hand(std::make_unique<Hand>(*copiedPlayer.hand)),
+	  ordersList(copiedPlayer.ordersList) {}
 
+// Copy assignment (deep copy)
 Player &Player::operator=(const Player &other) {
 	if (this != &other) {
 		name = other.name;
 		territories = other.territories;
-		hand = other.hand;
+		hand = std::make_unique<Hand>(*other.hand);
 		ordersList = other.ordersList;
 	}
 	return *this;
 }
 
+// Destructor (no manual delete needed)
 Player::~Player() = default;
 
+// Territory management
+void Player::addTerritory(Territory* territory) {
+	if (territory) {
+		territories.push_back(territory);
+	}
+}
+
+void Player::removeTerritory(Territory* territory) {
+	territories.erase(
+		std::remove(territories.begin(), territories.end(), territory),
+		territories.end());
+}
+
+const std::vector<Territory*> &Player::getTerritories() const {
+	return territories;
+}
+
+// Card management
+void Player::addCard(Card* card) {
+	if (card && hand) {
+		hand->addCard(card);
+	}
+}
+
+void Player::removeCard(Card* card) {
+	if (card && hand) {
+		hand->removeCard(card);
+	}
+}
+
+const std::vector<Card*> &Player::getCards() const {
+	return hand->getCards();
+}
+
+void Player::setHand(Hand* newHand) {
+	if (newHand) {
+		hand = std::make_unique<Hand>(*newHand);
+	}
+}
+
+// Order management
+void Player::addOrder(Order* order) {
+	if (order) {
+		ordersList.push_back(order);
+	}
+}
+
+const std::vector<Order*> &Player::getOrders() const {
+	return ordersList;
+}
+
+// Required methods
 std::vector<Territory*> Player::toDefend() {
-	// TODO: Implement logic to determine territories to defend
-	return std::vector<Territory*>();
+	return territories;
 }
 
 std::vector<Territory*> Player::toAttack() {
-	// TODO: Implement logic to determine territories to attack
-	return std::vector<Territory*>();
+	return {};
 }
 
-void Player::issueOrder() {
-	// TODO: Implement order creation logic
+void Player::issueOrder(Card* playedCard, Deck* deck) {
+	playedCard->play(this, deck);
+}
+
+// Getters
+const std::string &Player::getName() const {
+	return name;
 }
 
 std::ostream &operator<<(std::ostream &os, const Player &player) {
-	os << "Player: " << player.name;
+	os << "Player: " << player.name << "\n";
+	os << "Territories owned: " << player.territories.size() << "\n";
+	os << "Cards in hand: " << player.hand->getCards().size() << "\n";
+	os << "Orders issued: " << player.ordersList.size();
 	return os;
 }
