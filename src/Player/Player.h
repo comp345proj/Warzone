@@ -28,6 +28,8 @@ class Player {
 	void removeCard(Card* card);
 	const std::vector<Card*> &getCards() const;
 
+	Hand* getHand() const;
+
 	// Set the player's hand (takes ownership)
 	void setHand(Hand* newHand);
 

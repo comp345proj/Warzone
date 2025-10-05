@@ -61,6 +61,10 @@ const std::vector<Card*> &Player::getCards() const {
 	return hand->getCards();
 }
 
+Hand* Player::getHand() const {
+	return hand.get();
+}
+
 void Player::setHand(Hand* newHand) {
 	if (newHand) {
 		hand = std::make_unique<Hand>(*newHand);

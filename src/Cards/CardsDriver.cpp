@@ -73,7 +73,7 @@ void testCards() {
 
 	// Show final state
 	std::cout << "\nFinal hand state (should be empty):" << std::endl;
-	std::cout << hand;
+	std::cout << *testPlayer.getHand();
 	std::cout << "\nFinal deck state (should have all cards back):"
 			  << std::endl;
 	std::cout << deck;
