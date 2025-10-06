@@ -1,14 +1,14 @@
 #pragma once
+#include "Map/MapLoader.h"
+#include "Utils/Utils.h"
+#include <Map/MapLoader.h>
+#include <Player/Player.h>
+#include <filesystem>
 #include <iostream>
 #include <string>
 #include <vector>
-#include <filesystem>
-#include <Map/MapLoader.h>
-#include <Player/Player.h>
-#include "Map/MapLoader.h"
-#include "Utils/Utils.h"
 
-//forward declarations
+// forward declarations
 class State;
 class GameEngine;
 
@@ -16,24 +16,35 @@ class GameEngine;
 
 class State {
   public:
-	State(const std::string &name);
+	State(const std::string &state);
+  State(const std::string &state, const std::string &subState);
 	State(const State &other);			  // Copy constructor
 	State &operator=(const State &other); // Assignment operator
 	~State();
 
-	std::string getName() const;
+	std::string getState() const;
+  void setState(const std::string &newState);
+
+	std::string getSubState() const;
+  void setSubState(const std::string &newSubState);
+
+	std::string getCurrentPlayerTurn() const;
+	void setCurrentPlayerTurn(const std::string &playerName);
 
   private:
-	std::string name;
+	std::string state;
 	/* State Name possibilites:
-	 * SETUP (MapLoaded, MapValidated, PlayersAdded)
-	 * ASSIGNREINFORCEMENTS
-	 * ISSUEORDERS
-	 * EXECUTEORDERS
-	 * WIN
+	 * STARTUP (MapLoaded, MapValidated, PlayersAdded)
+	 * PLAY
+	 * (substates of PLAY)
+	 *  - Reinforcement
+	 *  - IssueOrders
+	 *  - ExecuteOrders
+	 *  - WIN
 	 * END
 	 */
-  std::string currentPlayerTurn; // name of the player whose turn it is
+	std::string subState;		   // name of the substate if any
+	std::string currentPlayerTurn; // name of the player whose turn it is
 };
 
 //---------------------------GameEngine-------------------------------
@@ -45,9 +56,9 @@ class GameEngine {
 	GameEngine &operator=(const GameEngine &other); // Assignment operator
 	~GameEngine();
 
-  void setupGame();
-  void viewSetupDetails() const;
-  void runGame();
+	void startupGame();
+	void viewstartupDetails() const;
+	void runGame();
 
 	void command(const std::string &command);
 	/*
@@ -56,7 +67,8 @@ class GameEngine {
 	 * startup commands:
 	 * LOADMAP <filename>
 	 * ADDPLAYER <playername>
-   * START - starts the game if map is loaded and at least two players are added
+	 * START - starts the game if map is loaded and at least two players are
+	 * added
 	 *
 	 * play commands:
 	 * STARTDEPLOYMENT <# of armies> <target territory>
@@ -81,21 +93,19 @@ class GameEngine {
 
 	void changeState(State* newState);
 
-  void addPlayer(const std::string &playerName);
-  void removePlayer(const std::string &playerName);
-  void viewPlayers() const;
+	void addPlayer(const std::string &playerName);
+	void removePlayer(const std::string &playerName);
+	void viewPlayers() const;
 
 	friend std::ostream &operator<<(std::ostream &output,
 									const GameEngine &gameEngine);
-
-	std::string getCurrentStateName() const;
 
 	bool isGameOver() const;
 
   private:
 	State* currentState;
-  std::vector<Player> players; // array of players
-  Player* currentPlayer; // player whose turn it is
-  MapLoader* currentMap;
-  std::string currentMapPath; // path to the current map file
+	std::vector<Player> players; // array of players
+	Player* currentPlayer;		 // player whose turn it is
+	MapLoader* currentMap;
+	std::string currentMapPath; // path to the current map file
 };
