@@ -94,8 +94,7 @@ class GameEngine {
 
   private:
 	State* currentState;
-  Player* players; // array of players
+  std::vector<Player> players; // array of players
   Player* currentPlayer; // player whose turn it is
-  int numPlayers;
   MapLoader* currentMap;
 };

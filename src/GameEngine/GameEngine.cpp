@@ -30,7 +30,6 @@ GameEngine::GameEngine()
 GameEngine::GameEngine(const GameEngine &other)
   : currentState(new State(*other.currentState)),
     players(other.players), currentPlayer(other.currentPlayer),
-    numPlayers(other.numPlayers),
     currentMap(new MapLoader(*other.currentMap)) {}
 
 GameEngine &GameEngine::operator=(const GameEngine &other) {
@@ -40,7 +39,6 @@ GameEngine &GameEngine::operator=(const GameEngine &other) {
     currentState = new State(*other.currentState);
     players = other.players;
     currentPlayer = other.currentPlayer;
-    numPlayers = other.numPlayers;
     currentMap = new MapLoader(*other.currentMap);
   }
   return *this;
@@ -156,8 +154,10 @@ void GameEngine::changeState(State* newState) {
 }
 
 void GameEngine::addPlayer(const std::string &playerName) {
+  std::cout << "Inside add players: " << std::endl;
 	Player* newPlayer = new Player(playerName);
-	players[numPlayers++] = *newPlayer;
+	players.push_back(*newPlayer);
+  delete newPlayer;
 	std::cout << "Added player: " << playerName << std::endl;
 }
 
@@ -178,9 +178,9 @@ void GameEngine::removePlayer(const std::string &playerName) {
 
 void GameEngine::viewPlayers() const {
 	std::cout << "Current players in the game:" << std::endl;
-	for (int i = 0; i < numPlayers; ++i) {
-		std::cout << "- " << players[i].getName() << std::endl;
-	}
+	for (int i = 0; i < players.size(); ++i) {
+    std::cout << "- " << players[i].getName() << std::endl;
+  }
 }
 
 bool GameEngine::isGameOver() const {
