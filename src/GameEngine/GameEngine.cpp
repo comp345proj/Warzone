@@ -47,10 +47,8 @@ GameEngine &GameEngine::operator=(const GameEngine &other) {
 GameEngine::~GameEngine() {
   delete currentState;
   delete currentMap;
-  delete[] players;
-  players = nullptr;
+  players.clear();
   currentPlayer = nullptr;
-  numPlayers = 0;
 }
 
 void GameEngine::command(const std::string &command) {
@@ -162,13 +160,12 @@ void GameEngine::addPlayer(const std::string &playerName) {
 }
 
 void GameEngine::removePlayer(const std::string &playerName) {
-	for (int i = 0; i < numPlayers; ++i) {
+	for (int i = 0; i < players.size(); ++i) {
 		if (players[i].getName() == playerName) {
 			// Shift players down to fill the gap
-			for (int j = i; j < numPlayers - 1; ++j) {
+			for (int j = i; j < players.size() - 1; ++j) {
 				players[j] = players[j + 1];
 			}
-			--numPlayers;
 			std::cout << "Removed player: " << playerName << std::endl;
 			return;
 		}
