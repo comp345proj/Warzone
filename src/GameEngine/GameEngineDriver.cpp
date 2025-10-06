@@ -10,7 +10,7 @@ void testGameStates() {
 		GameEngine* game = new GameEngine();
 		std::cout << "Created Game Engine " << std::endl;
 		// Start
-		game->setupGame();
+		game->runGame();
 		delete game;
 	} catch (const std::exception &e) {
 		std::cout << "Error during Game Engine testing: " << e.what()

@@ -1,7 +1,7 @@
 #pragma once
 #include "Map/MapLoader.h"
+#include "Map/Map.h"
 #include "Utils/Utils.h"
-#include <Map/MapLoader.h>
 #include <Player/Player.h>
 #include <filesystem>
 #include <iostream>
@@ -58,20 +58,21 @@ class GameEngine {
 
 	void startupGame();
 	void viewstartupDetails() const;
+  void assignTerritories();
+
 	void runGame();
 
 	void command(const std::string &command);
 	/*
-	 * Possible commands:
-	 * MANUAL - Display this manual
-	 * startup commands:
+	 * COMMANDS:
+	 * MANUAL - Display STARTUP/PLAY MANUAL
+	 * STARTUP commands:
 	 * LOADMAP <filename>
 	 * ADDPLAYER <playername>
 	 * START - starts the game if map is loaded and at least two players are
 	 * added
 	 *
-	 * play commands:
-	 * STARTDEPLOYMENT <# of armies> <target territory>
+	 * PLAY commands:
 	 * DEPLOY <# of armies> <source territory> <target territory>
 	 * ATTACK <# of armies> <source territory> <target territory>
 	 * USECARD <card type> <location>
@@ -82,16 +83,15 @@ class GameEngine {
 	 * ex// USECARD DIPLOMACY <player name>
 	 * DRAWCARD
 	 * VIEWHAND
+   * VIEWMAP
+	 * VIEWPLAYERS
 	 * VIEWORDERS
 	 * MOVEORDERS
 	 * REMOVEORDER <order index>
 	 * EXECUTEORDERS
-	 * QUIT
-	 * SHOWMAP
-	 * SHOWPLAYERS
+   * 
+	 * QUIT (Available in both STARTUP and PLAY states)
 	 */
-
-	void changeState(State* newState);
 
 	void addPlayer(const std::string &playerName);
 	void removePlayer(const std::string &playerName);
@@ -106,6 +106,7 @@ class GameEngine {
 	State* currentState;
 	std::vector<Player> players; // array of players
 	Player* currentPlayer;		 // player whose turn it is
-	MapLoader* currentMap;
+  Map* currentMap;
+	MapLoader* mapLoader;
 	std::string currentMapPath; // path to the current map file
 };
