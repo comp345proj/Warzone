@@ -235,6 +235,27 @@ void GameEngine::viewstartupDetails() const {
 	std::cout << std::endl;
 }
 
+void GameEngine::addPlayer(const std::string &playerName) {
+	Player* newPlayer = new Player(playerName);
+	players.push_back(*newPlayer);
+	delete newPlayer;
+	std::cout << "Added player: " << playerName << std::endl;
+}
+
+void GameEngine::removePlayer(const std::string &playerName) {
+	for (int i = 0; i < players.size(); ++i) {
+		if (players[i].getName() == playerName) {
+			// Shift players down to fill the gap
+			for (int j = i; j < players.size() - 1; ++j) {
+				players[j] = players[j + 1];
+			}
+			std::cout << "Removed player: " << playerName << std::endl;
+			return;
+		}
+	}
+	std::cout << "Player not found: " << playerName << std::endl;
+}
+
 void GameEngine::assignTerritories() {
 	if (currentMap && players.size() >= 2) {
 		std::cout << "\nAssigning territories to players..." << std::endl;
@@ -271,56 +292,36 @@ void GameEngine::assignTerritories() {
 	}
 }
 
-void GameEngine::runGame() {
-	if (currentState->getState() == "STARTUP") {
-		startupGame();
-	} else if (currentState->getState() == "PLAY") {
-		// Main game loop
-		while (!isGameOver()) {
-			// Player turn rotation
-			for (int i = 0; i < players.size(); ++i) {
-				currentPlayer = &players[i];
-				currentState->setCurrentPlayerTurn(currentPlayer->getName());
-				std::cout << "\nIt's " << currentPlayer->getName() << "'s turn."
-						  << std::endl;
-				bool playerTurn = true;
-				// Player turn loop
-				while (playerTurn) {
-					// assignReinforcement();
-					// issueOrders();
-					// executeOrders();
-					//  Check for win condition after each turn
-				}
-			}
-		}
-	}
-}
-
-void GameEngine::addPlayer(const std::string &playerName) {
-	Player* newPlayer = new Player(playerName);
-	players.push_back(*newPlayer);
-	delete newPlayer;
-	std::cout << "Added player: " << playerName << std::endl;
-}
-
-void GameEngine::removePlayer(const std::string &playerName) {
-	for (int i = 0; i < players.size(); ++i) {
-		if (players[i].getName() == playerName) {
-			// Shift players down to fill the gap
-			for (int j = i; j < players.size() - 1; ++j) {
-				players[j] = players[j + 1];
-			}
-			std::cout << "Removed player: " << playerName << std::endl;
-			return;
-		}
-	}
-	std::cout << "Player not found: " << playerName << std::endl;
+void GameEngine::assignReinforcement(){
+  // assign reinforcements to current player based on owned territories and assign number
 }
 
 void GameEngine::viewPlayers() const {
 	std::cout << "Current players in the game:" << std::endl;
 	for (int i = 0; i < players.size(); ++i) {
 		std::cout << "- " << players[i].getName() << std::endl;
+	}
+}
+
+void GameEngine::runGame() {
+	startupGame();
+	// Main game loop
+	while (!isGameOver()) {
+		// Player turn rotation
+		for (int i = 0; i < players.size(); ++i) {
+			currentPlayer = &players[i];
+			currentState->setCurrentPlayerTurn(currentPlayer->getName());
+			std::cout << "\nIt's " << currentPlayer->getName() << "'s turn."
+					  << std::endl;
+			bool playerTurn = true;
+			// Player turn loop
+			while (playerTurn) {
+				assignReinforcement();
+				// issueOrders();
+				// executeOrders();
+				//  Check for win condition after each turn
+			}
+		}
 	}
 }
 

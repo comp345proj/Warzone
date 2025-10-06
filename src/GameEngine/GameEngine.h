@@ -56,13 +56,7 @@ class GameEngine {
 	GameEngine &operator=(const GameEngine &other); // Assignment operator
 	~GameEngine();
 
-	void startupGame();
-	void viewstartupDetails() const;
-  void assignTerritories();
-
-	void runGame();
-
-	void command(const std::string &command);
+  void command(const std::string &command);
 	/*
 	 * COMMANDS:
 	 * MANUAL - Display STARTUP/PLAY MANUAL
@@ -93,9 +87,16 @@ class GameEngine {
 	 * QUIT (Available in both STARTUP and PLAY states)
 	 */
 
-	void addPlayer(const std::string &playerName);
+	void startupGame();
+	void viewstartupDetails() const;
+  void addPlayer(const std::string &playerName);
 	void removePlayer(const std::string &playerName);
-	void viewPlayers() const;
+
+  void assignTerritories();
+  void assignReinforcement();
+  void viewPlayers() const;
+
+	void runGame();
 
 	friend std::ostream &operator<<(std::ostream &output,
 									const GameEngine &gameEngine);
