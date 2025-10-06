@@ -2,14 +2,16 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include <../Map/MapLoader.h>
-#include <../Player/Player.h>
-#include "../Map/MapLoader.h"
-#include "../Utils/Utils.h"
+#include <Map/MapLoader.h>
+#include <Player/Player.h>
+#include "Map/MapLoader.h"
+#include "Utils/Utils.h"
 
 //forward declarations
 class State;
 class GameEngine;
+
+//----------------------------State-------------------------------
 
 class State {
   public:
@@ -35,6 +37,8 @@ class State {
 	 */
   std::string currentPlayerTurn; // name of the player whose turn it is
 };
+
+//---------------------------GameEngine-------------------------------
 
 class GameEngine {
   public:
@@ -91,7 +95,7 @@ class GameEngine {
   private:
 	State* currentState;
   Player* players; // array of players
-  Player currentPlayer; // player whose turn it is
+  Player* currentPlayer; // player whose turn it is
   int numPlayers;
   MapLoader* currentMap;
 };

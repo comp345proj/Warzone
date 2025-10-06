@@ -1,1 +1,1 @@
-g++ -std=c++17 -I. $(find . -name '*.cpp') -o main.exe && ./main.exe
+g++ -std=c++17 -I. -Isrc $(find src -name '*.cpp') -o main.exe && ./main.exe

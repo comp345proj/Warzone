@@ -1,9 +1,59 @@
 #include "GameEngine.h"
 
+//---------------------------State-------------------------------
+
+State::State(const std::string &name) : name(name), currentPlayerTurn("") {}
+State::State(const State &other)
+	: name(other.name), currentPlayerTurn(other.currentPlayerTurn) {}
+
+State &State::operator=(const State &other) {
+	if (this != &other) {
+		name = other.name;
+		currentPlayerTurn = other.currentPlayerTurn;
+	}
+	return *this;
+}
+
+State::~State() = default;
+
+std::string State::getName() const {
+	return name;
+}
+
+//---------------------------GameEngine-------------------------------
+
 GameEngine::GameEngine()
 	: currentState(new State("Start")),
-	  currentMap(new MapLoader("../../res/World.map")),
-	  currentPlayer(nullptr) {}
+	  currentMap(new MapLoader("../../res/World.map")), currentPlayer(nullptr) {
+}
+
+GameEngine::GameEngine(const GameEngine &other)
+  : currentState(new State(*other.currentState)),
+    players(other.players), currentPlayer(other.currentPlayer),
+    numPlayers(other.numPlayers),
+    currentMap(new MapLoader(*other.currentMap)) {}
+
+GameEngine &GameEngine::operator=(const GameEngine &other) {
+  if (this != &other) {
+    delete currentState;
+    delete currentMap;
+    currentState = new State(*other.currentState);
+    players = other.players;
+    currentPlayer = other.currentPlayer;
+    numPlayers = other.numPlayers;
+    currentMap = new MapLoader(*other.currentMap);
+  }
+  return *this;
+}
+
+GameEngine::~GameEngine() {
+  delete currentState;
+  delete currentMap;
+  delete[] players;
+  players = nullptr;
+  currentPlayer = nullptr;
+  numPlayers = 0;
+}
 
 void GameEngine::command(const std::string &command) {
 	if (currentState) {
@@ -79,12 +129,12 @@ void GameEngine::command(const std::string &command) {
 
 void GameEngine::setupGame() {
 	// Initial game setup logic
-  std::cout << "Setting up the game..." << std::endl;
-  std::cout << "Please enter player name: ";
-  std::string playerName;
-  std::getline(std::cin, playerName);
-  addPlayer(playerName);
-  viewPlayers();
+	std::cout << "Setting up the game..." << std::endl;
+	std::cout << "Please enter player name: ";
+	std::string playerName;
+	std::getline(std::cin, playerName);
+	addPlayer(playerName);
+	viewPlayers();
 }
 
 void GameEngine::runGame() {
@@ -112,25 +162,25 @@ void GameEngine::addPlayer(const std::string &playerName) {
 }
 
 void GameEngine::removePlayer(const std::string &playerName) {
-  for (int i = 0; i < numPlayers; ++i) {
-    if (players[i].getName() == playerName) {
-      // Shift players down to fill the gap
-      for (int j = i; j < numPlayers - 1; ++j) {
-        players[j] = players[j + 1];
-      }
-      --numPlayers;
-      std::cout << "Removed player: " << playerName << std::endl;
-      return;
-    }
-  }
-  std::cout << "Player not found: " << playerName << std::endl;
+	for (int i = 0; i < numPlayers; ++i) {
+		if (players[i].getName() == playerName) {
+			// Shift players down to fill the gap
+			for (int j = i; j < numPlayers - 1; ++j) {
+				players[j] = players[j + 1];
+			}
+			--numPlayers;
+			std::cout << "Removed player: " << playerName << std::endl;
+			return;
+		}
+	}
+	std::cout << "Player not found: " << playerName << std::endl;
 }
 
 void GameEngine::viewPlayers() const {
-  std::cout << "Current players in the game:" << std::endl;
-  for (int i = 0; i < numPlayers; ++i) {
-    std::cout << "- " << players[i].getName() << std::endl;
-  }
+	std::cout << "Current players in the game:" << std::endl;
+	for (int i = 0; i < numPlayers; ++i) {
+		std::cout << "- " << players[i].getName() << std::endl;
+	}
 }
 
 bool GameEngine::isGameOver() const {
