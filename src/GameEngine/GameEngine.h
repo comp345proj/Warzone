@@ -43,6 +43,9 @@ class GameEngine {
 	GameEngine &operator=(const GameEngine &other); // Assignment operator
 	~GameEngine();
 
+  void setupGame();
+  void runGame();
+
 	void command(const std::string &command);
 	/*
 	 * Possible commands:
@@ -75,6 +78,8 @@ class GameEngine {
 	void changeState(State* newState);
 
   void addPlayer(const std::string &playerName);
+  void removePlayer(const std::string &playerName);
+  void viewPlayers() const;
 
 	friend std::ostream &operator<<(std::ostream &output,
 									const GameEngine &gameEngine);
@@ -86,6 +91,7 @@ class GameEngine {
   private:
 	State* currentState;
   Player* players; // array of players
+  Player currentPlayer; // player whose turn it is
   int numPlayers;
   MapLoader* currentMap;
 };

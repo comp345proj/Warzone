@@ -2,7 +2,8 @@
 
 GameEngine::GameEngine()
 	: currentState(new State("Start")),
-	  currentMap(new MapLoader("../../res/World.map")) {}
+	  currentMap(new MapLoader("../../res/World.map")),
+	  currentPlayer(nullptr) {}
 
 void GameEngine::command(const std::string &command) {
 	if (currentState) {
@@ -43,7 +44,7 @@ void GameEngine::command(const std::string &command) {
 			changeState(new State("PlayersAdded"));
 		} else if (splitCommand[0] == "ADDPLAYER") {
 			// add player function call
-      addPlayer(splitCommand[1]);
+			addPlayer(splitCommand[1]);
 		} else if (splitCommand[0] == "STARTDEPLOYMENT") {
 			// deploy soldiers to given map territory upon start of turn
 		} else if (splitCommand[0] == "DEPLOY") {
@@ -76,18 +77,60 @@ void GameEngine::command(const std::string &command) {
 	}
 }
 
+void GameEngine::setupGame() {
+	// Initial game setup logic
+  std::cout << "Setting up the game..." << std::endl;
+  std::cout << "Please enter player name: ";
+  std::string playerName;
+  std::getline(std::cin, playerName);
+  addPlayer(playerName);
+  viewPlayers();
+}
+
+void GameEngine::runGame() {
+	// Main game loop
+	while (!isGameOver()) {
+		std::string command;
+		std::cout
+			<< "Enter command or type 'MANUAL' to view possible commands: ";
+		std::getline(std::cin, command);
+		GameEngine::command(command);
+	}
+}
+
 void GameEngine::changeState(State* newState) {
 	if (currentState) {
 		delete currentState; // Clean up the old state
 	}
 	currentState = newState;
-	std::cout << "Changed state to: " << getCurrentStateName() << std::endl;
 }
 
 void GameEngine::addPlayer(const std::string &playerName) {
 	Player* newPlayer = new Player(playerName);
 	players[numPlayers++] = *newPlayer;
 	std::cout << "Added player: " << playerName << std::endl;
+}
+
+void GameEngine::removePlayer(const std::string &playerName) {
+  for (int i = 0; i < numPlayers; ++i) {
+    if (players[i].getName() == playerName) {
+      // Shift players down to fill the gap
+      for (int j = i; j < numPlayers - 1; ++j) {
+        players[j] = players[j + 1];
+      }
+      --numPlayers;
+      std::cout << "Removed player: " << playerName << std::endl;
+      return;
+    }
+  }
+  std::cout << "Player not found: " << playerName << std::endl;
+}
+
+void GameEngine::viewPlayers() const {
+  std::cout << "Current players in the game:" << std::endl;
+  for (int i = 0; i < numPlayers; ++i) {
+    std::cout << "- " << players[i].getName() << std::endl;
+  }
 }
 
 bool GameEngine::isGameOver() const {
