@@ -23,41 +23,97 @@ std::string State::getName() const {
 //---------------------------GameEngine-------------------------------
 
 GameEngine::GameEngine()
-	: currentState(new State("Start")),
-	  currentMap(new MapLoader("../../res/World.map")), currentPlayer(nullptr) {
-}
+	: currentState(new State("SETUP")), currentMap(nullptr),
+	  currentPlayer(nullptr) {}
 
 GameEngine::GameEngine(const GameEngine &other)
-  : currentState(new State(*other.currentState)),
-    players(other.players), currentPlayer(other.currentPlayer),
-    currentMap(new MapLoader(*other.currentMap)) {}
+	: currentState(new State(*other.currentState)), players(other.players),
+	  currentPlayer(other.currentPlayer),
+	  currentMap(new MapLoader(*other.currentMap)) {}
 
 GameEngine &GameEngine::operator=(const GameEngine &other) {
-  if (this != &other) {
-    delete currentState;
-    delete currentMap;
-    currentState = new State(*other.currentState);
-    players = other.players;
-    currentPlayer = other.currentPlayer;
-    currentMap = new MapLoader(*other.currentMap);
-  }
-  return *this;
+	if (this != &other) {
+		delete currentState;
+		delete currentMap;
+		currentState = new State(*other.currentState);
+		players = other.players;
+		currentPlayer = other.currentPlayer;
+		currentMap = new MapLoader(*other.currentMap);
+	}
+	return *this;
 }
 
 GameEngine::~GameEngine() {
-  delete currentState;
-  delete currentMap;
-  players.clear();
-  currentPlayer = nullptr;
+	delete currentState;
+	delete currentMap;
+	players.clear();
+	currentPlayer = nullptr;
 }
 
 void GameEngine::command(const std::string &command) {
 	if (currentState) {
 		// split the command by space character and then store into an array
 		std::vector<std::string> splitCommand = splitString(command, ' ');
-		if (splitCommand[0] == "MANUAL") {
+		// ---------- SETUP STATE COMMANDS ----------
+		if (currentState->getName() == "SETUP") {
+			if (splitCommand[0] == "MANUAL") {
+				std::cout
+					<< "\n------- SETUP MANUAL -------\nPossible commands:\n"
+					<< "LOADMAP <filename> (.map file/DEFAULT for World.map)\n"
+					<< "ADDPLAYER <playername>\n"
+					<< "START\n"
+					<< "QUIT\n"
+					<< std::endl;
+			} else if (splitCommand[0] == "LOADMAP") {
+				namespace fs = std::filesystem;
+				fs::path currentPath = fs::current_path();
+				fs::path mapPath;
+
+				if (splitCommand.size() < 2) {
+					std::cout
+						<< "Error: No filename provided for LOADMAP command."
+						<< std::endl;
+					return;
+				}
+
+				if (splitCommand[1] == "DEFAULT") {
+					mapPath = currentPath / "res" / "World.map";
+				} else {
+					mapPath = currentPath / "res" / splitCommand[1];
+				}
+
+				if (!fs::exists(mapPath)) {
+					std::cout << "Error: Map file does not exist at " << mapPath
+							  << std::endl;
+					return;
+				}
+
+				delete currentMap;
+				currentMap = new MapLoader(mapPath.string());
+				currentMap->loadMap();
+			} else if (splitCommand[0] == "ADDPLAYER") {
+				addPlayer(splitCommand[1]); // add player function call
+			} else if (splitCommand[0] == "START") {
+				if (currentMap && players.size() >= 2) {
+					std::cout << "Starting the game..." << std::endl;
+					changeState(new State("ASSIGNREINFORCEMENTS"));
+				} else {
+					std::cout
+						<< "\nCannot start game. Ensure map is loaded and "
+						   "at least two players are added."
+						<< std::endl;
+				}
+			} else if (splitCommand[0] == "QUIT") {
+				std::cout << "Quitting the game setup." << std::endl;
+				changeState(new State("END"));
+			} else {
+				std::cout << "Unknown command in SETUP state: " << command
+						  << std::endl;
+			}
+			// ---------- ASSIGNREINFORCEMENTS STATE COMMANDS ----------
+		} else if (splitCommand[0] == "MANUAL") {
 			std::cout << "Possible commands:\n"
-					  << "startup commands:\n"
+					  << "startup  commands:\n"
 					  << "LOADMAP <filename>\n"
 					  << "ADDPLAYER <playername>\n"
 					  << "\nplay commands:\n"
@@ -124,21 +180,39 @@ void GameEngine::command(const std::string &command) {
 }
 
 void GameEngine::setupGame() {
-	// Initial game setup logic
 	std::cout << "Setting up the game..." << std::endl;
-	std::cout << "Please enter player name: ";
-	std::string playerName;
-	std::getline(std::cin, playerName);
-	addPlayer(playerName);
-	viewPlayers();
+	while (currentState->getName() == "SETUP") {
+
+		std::cout << "\nSETUP GAME REQUIREMENTS:\n - Map filename\n - Players "
+					 "(minimum 2)\n - type START to begin\n - type MANUAL for "
+					 "SETUP commands.\n";
+		std::string command;
+		std::getline(std::cin, command);
+		this->command(command);
+
+		viewSetupDetails();
+	}
+}
+
+void GameEngine::viewSetupDetails() const {
+	std::cout << "Current Game Details:\n";
+	if (currentMap) {
+		std::cout << "- Map: " << currentMapPath << std::endl;
+	} else {
+		std::cout << "- Map: Not loaded" << std::endl;
+	}
+	std::cout << "- Players (" << players.size() << "): ";
+	for (const auto &player : players) {
+		std::cout << player.getName() << ", ";
+	}
+	std::cout << std::endl;
 }
 
 void GameEngine::runGame() {
 	// Main game loop
 	while (!isGameOver()) {
 		std::string command;
-		std::cout
-			<< "Enter command or type 'MANUAL' to view possible commands: ";
+		std::cout << "Enter command or type 'MANUAL' to view commands:\n";
 		std::getline(std::cin, command);
 		GameEngine::command(command);
 	}
@@ -152,10 +226,9 @@ void GameEngine::changeState(State* newState) {
 }
 
 void GameEngine::addPlayer(const std::string &playerName) {
-  std::cout << "Inside add players: " << std::endl;
 	Player* newPlayer = new Player(playerName);
 	players.push_back(*newPlayer);
-  delete newPlayer;
+	delete newPlayer;
 	std::cout << "Added player: " << playerName << std::endl;
 }
 
@@ -176,8 +249,8 @@ void GameEngine::removePlayer(const std::string &playerName) {
 void GameEngine::viewPlayers() const {
 	std::cout << "Current players in the game:" << std::endl;
 	for (int i = 0; i < players.size(); ++i) {
-    std::cout << "- " << players[i].getName() << std::endl;
-  }
+		std::cout << "- " << players[i].getName() << std::endl;
+	}
 }
 
 bool GameEngine::isGameOver() const {

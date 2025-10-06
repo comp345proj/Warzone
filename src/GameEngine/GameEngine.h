@@ -2,6 +2,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <filesystem>
 #include <Map/MapLoader.h>
 #include <Player/Player.h>
 #include "Map/MapLoader.h"
@@ -25,15 +26,12 @@ class State {
   private:
 	std::string name;
 	/* State Name possibilites:
-	 * Start
-	 * MapLoaded
-	 * MapValidated
-	 * PlayersAdded
-	 * AssignReinforcement
-	 * IssueOrders
-	 * ExecuteOrders
-	 * Win
-	 * End
+	 * SETUP (MapLoaded, MapValidated, PlayersAdded)
+	 * ASSIGNREINFORCEMENTS
+	 * ISSUEORDERS
+	 * EXECUTEORDERS
+	 * WIN
+	 * END
 	 */
   std::string currentPlayerTurn; // name of the player whose turn it is
 };
@@ -48,6 +46,7 @@ class GameEngine {
 	~GameEngine();
 
   void setupGame();
+  void viewSetupDetails() const;
   void runGame();
 
 	void command(const std::string &command);
@@ -57,6 +56,7 @@ class GameEngine {
 	 * startup commands:
 	 * LOADMAP <filename>
 	 * ADDPLAYER <playername>
+   * START - starts the game if map is loaded and at least two players are added
 	 *
 	 * play commands:
 	 * STARTDEPLOYMENT <# of armies> <target territory>
@@ -97,4 +97,5 @@ class GameEngine {
   std::vector<Player> players; // array of players
   Player* currentPlayer; // player whose turn it is
   MapLoader* currentMap;
+  std::string currentMapPath; // path to the current map file
 };
