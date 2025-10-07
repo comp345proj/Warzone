@@ -1,6 +1,6 @@
 #pragma once
-#include "Map/MapLoader.h"
 #include "Map/Map.h"
+#include "Map/MapLoader.h"
 #include "Utils/Utils.h"
 #include <Player/Player.h>
 #include <filesystem>
@@ -17,16 +17,13 @@ class GameEngine;
 class State {
   public:
 	State(const std::string &state);
-  State(const std::string &state, const std::string &subState);
+	State(const std::string &state, const std::string &subState);
 	State(const State &other);			  // Copy constructor
 	State &operator=(const State &other); // Assignment operator
 	~State();
 
 	std::string getState() const;
-  void setState(const std::string &newState);
-
-	std::string getSubState() const;
-  void setSubState(const std::string &newSubState);
+	void setState(const std::string &newState);
 
 	std::string getCurrentPlayerTurn() const;
 	void setCurrentPlayerTurn(const std::string &playerName);
@@ -34,18 +31,27 @@ class State {
   private:
 	std::string state;
 	/* State Name possibilites:
-	 * STARTUP (MapLoaded, MapValidated, PlayersAdded)
-	 * PLAY
-	 * (substates of PLAY)
-	 *  - Reinforcement
-	 *  - IssueOrders
-	 *  - ExecuteOrders
-	 *  - WIN
-	 * END
+	 * Start
+	 * MapLoaded
+	 * MapValidated
+	 * PlayersAdded
+	 * AssignReinforcement
+	 * Win
+	 * Exit
+	 *  - IssueOrders (maybe?)
+	 *  - ExecuteOrders (maybe?)
 	 */
-	std::string subState;		   // name of the substate if any
 	std::string currentPlayerTurn; // name of the player whose turn it is
 };
+
+/*--StateTransitionLogic-----------------------------
+* LOADMAP <filename> - valid in: (Start, MapLoaded) - transitions to: (MapLoaded)
+* VALIDATEMAP - valid in: (MapLoaded) - transitions to: (MapValidated)
+* ADDPLAYER <playername> - valid in: (PlayersAdded) - transitions to: (PlayersAdded)
+* START - valid in: (PlayersAdded) - transitions to: (AssignReinforcement)
+* REPLAY - valid in: (Win) - transitions to: (Start)
+* QUIT - valid in: (any state) - transitions to: (Exit)
+*/
 
 //---------------------------GameEngine-------------------------------
 
@@ -56,23 +62,24 @@ class GameEngine {
 	GameEngine &operator=(const GameEngine &other); // Assignment operator
 	~GameEngine();
 
-  void command(const std::string &command);
+	void command(const std::string &command);
 	/*
-	 * COMMANDS:
+	 * COMMANDS (tentative list):
 	 * MANUAL - Display STARTUP/PLAY MANUAL
-	 * STARTUP commands:
-	 * 
+	 * STATE - Display current state
 	 * LOADMAP <filename>
+	 * VALIDATEMAP
 	 * ADDPLAYER <playername>
-	 * START - starts the game if map is loaded and at least two players are
-	 * added
-	 *
-	 * PLAY commands:
+	 * START
+	 * REPLAY
+	 * QUIT
 	 * 
+	 * 
+	 * (Possible commands for later assignments)//////////////////////////
 	 * Reinforcement commands:
 	 * 	DEPLOY <# of armies> <owned territory>
 	 *  ENDDEPLOY
-	 * 
+	 *
 	 * IssueOrders commands:
 	 * 	DEPLOY <# of armies> <source territory> <target territory>
 	 * 	USECARD <card type> <location>
@@ -83,26 +90,22 @@ class GameEngine {
 	 * 		ex// USECARD DIPLOMACY <player name>
 	 * 	DRAWCARD
 	 * 	VIEWHAND
-   * 	VIEWMAP
+	 * 	VIEWMAP
 	 * 	VIEWPLAYERS
 	 * 	VIEWORDERS
 	 * 	MOVEORDERS <order index> <new index>
 	 * 	EXECUTEORDERS
-   * 
-	 * QUIT (Available in both STARTUP and PLAY states)
+	 * //////////////////////////////////////////////////////////////////////
 	 */
 
+	std::string getState();
+	void setState(const std::string &newState);
+
 	void startupGame();
-	void viewstartupDetails() const;
-  void addPlayer(const std::string &playerName);
-	void removePlayer(const std::string &playerName);
+	void addPlayer(const std::string &playerName);
 
-  void assignTerritories();
-  void assignReinforcement();
-
-	void issueOrders();
-	void executeOrders();
-  void viewPlayers() const;
+	void assignTerritories();
+	void assignReinforcement();
 
 	void runGame();
 
@@ -112,10 +115,10 @@ class GameEngine {
 	bool isGameOver() const;
 
   private:
-	State* currentState;
-	std::vector<Player> players; // array of players
-	Player* currentPlayer;		 // player whose turn it is
-  Map* currentMap;
+	State* state;
+	std::vector<Player> players;
+	Player* currentPlayer;
+	Map* currentMap;
 	MapLoader* mapLoader;
-	std::string currentMapPath; // path to the current map file
+	std::string currentMapPath;
 };
