@@ -1,4 +1,5 @@
 #include "GameEngine.h"
+#include <algorithm>
 
 //---------------------------State-------------------------------
 
@@ -142,55 +143,91 @@ void GameEngine::command(const std::string &command) {
 			}
 			// ---------- ASSIGNREINFORCEMENTS STATE COMMANDS ----------
 		} else if (currentState->getState() == "PLAY") {
-			if (splitCommand[0] == "MANUAL") {
-				std::cout
-					<< "------- PLAY MANUAL -------\nPossible commands:\n"
-					<< "DEPLOY <# of armies> <source territory> <target "
-					   "territory>\n"
-					<< "ATTACK <# of armies> <source territory> <target "
-					   "territory>\n"
-					<< "USECARD <card type> <location>\n"
-					<< "  ex// USECARD BOMB <territory name>\n"
-					<< "  ex// USECARD REINFORCEMENT <territory name>\n"
-					<< "  ex// USECARD BLOCKADE <territory name>\n"
-					<< "  ex// USECARD AIRLIFT <source territory> <target "
-					   "territory>\n"
-					<< "  ex// USECARD DIPLOMACY <player name>\n"
-					<< "DRAWCARD\n"
-					<< "VIEWHAND\n"
-					<< "VIEWMAP\n"
-					<< "VIEWPLAYERS\n"
-					<< "VIEWORDERS\n"
-					<< "MOVEORDERS\n"
-					<< "REMOVEORDER <order index>\n"
-					<< "EXECUTEORDERS\n"
-					<< "QUIT\n";
-			} else if (splitCommand[0] == "DEPLOY") {
-				// deploy soldiers to given map territory as orders
-			} else if (splitCommand[0] == "ATTACK") {
-				// attack given map territory as orders
-			} else if (splitCommand[0] == "USECARD") {
-				// use a card from player's hand as orders
-			} else if (splitCommand[0] == "DRAWCARD") {
-				// draw a card from the deck to player's hand
-			} else if (splitCommand[0] == "VIEWHAND") {
-				// view player's hand
-			} else if (splitCommand[0] == "VIEWORDERS") {
-				// view player's current orders
-			} else if (splitCommand[0] == "MOVEORDERS") {
-				// move an order to a different index in the player's order list
-			} else if (splitCommand[0] == "REMOVEORDER") {
-				// remove an order from the player's order list
-			} else if (splitCommand[0] == "EXECUTEORDERS") {
-				// execute all orders in the player's order list
-			} else if (splitCommand[0] == "QUIT") {
-				// quit the game
-			} else if (splitCommand[0] == "SHOWMAP") {
-				// show the current map
-			} else if (splitCommand[0] == "SHOWPLAYERS") {
-				// show all players in the game
-			} else {
-				std::cout << "Unknown command: " << command << std::endl;
+			if (currentState->getSubState() == "Reinforcement") {
+				if (splitCommand[0] == "MANUAL") {
+					std::cout << "------- REINFORCEMENT MANUAL "
+								 "-------\nPossible commands:\n"
+							  << "DEPLOY <# of armies> <owned territory>\n"
+							  << "ENDDEPLOY\n"
+							  << "QUIT\n";
+				} else if (splitCommand[0] == "DEPLOY") {
+					// deploy soldiers to given map territory of player
+					int deployAmount = std::stoi(splitCommand[1]);
+					std::string territoryName = splitCommand[2];
+					// Check if currentPlayer owns the territory
+					bool ownsTerritory = false;
+					for (Territory* territory :
+						 currentPlayer->getTerritories()) {
+						if (territory->getName() == territoryName) {
+							ownsTerritory = true;
+							int currentArmies = territory->getNbOfArmies();
+							territory->setNbOfArmies(currentArmies +
+													 deployAmount);
+							std::cout << "Deployed " << deployAmount
+									  << " armies to " << territoryName
+									  << std::endl;
+							break;
+						}
+					}
+				} else if (splitCommand[0] == "QUIT") {
+					std::cout << "Quitting the game." << std::endl;
+					currentState->setState("END");
+				} else {
+					std::cout << "Unknown command: " << command << std::endl;
+				}
+			} else if (currentState->getSubState() == "IssueOrders") {
+				if (splitCommand[0] == "MANUAL") {
+					std::cout
+						<< "------- ISSUE ORDERS MANUAL -------\nPossible "
+						   "commands:\n"
+						<< "DEPLOY <# of armies> <source territory> <target "
+						   "territory>\n"
+						<< "ATTACK <# of armies> <source territory> <target "
+						   "territory>\n"
+						<< "USECARD <card type> <location>\n"
+						<< "  ex// USECARD BOMB <territory name>\n"
+						<< "  ex// USECARD REINFORCEMENT <territory name>\n"
+						<< "  ex// USECARD BLOCKADE <territory name>\n"
+						<< "  ex// USECARD AIRLIFT <source territory> <target "
+						   "territory>\n"
+						<< "  ex// USECARD DIPLOMACY <player name>\n"
+						<< "DRAWCARD\n"
+						<< "VIEWHAND\n"
+						<< "VIEWMAP\n"
+						<< "VIEWPLAYERS\n"
+						<< "VIEWORDERS\n"
+						<< "MOVEORDERS\n"
+						<< "REMOVEORDER <order index>\n"
+						<< "EXECUTEORDERS\n"
+						<< "QUIT\n";
+				} else if (splitCommand[0] == "DEPLOY") {
+					// deploy soldiers to given map territory as orders
+				} else if (splitCommand[0] == "ATTACK") {
+					// attack given map territory as orders
+				} else if (splitCommand[0] == "USECARD") {
+					// use a card from player's hand as orders
+				} else if (splitCommand[0] == "DRAWCARD") {
+					// draw a card from the deck to player's hand
+				} else if (splitCommand[0] == "VIEWHAND") {
+					// view player's hand
+				} else if (splitCommand[0] == "VIEWORDERS") {
+					// view player's current orders
+				} else if (splitCommand[0] == "VIEWMAP") {
+					// view the current map
+				} else if (splitCommand[0] == "VIEWPLAYERS") {
+					viewPlayers(); // view all players in the game
+				} else if (splitCommand[0] == "MOVEORDERS") {
+					// move an order to a different index in the player's order
+					// list
+				} else if (splitCommand[0] == "REMOVEORDER") {
+					// remove an order from the player's order list
+				} else if (splitCommand[0] == "EXECUTEORDERS") {
+					// execute all orders in the player's order list
+				} else if (splitCommand[0] == "QUIT") {
+					// quit the game
+				} else {
+					std::cout << "Unknown command: " << command << std::endl;
+				}
 			}
 		}
 	}
@@ -276,24 +313,62 @@ void GameEngine::assignTerritories() {
 		// randomly assign territories to players
 		std::random_device rd;
 		std::mt19937 gen(rd());
+		std::shuffle(allTerritories.begin(), allTerritories.end(), gen);
 
-		for (Player player : players) {
-			if (allTerritories.empty()) {
-				break; // No more territories to assign
-			}
-			std::uniform_int_distribution<> distr(0, allTerritories.size() - 1);
-			int randomIndex = distr(gen);
-			Territory* selectedTerritory = allTerritories[randomIndex];
-			player.addTerritory(selectedTerritory);
-			std::cout << "Assigned territory " << selectedTerritory->getName()
-					  << " to player " << player.getName() << std::endl;
-			allTerritories.erase(allTerritories.begin() + randomIndex);
+		int numPlayers = players.size();
+		size_t assignments =
+			std::min((size_t)numPlayers, allTerritories.size());
+		for (size_t i = 0; i < assignments; ++i) {
+			Territory* territory = allTerritories[i];
+			Player &currentPlayerRef = players[i];
+			currentPlayerRef.addTerritory(territory);
+			std::cout << "Assigned territory " << territory->getName()
+					  << " to player " << currentPlayerRef.getName()
+					  << std::endl;
 		}
+		std::cout << "Territory assignment complete." << std::endl;
 	}
 }
 
-void GameEngine::assignReinforcement(){
-  // assign reinforcements to current player based on owned territories and assign number
+void GameEngine::assignReinforcement() {
+	currentState->setSubState("Reinforcement");
+	bool assigningReinforcements = true;
+	int deployableArmies = 5;
+	while (assigningReinforcements) {
+		std::cout << "\nReinforce your territories with 5 armies" << std::endl;
+		std::cout << "Your territories are: " << std::endl;
+		for (Territory* territory : currentPlayer->getTerritories()) {
+			std::cout << "- " << territory->getName() << " ("
+					  << territory->getNbOfArmies() << ")" << std::endl;
+		}
+		std::cout << "Deployable armies left: " << deployableArmies
+				  << std::endl;
+		std::cout << "(DEPLOY <# of armies> <territory>)" << std::endl;
+		std::cout << "Enter command ENDDEPLOY to finish deployment"
+				  << std::endl;
+
+		std::string command;
+		std::getline(std::cin, command);
+		std::vector<std::string> splitCommand = splitString(command, ' ');
+		if (splitCommand[0] == "MANUAL") {
+			this->command("MANUAL");
+		} else if (splitCommand[0] == "DEPLOY") {
+			int deployAmount = std::stoi(splitCommand[1]);
+			if (deployAmount <= deployableArmies && deployAmount > 0) {
+				this->command(command);
+				deployableArmies -= deployAmount;
+			} else {
+				std::cout << "Invalid deploy amount. You have "
+						  << deployableArmies << " armies left to deploy."
+						  << std::endl;
+			}
+		} else if (splitCommand[0] == "ENDDEPLOY") {
+			assigningReinforcements = false;
+			currentState->setSubState("IssueOrders");
+		} else {
+			std::cout << "Unknown command: " << command << std::endl;
+		}
+	}
 }
 
 void GameEngine::viewPlayers() const {
@@ -318,8 +393,8 @@ void GameEngine::runGame() {
 			while (playerTurn) {
 				assignReinforcement();
 				// issueOrders();
-				// executeOrders();
-				//  Check for win condition after each turn
+				//  executeOrders();
+				//   Check for win condition after each turn
 			}
 		}
 	}

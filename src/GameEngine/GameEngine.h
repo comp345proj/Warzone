@@ -61,28 +61,35 @@ class GameEngine {
 	 * COMMANDS:
 	 * MANUAL - Display STARTUP/PLAY MANUAL
 	 * STARTUP commands:
+	 * 
 	 * LOADMAP <filename>
 	 * ADDPLAYER <playername>
 	 * START - starts the game if map is loaded and at least two players are
 	 * added
 	 *
 	 * PLAY commands:
-	 * DEPLOY <# of armies> <source territory> <target territory>
-	 * ATTACK <# of armies> <source territory> <target territory>
-	 * USECARD <card type> <location>
-	 * ex// USECARD BOMB <territory name>
-	 * ex// USECARD REINFORCEMENT <territory name>
-	 * ex// USECARD BLOCKADE <territory name>
-	 * ex// USECARD AIRLIFT <source territory> <target territory>
-	 * ex// USECARD DIPLOMACY <player name>
-	 * DRAWCARD
-	 * VIEWHAND
-   * VIEWMAP
-	 * VIEWPLAYERS
-	 * VIEWORDERS
-	 * MOVEORDERS
-	 * REMOVEORDER <order index>
-	 * EXECUTEORDERS
+	 * 
+	 * Reinforcement commands:
+	 * 	DEPLOY <# of armies> <owned territory>
+	 *  ENDDEPLOY
+	 * 
+	 * IssueOrders commands:
+	 * 	DEPLOY <# of armies> <source territory> <target territory>
+	 * 	ATTACK <# of armies> <source territory> <target territory>
+	 * 	USECARD <card type> <location>
+	 * 		ex// USECARD BOMB <territory name>
+	 * 		ex// USECARD REINFORCEMENT <territory name>
+	 * 		ex// USECARD BLOCKADE <territory name>
+	 * 		ex// USECARD AIRLIFT <source territory> <target territory>
+	 * 		ex// USECARD DIPLOMACY <player name>
+	 * 	DRAWCARD
+	 * 	VIEWHAND
+   * 	VIEWMAP
+	 * 	VIEWPLAYERS
+	 * 	VIEWORDERS
+	 * 	MOVEORDERS
+	 * 	REMOVEORDER <order index>
+	 * 	EXECUTEORDERS
    * 
 	 * QUIT (Available in both STARTUP and PLAY states)
 	 */
