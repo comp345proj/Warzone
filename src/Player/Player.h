@@ -12,6 +12,12 @@ class Hand;
 class Deck;
 
 class Player {
+  private:
+	std::string* name;
+	std::vector<Territory*> territories; // Owned territories
+	std::unique_ptr<Hand> hand;			 // Player's hand of cards
+	std::vector<Order*> ordersList;		 // List of orders
+	
   public:
 	Player(const std::string &name, Hand* hand = nullptr);
 	Player(const Player &other);			// Copy constructor
@@ -47,10 +53,4 @@ class Player {
 	const std::string &getName() const;
 
 	friend std::ostream &operator<<(std::ostream &os, const Player &player);
-
-  private:
-	std::string name;
-	std::vector<Territory*> territories; // Owned territories
-	std::unique_ptr<Hand> hand;			 // Player's hand of cards
-	std::vector<Order*> ordersList;		 // List of orders
 };
