@@ -55,6 +55,7 @@ class OrdersList {
 
   public:
 	OrdersList();
+	OrdersList(const OrdersList& other);
 	~OrdersList();
 
 	// List management methods

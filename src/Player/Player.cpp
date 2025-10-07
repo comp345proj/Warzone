@@ -11,7 +11,7 @@ Player::Player(const std::string &name, Hand* hand)
 Player::Player(const Player &copiedPlayer)
 	: name(new std::string(*copiedPlayer.name)), territories(copiedPlayer.territories),
 	  hand(std::make_unique<Hand>(*copiedPlayer.hand)),
-	  ordersList(copiedPlayer.ordersList) {}
+	  ordersList(new OrdersList(*copiedPlayer.ordersList)) {}
 
 // Copy assignment (deep copy)
 Player &Player::operator=(const Player &other) {
@@ -77,11 +77,11 @@ void Player::setHand(Hand* newHand) {
 // Order management
 void Player::addOrder(Order* order) {
 	if (order) {
-		ordersList.push_back(order);
+		ordersList->add(order);
 	}
 }
 
-const std::vector<Order*> &Player::getOrders() const {
+OrdersList* Player::getOrders() const {
 	return ordersList;
 }
 
@@ -107,6 +107,6 @@ std::ostream &operator<<(std::ostream &os, const Player &player) {
 	os << "Player: " << *player.name << "\n";
 	os << "Territories owned: " << player.territories.size() << "\n";
 	os << "Cards in hand: " << player.hand->getCards().size() << "\n";
-	os << "Orders issued: " << player.ordersList.size();
+	os << "Orders issued: " << player.ordersList->getOrders().size() << "\n";
 	return os;
 }
