@@ -1,40 +1,76 @@
 #include "GameEngine.h"
 #include <algorithm>
+using std::cin;
+
+std::string gameStateTypeToString(CommandType state) {
+    switch (state) {
+        case CommandType::START:
+            return "START";
+        case CommandType::MAP_LOADED:
+            return "MAP_LOADED";
+        case CommandType::MAP_VALIDATED:
+            return "MAP_VALIDATED";
+        case CommandType::PLAYERS_ADDED:
+            return "PLAYERS_ADDED";
+        case CommandType::ASSIGN_REINFORCEMENT:
+            return "ASSIGN_REINFORCEMENT";
+        case CommandType::ISSUE_ORDERS:
+            return "ISSUE_ORDERS";
+        case CommandType::EXECUTE_ORDERS:
+            return "EXECUTE_ORDERS";
+        case CommandType::WIN:
+            return "WIN";
+        case CommandType::END:
+            return "END";
+        default:
+            return "UNKNOWN";
+    }
+}
+
+void printInvalidCommandError()
+{
+    std::cout << "\nInvalid Command entered..." << std::endl;
+};
 
 //---------------------------State-------------------------------
 
 // Constructors, destructor, copy constructor, assignment operator
-State::State(const std::string &state) : state(state), currentPlayerTurn("") {}
+State::State(const std::string &state) : state(new std::string(state)), currentPlayerTurn(new std::string()) {}
 State::State(const std::string &state, const std::string &subState)
-	: state(state), currentPlayerTurn("") {}
+	: state(new std::string(state)), currentPlayerTurn(new std::string(subState)) {}
 State::State(const State &other)
-	: state(other.state), currentPlayerTurn(other.currentPlayerTurn) {}
+	: state(new std::string(*other.state)), currentPlayerTurn(new std::string(*other.currentPlayerTurn)) {}
 
 State &State::operator=(const State &other) {
 	if (this != &other) {
-		state = other.state;
-		currentPlayerTurn = other.currentPlayerTurn;
+		delete state;
+		delete currentPlayerTurn;
+		state = new std::string(*other.state);
+		currentPlayerTurn = new std::string(*other.currentPlayerTurn);
 	}
 	return *this;
 }
 
-State::~State() = default;
+State::~State() {
+	delete state;
+	delete currentPlayerTurn;
+}
 
 // Getters and setters
 std::string State::getState() const {
-	return state;
+	return *state;
 }
 
 void State::setState(const std::string &newState) {
-	state = newState;
+	*state = newState;
 }
 
 std::string State::getCurrentPlayerTurn() const {
-	return currentPlayerTurn;
+	return *currentPlayerTurn;
 }
 
 void State::setCurrentPlayerTurn(const std::string &playerName) {
-	currentPlayerTurn = playerName;
+	*currentPlayerTurn = playerName;
 }
 
 //---------------------------GameEngine-------------------------------
@@ -42,7 +78,7 @@ void State::setCurrentPlayerTurn(const std::string &playerName) {
 // Constructors, destructor, copy constructor, assignment operator
 GameEngine::GameEngine()
 	: state(new State("Start")), currentMap(nullptr), mapLoader(nullptr),
-	  currentMapPath(""), currentPlayer(nullptr) {}
+	  currentMapPath(new std::string()), currentPlayer(nullptr) {}
 
 GameEngine::GameEngine(const GameEngine &other)
 	: state(new State(*other.state)), players(other.players),
@@ -107,7 +143,7 @@ void GameEngine::command(const std::string &command) {
 			fs::path currentPath = fs::current_path();
 			fs::path mapPath;
 
-			currentMapPath =
+			*currentMapPath = 
 				(splitCommand[1] != "DEFAULT" || splitCommand[1] != "default")
 					? "res/" + splitCommand[1]
 					: "res/World.map";
@@ -210,7 +246,7 @@ void GameEngine::command(const std::string &command) {
 /// @param playerName
 void GameEngine::addPlayer(const std::string &playerName) {
 	Player* newPlayer = new Player(playerName);
-	players.push_back(*newPlayer);
+	players.push_back(newPlayer);
 	delete newPlayer;
 	std::cout << "Added player: " << playerName << std::endl;
 }

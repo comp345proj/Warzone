@@ -11,6 +11,15 @@ void testGameStates() {
 		GameEngine* game = new GameEngine();
 		std::cout << "Created Game Engine Instance" << std::endl;
 
+		while (true){
+			std::cout << "\n* Please enter a command: ";
+			std::string command;
+			std::getline(std::cin, command);
+
+			game->command(command);
+		}
+
+		/*
 		// Test opening state
 		std::cout << "\nTesting Opening State:" << std::endl;
 		game->command("STATE");
@@ -70,7 +79,7 @@ void testGameStates() {
 		game->command("QUIT");
 		std::cout << "Is Game Over Function check: " << game->isGameOver() << std::endl;
 		std::cout << "State Before: " << stateBefore << "\nState After: " << game->getState() << std::endl;
-
+		*/
 		// Clean up
 		delete game;
 

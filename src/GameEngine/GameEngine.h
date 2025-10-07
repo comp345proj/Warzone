@@ -7,14 +7,55 @@
 #include <iostream>
 #include <string>
 #include <vector>
-
 // forward declarations
 class State;
 class GameEngine;
 
+
+enum class CommandType
+{
+    START,
+    MAP_LOADED,
+    MAP_VALIDATED,
+    PLAYERS_ADDED,
+    ASSIGN_REINFORCEMENT,
+    ISSUE_ORDERS,
+    EXECUTE_ORDERS,
+    WIN,
+    END
+};
+
+
+// enum class CommandType {
+// 	LOADMAP,
+// 	VALIDATEMAP,
+// 	START,
+// 	REPLAY,
+// 	ADDPLAYER,
+// 	GAMESTART,
+// 	QUIT,
+// };
+
+std::string gameStateTypeToString(CommandType state);
+void printInvalidCommandError();
 //----------------------------State-------------------------------
 
 class State {
+  private:
+	std::string* state;
+	/* State Name possibilites:
+	 * Start
+	 * MapLoaded
+	 * MapValidated
+	 * PlayersAdded
+	 * AssignReinforcement
+	 * Win
+	 * Exit
+	 *  - IssueOrders (maybe?)
+	 *  - ExecuteOrders (maybe?)
+	 */
+	std::string* currentPlayerTurn; // name of the player whose turn it is
+
   public:
 	State(const std::string &state);
 	State(const std::string &state, const std::string &subState);
@@ -27,21 +68,7 @@ class State {
 
 	std::string getCurrentPlayerTurn() const;
 	void setCurrentPlayerTurn(const std::string &playerName);
-
-  private:
-	std::string state;
-	/* State Name possibilites:
-	 * Start
-	 * MapLoaded
-	 * MapValidated
-	 * PlayersAdded
-	 * AssignReinforcement
-	 * Win
-	 * Exit
-	 *  - IssueOrders (maybe?)
-	 *  - ExecuteOrders (maybe?)
-	 */
-	std::string currentPlayerTurn; // name of the player whose turn it is
+	friend std::ostream &operator<<(std::ostream &out, const State &state);
 };
 
 /*--StateTransitionLogic-----------------------------
@@ -56,6 +83,14 @@ class State {
 //---------------------------GameEngine-------------------------------
 
 class GameEngine {
+  private:
+	State* state;
+	std::vector<Player*> players;
+	Player* currentPlayer;
+	Map* currentMap;
+	MapLoader* mapLoader;
+	std::string* currentMapPath;
+
   public:
 	GameEngine();
 	GameEngine(const GameEngine &other);			// Copy constructor
@@ -83,12 +118,4 @@ class GameEngine {
 									const GameEngine &gameEngine);
 
 	bool isGameOver() const;
-
-  private:
-	State* state;
-	std::vector<Player> players;
-	Player* currentPlayer;
-	Map* currentMap;
-	MapLoader* mapLoader;
-	std::string currentMapPath;
 };
