@@ -24,6 +24,12 @@ enum class CardType {
 
 // Card class
 class Card {
+  private:
+	CardType type;
+
+	// Helper to create appropriate order based on card type
+	Order* createOrder() const;
+
   public:
 	Card(CardType type);
 	virtual ~Card();
@@ -39,16 +45,13 @@ class Card {
 
 	// Stream insertion operator
 	friend std::ostream &operator<<(std::ostream &os, const Card &card);
-
-  private:
-	CardType type;
-
-	// Helper to create appropriate order based on card type
-	Order* createOrder() const;
 };
 
 // Hand class to manage a player's cards
 class Hand {
+  private:
+	std::vector<Card*> cards;
+	
   public:
 	Hand();
 	~Hand();
@@ -62,13 +65,14 @@ class Hand {
 
 	// Stream insertion operator
 	friend std::ostream &operator<<(std::ostream &os, const Hand &hand);
-
-  private:
-	std::vector<Card*> cards;
 };
 
 // Deck class to manage all cards
 class Deck {
+  private:
+	std::vector<Card*> cards;
+	std::default_random_engine rng; // Random number generator
+
   public:
 	Deck();
 	~Deck();
@@ -87,10 +91,6 @@ class Deck {
 
 	// Stream insertion operator
 	friend std::ostream &operator<<(std::ostream &os, const Deck &deck);
-
-  private:
-	std::vector<Card*> cards;
-	std::default_random_engine rng; // Random number generator
 };
 
 // Stream insertion operators declarations
