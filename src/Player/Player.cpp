@@ -5,13 +5,22 @@
 
 Player::Player(const std::string &name, Hand* hand)
 	: name(new std::string(name)),
-	  hand(hand ? std::make_unique<Hand>(*hand) : std::make_unique<Hand>()) {}
+			hand(hand ? std::make_unique<Hand>(*hand) : std::make_unique<Hand>()) {
+		// Ensure ordersList is initialized
+		ordersList = new OrdersList();
+}
 
 // Copy constructor (deep copy)
 Player::Player(const Player &copiedPlayer)
 	: name(new std::string(*copiedPlayer.name)), territories(copiedPlayer.territories),
-	  hand(std::make_unique<Hand>(*copiedPlayer.hand)),
-	  ordersList(new OrdersList(*copiedPlayer.ordersList)) {}
+	  hand(std::make_unique<Hand>(*copiedPlayer.hand)) {
+	// Deep copy ordersList if present
+	if (copiedPlayer.ordersList) {
+		ordersList = new OrdersList(*copiedPlayer.ordersList);
+	} else {
+		ordersList = new OrdersList();
+	}
+}
 
 // Copy assignment (deep copy)
 Player &Player::operator=(const Player &other) {
@@ -20,7 +29,16 @@ Player &Player::operator=(const Player &other) {
 		name = new std::string(*other.name);
 		territories = other.territories;
 		hand = std::make_unique<Hand>(*other.hand);
-		ordersList = other.ordersList;
+		// Deep copy other's ordersList
+		if (ordersList) {
+			delete ordersList;
+			ordersList = nullptr;
+		}
+		if (other.ordersList) {
+			ordersList = new OrdersList(*other.ordersList);
+		} else {
+			ordersList = new OrdersList();
+		}
 	}
 	return *this;
 }
@@ -28,6 +46,10 @@ Player &Player::operator=(const Player &other) {
 // Destructor (no manual delete needed)
 Player::~Player() {
 	delete name;
+	if (ordersList) {
+		delete ordersList;
+		ordersList = nullptr;
+	}
 }
 
 // Territory management

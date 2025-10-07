@@ -17,7 +17,7 @@ class Player {
 	std::string* name;
 	std::vector<Territory*> territories; // Owned territories
 	std::unique_ptr<Hand> hand;			 // Player's hand of cards
-	OrdersList* ordersList;		 // List of orders
+	OrdersList* ordersList = nullptr;		 // List of orders
 	
   public:
 	Player(const std::string &name, Hand* hand = nullptr);
