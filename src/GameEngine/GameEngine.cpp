@@ -182,8 +182,6 @@ void GameEngine::command(const std::string &command) {
 						   "commands:\n"
 						<< "DEPLOY <# of armies> <source territory> <target "
 						   "territory>\n"
-						<< "ATTACK <# of armies> <source territory> <target "
-						   "territory>\n"
 						<< "USECARD <card type> <location>\n"
 						<< "  ex// USECARD BOMB <territory name>\n"
 						<< "  ex// USECARD REINFORCEMENT <territory name>\n"
@@ -202,29 +200,41 @@ void GameEngine::command(const std::string &command) {
 						<< "QUIT\n";
 				} else if (splitCommand[0] == "DEPLOY") {
 					// deploy soldiers to given map territory as orders
-				} else if (splitCommand[0] == "ATTACK") {
-					// attack given map territory as orders
 				} else if (splitCommand[0] == "USECARD") {
 					// use a card from player's hand as orders
 				} else if (splitCommand[0] == "DRAWCARD") {
 					// draw a card from the deck to player's hand
 				} else if (splitCommand[0] == "VIEWHAND") {
 					// view player's hand
+					std::cout << "\n"
+							  << currentPlayer->getName() << "'s Hand:\n";
+					for (int i = 0;
+						 i < currentPlayer->getHand()->getCards().size(); i++) {
+						std::cout << i + 1 << ". "
+								  << *(currentPlayer->getHand()->getCards()[i])
+								  << std::endl;
+					}
 				} else if (splitCommand[0] == "VIEWORDERS") {
 					// view player's current orders
+					std::cout << "\n"
+							  << currentPlayer->getName()
+							  << "'s Orders List:\n";
+					for (int i = 0; i < currentPlayer->getOrders().size();
+						 i++) {
+						std::cout << i + 1 << ". "
+								  << *(currentPlayer->getOrders()[i])
+								  << std::endl;
+					}
 				} else if (splitCommand[0] == "VIEWMAP") {
 					// view the current map
 				} else if (splitCommand[0] == "VIEWPLAYERS") {
 					viewPlayers(); // view all players in the game
 				} else if (splitCommand[0] == "MOVEORDERS") {
 					// move an order to a different index in the player's order
-					// list
-				} else if (splitCommand[0] == "REMOVEORDER") {
-					// remove an order from the player's order list
-				} else if (splitCommand[0] == "EXECUTEORDERS") {
-					// execute all orders in the player's order list
 				} else if (splitCommand[0] == "QUIT") {
 					// quit the game
+					std::cout << "Quitting the game." << std::endl;
+					currentState->setState("END");
 				} else {
 					std::cout << "Unknown command: " << command << std::endl;
 				}
@@ -232,6 +242,7 @@ void GameEngine::command(const std::string &command) {
 		}
 	}
 }
+
 
 void GameEngine::startupGame() {
 	currentState->setSubState("MapLoaded");
@@ -371,6 +382,31 @@ void GameEngine::assignReinforcement() {
 	}
 }
 
+void GameEngine::issueOrders() {
+	currentState->setSubState("IssueOrders");
+	bool issuingOrders = true;
+	while (issuingOrders) {
+		std::cout << "\nYou can now issue orders." << std::endl;
+		std::cout << "Type MANUAL for list of commands." << std::endl;
+		std::string command;
+		std::getline(std::cin, command);
+		std::vector<std::string> splitCommand = splitString(command, ' ');
+		if (splitCommand[0] == "EXECUTEORDERS") {
+			issuingOrders = false;
+		} else {
+			this->command(command);
+		}
+	}
+}
+
+void GameEngine::executeOrders() {
+	currentState->setSubState("ExecuteOrders");
+	std::cout << "\nExecuting orders for " << currentPlayer->getName() << "..."
+			  << std::endl;
+	// Execute all orders for the current player
+	currentPlayer->getOrders();
+}
+
 void GameEngine::viewPlayers() const {
 	std::cout << "Current players in the game:" << std::endl;
 	for (int i = 0; i < players.size(); ++i) {
@@ -388,14 +424,10 @@ void GameEngine::runGame() {
 			currentState->setCurrentPlayerTurn(currentPlayer->getName());
 			std::cout << "\nIt's " << currentPlayer->getName() << "'s turn."
 					  << std::endl;
-			bool playerTurn = true;
-			// Player turn loop
-			while (playerTurn) {
-				assignReinforcement();
-				// issueOrders();
-				//  executeOrders();
-				//   Check for win condition after each turn
-			}
+			assignReinforcement();
+			issueOrders();
+			executeOrders();
+			// Check for win condition after each turn
 		}
 	}
 }
