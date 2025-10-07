@@ -3,6 +3,7 @@
 
 //---------------------------State-------------------------------
 
+// Constructors, destructor, copy constructor, assignment operator
 State::State(const std::string &state) : state(state), currentPlayerTurn("") {}
 State::State(const std::string &state, const std::string &subState)
 	: state(state), currentPlayerTurn("") {}
@@ -19,6 +20,7 @@ State &State::operator=(const State &other) {
 
 State::~State() = default;
 
+// Getters and setters
 std::string State::getState() const {
 	return state;
 }
@@ -37,6 +39,7 @@ void State::setCurrentPlayerTurn(const std::string &playerName) {
 
 //---------------------------GameEngine-------------------------------
 
+// Constructors, destructor, copy constructor, assignment operator
 GameEngine::GameEngine()
 	: state(new State("Start")), currentMap(nullptr), mapLoader(nullptr),
 	  currentMapPath(""), currentPlayer(nullptr) {}
@@ -67,6 +70,7 @@ GameEngine::~GameEngine() {
 	currentPlayer = nullptr;
 }
 
+// Getters and setters
 std::string GameEngine::getState() {
 	return state->getState();
 }
@@ -74,17 +78,19 @@ void GameEngine::setState(const std::string &newState) {
 	state->setState(newState);
 }
 
+/// @brief Primitive command function to handle user input
+/// @param command
 void GameEngine::command(const std::string &command) {
-	// split the command by space character and then store into an array
 	std::vector<std::string> splitCommand = splitString(command, ' ');
+	// Helper State Command
 	if (splitCommand[0] == "STATE") {
 		std::cout << "Current State: " << state->getState();
 		if (!state->getCurrentPlayerTurn().empty()) {
-			std::cout << " | Current Player: "
-					  << state->getCurrentPlayerTurn();
+			std::cout << " | Current Player: " << state->getCurrentPlayerTurn();
 		}
 		std::cout << std::endl;
 		return;
+		// Helper Manual Command
 	} else if (splitCommand[0] == "MANUAL") {
 		std::cout << "\n------- MANUAL -------\n"
 				  << "LOADMAP <filename> (.map file/DEFAULT for World.map)\n"
@@ -92,23 +98,18 @@ void GameEngine::command(const std::string &command) {
 				  << "ADDPLAYER <playername>\n"
 				  << "START\n"
 				  << "REPLAY\n"
-				  << "QUIT\n"
-				  << std::endl;
+				  << "QUIT" << std::endl;
+		// Load Map Command
 	} else if (splitCommand[0] == "LOADMAP") {
-		if (state->getState() == "Start" ||
-			state->getState() == "MapLoaded") {
+		if (state->getState() == "Start" || state->getState() == "MapLoaded") {
+			// read .map from res/ directory
 			namespace fs = std::filesystem;
 			fs::path currentPath = fs::current_path();
 			fs::path mapPath;
 
-			if (splitCommand.size() < 2) {
-				std::cout << "Error: No filename provided for LOADMAP command."
-						  << std::endl;
-				return;
-			}
-			currentMapPath = splitCommand[1] == "DEFAULT"
-								 ? "res/World.map"
-								 : "res/" + splitCommand[1];
+			currentMapPath = splitCommand[1] != "DEFAULT"
+								 ? "res/" + splitCommand[1]
+								 : "res/World.map";
 
 			if (splitCommand[1] == "DEFAULT") {
 				mapPath = currentPath / "res" / "World.map";
@@ -133,49 +134,76 @@ void GameEngine::command(const std::string &command) {
 					  << std::endl;
 			return;
 		}
-	} else if (splitCommand[0] == "ADDPLAYER") {
-		addPlayer(splitCommand[1]);
-	} else if (splitCommand[0] == "START") {
-		if (currentMap && players.size() >= 2) {
-			std::cout << "Starting the game..." << std::endl;
-			state->setState("PLAY");
+		// Validate Map Command
+	} else if (splitCommand[0] == "VALIDATEMAP") {
+		if (state->getState() == "MapLoaded") {
+			if (currentMap) {
+				if (currentMap->validate()) {
+					std::cout << "Map is valid." << std::endl;
+					state->setState("MapValidated");
+				} else {
+					std::cout << "Map is invalid." << std::endl;
+				}
+			} else {
+				std::cout << "Error: No map loaded to validate." << std::endl;
+			}
 		} else {
-			std::cout << "\nCannot start game. Ensure map is loaded and "
-						 "at least two players are added."
+			std::cout << "Error: VALIDATEMAP command is only valid in "
+						 "MapLoaded state."
+					  << std::endl;
+			return;
+		}
+		// Add Player Command
+	} else if (splitCommand[0] == "ADDPLAYER") {
+		if (state->getState() == "MapValidated" ||
+			state->getState() == "PlayersAdded") {
+			addPlayer(splitCommand[1]);
+			state->setState("PlayersAdded");
+		} else {
+			std::cout << "Error: ADDPLAYER command is only valid in "
+						 "MapValidated or PlayersAdded state."
+					  << std::endl;
+			return;
+		}
+		// Start Game Command
+	} else if (splitCommand[0] == "GAMESTART") {
+		if (state->getState() == "PlayersAdded") {
+			if (currentMap && players.size() >= 2) {
+				std::cout << "Starting the game..." << std::endl;
+				state->setState("AssignReinforcement");
+			} else {
+				std::cout << "\nCannot start game. Ensure map is loaded and "
+							 "at least two players are added."
+						  << std::endl;
+			}
+		}
+		// Replay Command
+	} else if (splitCommand[0] == "REPLAY") {
+		if (state->getState() == "Win") {
+			std::cout << "Replaying the game from the beginning..."
+					  << std::endl;
+			state->setState("Start");
+		} else {
+			std::cout << "Error: REPLAY command is only valid in Win state."
 					  << std::endl;
 		}
-	} else if (splitCommand[0] == "REPLAY") {
-		std::cout << "Replaying the game from the beginning..." << std::endl;
+		// Quit Command
 	} else if (splitCommand[0] == "QUIT") {
-		std::cout << "Quitting the game startup." << std::endl;
-		state->setState("END");
+		if (state->getState() == "Win") {
+			std::cout << "Quitting the game startup." << std::endl;
+			state->setState("End");
+		} else {
+			std::cout << "Error: QUIT command is only valid in Win state."
+					  << std::endl;
+		}
 	} else {
-		std::cout << "Unknown command in startup state: " << command
-				  << std::endl;
+		std::cout << "Error: Unknown command." << std::endl;
+		return;
 	}
 }
 
-void GameEngine::startupGame() {
-	std::cout << "Setting up the game..." << std::endl;
-	std::cout << "Please enter map filename (or type DEFAULT for World.map): ";
-	std::string mapFilename;
-	std::getline(std::cin, mapFilename);
-	this->command("LOADMAP " + mapFilename);
-	currentMapPath =
-		mapFilename == "DEFAULT" ? "res/World.map" : "res/" + mapFilename;
-	std::cout << "Now you may add players or change the map." << std::endl;
-	while (state->getState() == "Start") {
-		std::cout
-			<< "\nSTARTUP GAME REQUIREMENTS:\n - Map filename\n - Players "
-			   "(minimum 2)\n - type START to begin\n - type MANUAL for "
-			   "startup commands.\n";
-		std::string command;
-		std::getline(std::cin, command);
-		this->command(command);
-	}
-	assignTerritories();
-}
-
+/// @brief Function which pushes a new player to the players vector
+/// @param playerName
 void GameEngine::addPlayer(const std::string &playerName) {
 	Player* newPlayer = new Player(playerName);
 	players.push_back(*newPlayer);
@@ -183,6 +211,7 @@ void GameEngine::addPlayer(const std::string &playerName) {
 	std::cout << "Added player: " << playerName << std::endl;
 }
 
+/* Unnecessary for A1 */
 void GameEngine::assignTerritories() {
 	if (currentMap && players.size() >= 2) {
 		std::cout << "\nAssigning territories to players..." << std::endl;
@@ -220,8 +249,32 @@ void GameEngine::assignTerritories() {
 	}
 }
 
+/* Unnecessary for A1 */
 void GameEngine::assignReinforcement() {}
 
+/* Unnecessary for A1 */
+void GameEngine::startupGame() {
+	std::cout << "Setting up the game..." << std::endl;
+	std::cout << "Please enter map filename (or type DEFAULT for World.map): ";
+	std::string mapFilename;
+	std::getline(std::cin, mapFilename);
+	this->command("LOADMAP " + mapFilename);
+	currentMapPath =
+		mapFilename == "DEFAULT" ? "res/World.map" : "res/" + mapFilename;
+	std::cout << "Now you may add players or change the map." << std::endl;
+	while (state->getState() == "Start") {
+		std::cout
+			<< "\nSTARTUP GAME REQUIREMENTS:\n - Map filename\n - Players "
+			   "(minimum 2)\n - type START to begin\n - type MANUAL for "
+			   "startup commands.\n";
+		std::string command;
+		std::getline(std::cin, command);
+		this->command(command);
+	}
+	assignTerritories();
+}
+
+/* Unnecessary for A1 */
 void GameEngine::runGame() {
 	startupGame();
 	// Main game loop
@@ -238,7 +291,8 @@ void GameEngine::runGame() {
 	}
 }
 
+/// @brief Function which checks if the game is over based on state
+/// @return
 bool GameEngine::isGameOver() const {
-	return state->getState() == "Win" ||
-		   state->getState() == "End";
+	return state->getState() == "End";
 }
