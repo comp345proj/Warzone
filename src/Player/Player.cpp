@@ -81,7 +81,7 @@ void Player::addOrder(Order* order) {
 	}
 }
 
-OrdersList* Player::getOrders() const {
+OrdersList* Player::getOrdersList() const {
 	return ordersList;
 }
 

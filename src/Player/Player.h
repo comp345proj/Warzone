@@ -51,7 +51,7 @@ class Player {
 
 	// Getters
 	const std::string &getName() const;
-	OrdersList* getOrders() const;
+	OrdersList* getOrdersList() const;
 
 	friend std::ostream &operator<<(std::ostream &os, const Player &player);
 };
