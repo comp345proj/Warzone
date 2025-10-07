@@ -45,13 +45,13 @@ class State {
 };
 
 /*--StateTransitionLogic-----------------------------
-* LOADMAP <filename> - valid in: (Start, MapLoaded) - transitions to: (MapLoaded)
-* VALIDATEMAP - valid in: (MapLoaded) - transitions to: (MapValidated)
-* ADDPLAYER <playername> - valid in: (PlayersAdded) - transitions to: (PlayersAdded)
-* START - valid in: (PlayersAdded) - transitions to: (AssignReinforcement)
-* REPLAY - valid in: (Win) - transitions to: (Start)
-* QUIT - valid in: (any state) - transitions to: (Exit)
-*/
+ * LOADMAP <filename> - valid in: (Start, MapLoaded) - transitions to:
+ * (MapLoaded) VALIDATEMAP - valid in: (MapLoaded) - transitions to:
+ * (MapValidated) ADDPLAYER <playername> - valid in: (PlayersAdded) -
+ * transitions to: (PlayersAdded) START - valid in: (PlayersAdded) - transitions
+ * to: (AssignReinforcement) REPLAY - valid in: (Win) - transitions to: (Start)
+ * QUIT - valid in: (any state) - transitions to: (Exit)
+ */
 
 //---------------------------GameEngine-------------------------------
 
@@ -64,50 +64,20 @@ class GameEngine {
 
 	void command(const std::string &command);
 	/*
-	 * COMMANDS (tentative list):
-	 * MANUAL - Display STARTUP/PLAY MANUAL
-	 * STATE - Display current state
+	 * COMMANDS:
+	 * STATE
+	 * MANUAL
 	 * LOADMAP <filename>
 	 * VALIDATEMAP
 	 * ADDPLAYER <playername>
-	 * START
+	 * GAMESTART
 	 * REPLAY
 	 * QUIT
-	 * 
-	 * 
-	 * (Possible commands for later assignments)//////////////////////////
-	 * Reinforcement commands:
-	 * 	DEPLOY <# of armies> <owned territory>
-	 *  ENDDEPLOY
-	 *
-	 * IssueOrders commands:
-	 * 	DEPLOY <# of armies> <source territory> <target territory>
-	 * 	USECARD <card type> <location>
-	 * 		ex// USECARD BOMB <territory name>
-	 * 		ex// USECARD REINFORCEMENT <territory name>
-	 * 		ex// USECARD BLOCKADE <territory name>
-	 * 		ex// USECARD AIRLIFT <source territory> <target territory>
-	 * 		ex// USECARD DIPLOMACY <player name>
-	 * 	DRAWCARD
-	 * 	VIEWHAND
-	 * 	VIEWMAP
-	 * 	VIEWPLAYERS
-	 * 	VIEWORDERS
-	 * 	MOVEORDERS <order index> <new index>
-	 * 	EXECUTEORDERS
-	 * //////////////////////////////////////////////////////////////////////
 	 */
 
 	std::string getState();
 	void setState(const std::string &newState);
-
-	void startupGame();
 	void addPlayer(const std::string &playerName);
-
-	void assignTerritories();
-	void assignReinforcement();
-
-	void runGame();
 
 	friend std::ostream &operator<<(std::ostream &output,
 									const GameEngine &gameEngine);

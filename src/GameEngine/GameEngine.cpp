@@ -91,7 +91,7 @@ void GameEngine::command(const std::string &command) {
 		std::cout << std::endl;
 		return;
 		// Helper Manual Command
-	} else if (splitCommand[0] == "MANUAL") {
+	} else if (splitCommand[0] == "MANUAL" || splitCommand[0] == "manual") {
 		std::cout << "\n------- MANUAL -------\n"
 				  << "LOADMAP <filename> (.map file/DEFAULT for World.map)\n"
 				  << "VALIDATEMAP\n"
@@ -100,18 +100,19 @@ void GameEngine::command(const std::string &command) {
 				  << "REPLAY\n"
 				  << "QUIT" << std::endl;
 		// Load Map Command
-	} else if (splitCommand[0] == "LOADMAP") {
+	} else if (splitCommand[0] == "LOADMAP" || splitCommand[0] == "loadmap") {
 		if (state->getState() == "Start" || state->getState() == "MapLoaded") {
 			// read .map from res/ directory
 			namespace fs = std::filesystem;
 			fs::path currentPath = fs::current_path();
 			fs::path mapPath;
 
-			currentMapPath = splitCommand[1] != "DEFAULT"
-								 ? "res/" + splitCommand[1]
-								 : "res/World.map";
+			currentMapPath =
+				(splitCommand[1] != "DEFAULT" || splitCommand[1] != "default")
+					? "res/" + splitCommand[1]
+					: "res/World.map";
 
-			if (splitCommand[1] == "DEFAULT") {
+			if (splitCommand[1] == "DEFAULT" || splitCommand[1] == "default") {
 				mapPath = currentPath / "res" / "World.map";
 			} else {
 				mapPath = currentPath / "res" / splitCommand[1];
@@ -135,7 +136,8 @@ void GameEngine::command(const std::string &command) {
 			return;
 		}
 		// Validate Map Command
-	} else if (splitCommand[0] == "VALIDATEMAP") {
+	} else if (splitCommand[0] == "VALIDATEMAP" ||
+			   splitCommand[0] == "validatemap") {
 		if (state->getState() == "MapLoaded") {
 			if (currentMap) {
 				if (currentMap->validate()) {
@@ -154,7 +156,8 @@ void GameEngine::command(const std::string &command) {
 			return;
 		}
 		// Add Player Command
-	} else if (splitCommand[0] == "ADDPLAYER") {
+	} else if (splitCommand[0] == "ADDPLAYER" ||
+			   splitCommand[0] == "addplayer") {
 		if (state->getState() == "MapValidated" ||
 			state->getState() == "PlayersAdded") {
 			addPlayer(splitCommand[1]);
@@ -166,7 +169,8 @@ void GameEngine::command(const std::string &command) {
 			return;
 		}
 		// Start Game Command
-	} else if (splitCommand[0] == "GAMESTART") {
+	} else if (splitCommand[0] == "GAMESTART" ||
+			   splitCommand[0] == "gamestart") {
 		if (state->getState() == "PlayersAdded") {
 			if (currentMap && players.size() >= 2) {
 				std::cout << "Starting the game..." << std::endl;
@@ -178,7 +182,7 @@ void GameEngine::command(const std::string &command) {
 			}
 		}
 		// Replay Command
-	} else if (splitCommand[0] == "REPLAY") {
+	} else if (splitCommand[0] == "REPLAY" || splitCommand[0] == "replay") {
 		if (state->getState() == "Win") {
 			std::cout << "Replaying the game from the beginning..."
 					  << std::endl;
@@ -188,7 +192,7 @@ void GameEngine::command(const std::string &command) {
 					  << std::endl;
 		}
 		// Quit Command
-	} else if (splitCommand[0] == "QUIT") {
+	} else if (splitCommand[0] == "QUIT" || splitCommand[0] == "quit") {
 		if (state->getState() == "Win") {
 			std::cout << "Quitting the game startup." << std::endl;
 			state->setState("End");
@@ -209,86 +213,6 @@ void GameEngine::addPlayer(const std::string &playerName) {
 	players.push_back(*newPlayer);
 	delete newPlayer;
 	std::cout << "Added player: " << playerName << std::endl;
-}
-
-/* Unnecessary for A1 */
-void GameEngine::assignTerritories() {
-	if (currentMap && players.size() >= 2) {
-		std::cout << "\nAssigning territories to players..." << std::endl;
-		// assign random territory to players
-		std::vector<Territory*> allTerritories;
-		for (Continent* continent : currentMap->getContinents()) {
-			for (Territory* territory : continent->getTerritories()) {
-				allTerritories.push_back(territory);
-			}
-		}
-
-		if (allTerritories.empty()) {
-			std::cout << "No territories available on the map to assign."
-					  << std::endl;
-			return;
-		}
-
-		// randomly assign territories to players
-		std::random_device rd;
-		std::mt19937 gen(rd());
-		std::shuffle(allTerritories.begin(), allTerritories.end(), gen);
-
-		int numPlayers = players.size();
-		size_t assignments =
-			std::min((size_t)numPlayers, allTerritories.size());
-		for (size_t i = 0; i < assignments; ++i) {
-			Territory* territory = allTerritories[i];
-			Player &currentPlayerRef = players[i];
-			currentPlayerRef.addTerritory(territory);
-			std::cout << "Assigned territory " << territory->getName()
-					  << " to player " << currentPlayerRef.getName()
-					  << std::endl;
-		}
-		std::cout << "Territory assignment complete." << std::endl;
-	}
-}
-
-/* Unnecessary for A1 */
-void GameEngine::assignReinforcement() {}
-
-/* Unnecessary for A1 */
-void GameEngine::startupGame() {
-	std::cout << "Setting up the game..." << std::endl;
-	std::cout << "Please enter map filename (or type DEFAULT for World.map): ";
-	std::string mapFilename;
-	std::getline(std::cin, mapFilename);
-	this->command("LOADMAP " + mapFilename);
-	currentMapPath =
-		mapFilename == "DEFAULT" ? "res/World.map" : "res/" + mapFilename;
-	std::cout << "Now you may add players or change the map." << std::endl;
-	while (state->getState() == "Start") {
-		std::cout
-			<< "\nSTARTUP GAME REQUIREMENTS:\n - Map filename\n - Players "
-			   "(minimum 2)\n - type START to begin\n - type MANUAL for "
-			   "startup commands.\n";
-		std::string command;
-		std::getline(std::cin, command);
-		this->command(command);
-	}
-	assignTerritories();
-}
-
-/* Unnecessary for A1 */
-void GameEngine::runGame() {
-	startupGame();
-	// Main game loop
-	while (!isGameOver()) {
-		// Player turn rotation
-		for (int i = 0; i < players.size(); ++i) {
-			currentPlayer = &players[i];
-			state->setCurrentPlayerTurn(currentPlayer->getName());
-			std::cout << "\nIt's " << currentPlayer->getName() << "'s turn."
-					  << std::endl;
-			assignReinforcement();
-			// Check for win condition after each turn
-		}
-	}
 }
 
 /// @brief Function which checks if the game is over based on state
