@@ -16,6 +16,7 @@ class Map;
 
 class Territory {
   private:
+  	Player* player;
 	std::string* name;
 	IntPtr x, y; // Coordinates on the map
 	IntPtr nbOfArmies;
@@ -38,6 +39,8 @@ class Territory {
 
 	const std::vector<Territory*> &getAdjacentTerritories() const;
 
+	Player* getPlayer();
+  
 	// Setters
 	void setName(const std::string &newName);
 
@@ -48,6 +51,8 @@ class Territory {
 	void setNbOfArmies(int nb);
 
 	void addAdjacentTerritory(Territory* t);
+
+	void setPlayer(Player*);
 };
 
 class Continent {
