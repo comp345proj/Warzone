@@ -8,6 +8,7 @@
 Card::Card(CardType type) : type(type) {}
 Card::~Card() = default;
 
+// Make order based on card type
 Order* Card::createOrder() const {
 	switch (type) {
 	case CardType::BOMB:
@@ -25,6 +26,7 @@ Order* Card::createOrder() const {
 	}
 }
 
+// Plays a card, creates corresponding order, and returns card to deck atomically
 void Card::play(Player* player, Deck* deck) {
 	if (!player || !deck) {
 		std::cout << "Invalid player or deck" << std::endl;

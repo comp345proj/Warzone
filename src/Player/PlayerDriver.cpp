@@ -49,6 +49,7 @@ void testPlayers() {
         // Test issueOrder(), which is playing a card
         std::cout << "\nTesting issueOrder():" << std::endl;
 
+		// Pick the last card in hand to play
         player.issueOrder(player.getCards().back(), &deck);
         std::cout << "Orders in list: " << player.getOrdersList()->getOrders().size() << std::endl;
 
