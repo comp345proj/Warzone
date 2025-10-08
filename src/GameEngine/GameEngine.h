@@ -7,53 +7,50 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <map>
 // forward declarations
 class State;
 class GameEngine;
 
 
-enum class CommandType
-{
-    START,
-    MAP_LOADED,
-    MAP_VALIDATED,
-    PLAYERS_ADDED,
-    ASSIGN_REINFORCEMENT,
-    ISSUE_ORDERS,
-    EXECUTE_ORDERS,
-    WIN,
-    END
+enum class StateType {
+	START,
+	MAP_LOADED,
+	MAP_VALIDATED,
+	PLAYERS_ADDED,
+	ASSIGN_REINFORCEMENT,
+	ISSUE_ORDERS,
+	EXECUTE_ORDERS,
+	WIN,
+};
+
+enum class CommandType {
+	// START,
+	LOAD_MAP,
+	VALIDATE_MAP,
+	ADD_PLAYER,
+	ASSIGN_COUNTRIES,
+	ISSUE_ORDER,
+	END_ISSUE_ORDERS,
+	EXECUTE_ORDER,
+	END_EXECUTE_ORDERS,
+	WIN,
+	END,
+	PLAY,
 };
 
 
-// enum class CommandType {
-// 	LOADMAP,
-// 	VALIDATEMAP,
-// 	START,
-// 	REPLAY,
-// 	ADDPLAYER,
-// 	GAMESTART,
-// 	QUIT,
-// };
 
-std::string gameStateTypeToString(CommandType state);
+std::string commandTypeToString(CommandType state);
 void printInvalidCommandError();
+
+std::string stateTypeToString(StateType state);
+
 //----------------------------State-------------------------------
 
 class State {
   private:
 	std::string* state;
-	/* State Name possibilites:
-	 * Start
-	 * MapLoaded
-	 * MapValidated
-	 * PlayersAdded
-	 * AssignReinforcement
-	 * Win
-	 * Exit
-	 *  - IssueOrders (maybe?)
-	 *  - ExecuteOrders (maybe?)
-	 */
 	std::string* currentPlayerTurn; // name of the player whose turn it is
 
   public:
@@ -90,6 +87,7 @@ class GameEngine {
 	Map* currentMap;
 	MapLoader* mapLoader;
 	std::string* currentMapPath;
+	std::map<StateType, std::vector<CommandType>> validCommands;
 
   public:
 	GameEngine();
@@ -98,17 +96,6 @@ class GameEngine {
 	~GameEngine();
 
 	void command(const std::string &command);
-	/*
-	 * COMMANDS:
-	 * STATE
-	 * MANUAL
-	 * LOADMAP <filename>
-	 * VALIDATEMAP
-	 * ADDPLAYER <playername>
-	 * GAMESTART
-	 * REPLAY
-	 * QUIT
-	 */
 
 	std::string getState();
 	void setState(const std::string &newState);
@@ -118,4 +105,7 @@ class GameEngine {
 									const GameEngine &gameEngine);
 
 	bool isGameOver() const;
+
+	std::map<StateType, std::vector<CommandType>> getValidCommands() const;
+	std::map<StateType, std::vector<CommandType>> setValidCommands() const;
 };
