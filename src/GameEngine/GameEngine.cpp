@@ -52,10 +52,28 @@ std::string stateTypeToString(StateType state)
 	}
 }
 
-void printInvalidCommandError()
-{
-    std::cout << "\nInvalid Command entered..." << std::endl;
-};
+void printInvalidCommandError() {
+	std::cout << "\nInvalid Command entered..." << std::endl;
+}
+
+void printInvalidCommandError(
+	StateType currentState,
+	CommandType commandType,
+	std::map<StateType, std::vector<CommandType>> validCommands
+) {
+	const auto &validCommandsForState = validCommands[currentState];
+	if (std::find(validCommandsForState.begin(), validCommandsForState.end(),
+				  commandType) == validCommandsForState.end()) {
+		std::cout << "\nInvalid command '" << commandTypeToString(commandType)
+				  << "' for current state: " << stateTypeToString(currentState) << std::endl;
+
+		// Display available commands
+		std::cout << "Available commands in current state:" << std::endl;
+		for (const auto &cmd : validCommandsForState) {
+			std::cout << "  - " << commandTypeToString(cmd) << std::endl;
+		}
+	}
+}
 
 //---------------------------State-------------------------------
 
@@ -168,7 +186,7 @@ void GameEngine::setState(const std::string &newState) {
 /// @param command
 void GameEngine::command(const std::string &command) {
     std::vector<std::string> splitCommand = splitString(command, ' ');
-    if (splitCommand.empty()) {
+	if (splitCommand.empty()) {
         printInvalidCommandError();
         return;
     }
@@ -207,15 +225,8 @@ void GameEngine::command(const std::string &command) {
     else if (cmd == "END") commandType = CommandType::END;
     else {
         printInvalidCommandError();
-        return;
-    }
-
-    // Check if command is valid for current state
-    const auto& validCommandsForState = validCommands[currentState];
-    if (std::find(validCommandsForState.begin(), validCommandsForState.end(), commandType) == validCommandsForState.end()) {
-        std::cout << "\nInvalid command '" << commandTypeToString(commandType) 
-                 << "' for current state: " << state->getState() << std::endl;
-        return;
+		// Check if command is valid for current state
+		return;
     }
 
     // Handle each command type
@@ -397,10 +408,28 @@ void GameEngine::command(const std::string &command) {
             break;
         }
     }
+
+	// Display available commands for current state
+	std::cout << "\nAvailable commands in current state ("
+			  << stateTypeToString(currentState) << "):" << std::endl;
+
+	for (const auto &cmd : validCommands[currentState]) {
+		std::cout << "  - " << commandTypeToString(cmd) << std::endl;
+	}
 }
 
 /// @brief Function which checks if the game is over based on state
 /// @return
 bool GameEngine::isGameOver() const {
 	return state->getState() == "END";
+}
+
+std::map<StateType, std::vector<CommandType>> GameEngine::getValidCommands() const {
+    return validCommands;
+}
+
+void GameEngine::addPlayer(const std::string& playerName) {
+    Player* newPlayer = new Player(playerName);
+    players.push_back(newPlayer);
+	std::cout << "Player added: " << playerName << std::endl;
 }

@@ -43,6 +43,8 @@ enum class CommandType {
 
 std::string commandTypeToString(CommandType state);
 void printInvalidCommandError();
+void printInvalidCommandError(StateType currentState, CommandType commandType,
+	std::map<StateType, std::vector<CommandType>> validCommands);
 
 std::string stateTypeToString(StateType state);
 
@@ -101,12 +103,10 @@ class GameEngine {
 
 	std::string getState();
 	void setState(const std::string &newState);
-	void addPlayer(const std::string &playerName);
 
 	friend std::ostream &operator<<(std::ostream &output,
 									const GameEngine &gameEngine);
 
-	bool isGameOver() const;
 
 	std::map<StateType, std::vector<CommandType>> getValidCommands() const;
 	std::map<StateType, std::vector<CommandType>> setValidCommands() const;
