@@ -78,34 +78,29 @@ void printInvalidCommandError(
 //---------------------------State-------------------------------
 
 // Constructors, destructor, copy constructor, assignment operator
-State::State(const std::string &state) : state(new std::string(state)), currentPlayerTurn(new std::string()) {}
-State::State(const std::string &state, const std::string &subState)
-	: state(new std::string(state)), currentPlayerTurn(new std::string(subState)) {}
+State::State(StateType state) : state(state) {}
 State::State(const State &other)
-	: state(new std::string(*other.state)), currentPlayerTurn(new std::string(*other.currentPlayerTurn)) {}
+	: state(other.state), currentPlayerTurn(other.currentPlayerTurn) {}
 
 State &State::operator=(const State &other) {
 	if (this != &other) {
-		delete state;
-		delete currentPlayerTurn;
-		state = new std::string(*other.state);
-		currentPlayerTurn = new std::string(*other.currentPlayerTurn);
+		state = other.state;
+		currentPlayerTurn = other.currentPlayerTurn;
 	}
 	return *this;
 }
 
 State::~State() {
-	delete state;
 	delete currentPlayerTurn;
 }
 
 // Getters and setters
-std::string State::getState() const {
-	return *state;
+StateType State::getState() const {
+	return state;
 }
 
-void State::setState(const std::string &newState) {
-	*state = newState;
+void State::setState(StateType newState) {
+	state = newState;
 }
 
 std::string State::getCurrentPlayerTurn() const {
@@ -120,7 +115,7 @@ void State::setCurrentPlayerTurn(const std::string &playerName) {
 
 // Constructors, destructor, copy constructor, assignment operator
 GameEngine::GameEngine()
-	: state(new State("START")), currentMap(nullptr), mapLoader(nullptr),
+	: state(new State(StateType::START)), currentMap(nullptr), mapLoader(nullptr),
 	  currentMapPath(new std::string()), currentPlayer(nullptr), validCommands({
 		  {StateType::START, 
 			{CommandType::LOAD_MAP}},
@@ -175,10 +170,10 @@ GameEngine::~GameEngine() {
 }
 
 // Getters and setters
-std::string GameEngine::getState() {
+StateType GameEngine::getState() {
 	return state->getState();
 }
-void GameEngine::setState(const std::string &newState) {
+void GameEngine::setState(StateType newState) {
 	state->setState(newState);
 }
 
@@ -197,14 +192,14 @@ void GameEngine::command(const std::string &command) {
 
     // Convert current state string to StateType enum for validation
     StateType currentState;
-    if (state->getState() == "START") currentState = StateType::START;
-    else if (state->getState() == "MAP_LOADED") currentState = StateType::MAP_LOADED;
-    else if (state->getState() == "MAP_VALIDATED") currentState = StateType::MAP_VALIDATED;
-    else if (state->getState() == "PLAYERS_ADDED") currentState = StateType::PLAYERS_ADDED;
-    else if (state->getState() == "ASSIGN_REINFORCEMENT") currentState = StateType::ASSIGN_REINFORCEMENT;
-    else if (state->getState() == "ISSUE_ORDERS") currentState = StateType::ISSUE_ORDERS;
-    else if (state->getState() == "EXECUTE_ORDERS") currentState = StateType::EXECUTE_ORDERS;
-    else if (state->getState() == "WIN") currentState = StateType::WIN;
+    if (state->getState() == StateType::START) currentState = StateType::START;
+    else if (state->getState() == StateType::MAP_LOADED) currentState = StateType::MAP_LOADED;
+    else if (state->getState() == StateType::MAP_VALIDATED) currentState = StateType::MAP_VALIDATED;
+    else if (state->getState() == StateType::PLAYERS_ADDED) currentState = StateType::PLAYERS_ADDED;
+    else if (state->getState() == StateType::ASSIGN_REINFORCEMENT) currentState = StateType::ASSIGN_REINFORCEMENT;
+    else if (state->getState() == StateType::ISSUE_ORDERS) currentState = StateType::ISSUE_ORDERS;
+    else if (state->getState() == StateType::EXECUTE_ORDERS) currentState = StateType::EXECUTE_ORDERS;
+    else if (state->getState() == StateType::WIN) currentState = StateType::WIN;
     else {
         printInvalidCommandError();
         return;
@@ -244,7 +239,7 @@ void GameEngine::command(const std::string &command) {
                 mapLoader = new MapLoader(mapPath.string());
                 currentMap = mapLoader->loadMap();
                 if (currentMap != nullptr) {
-                    state->setState("MAP_LOADED");
+                    state->setState(StateType::MAP_LOADED);
                     std::cout << "Map loaded successfully: " << mapName << std::endl;
                 } else {
                     std::cout << "Failed to load map: " << mapName << std::endl;
@@ -257,7 +252,7 @@ void GameEngine::command(const std::string &command) {
 
         case CommandType::VALIDATE_MAP: {
             if (currentMap != nullptr && currentMap->validate()) {
-                state->setState("MAP_VALIDATED");
+                state->setState(StateType::MAP_VALIDATED);
                 std::cout << "Map validated successfully" << std::endl;
             } else {
                 std::cout << "Map validation failed" << std::endl;
@@ -274,7 +269,7 @@ void GameEngine::command(const std::string &command) {
             
             // If we have added at least one player, move to PLAYERS_ADDED state
             if (players.size() > 0) {
-                state->setState("PLAYERS_ADDED");
+                state->setState(StateType::PLAYERS_ADDED);
             }
             break;
         }
@@ -312,7 +307,7 @@ void GameEngine::command(const std::string &command) {
                 player->addTerritory(territory);  // Takes Territory pointer
             }
 
-            state->setState("ASSIGN_REINFORCEMENT");
+            state->setState(StateType::ASSIGN_REINFORCEMENT);
             std::cout << "Countries assigned successfully" << std::endl;
             break;
         }
@@ -341,7 +336,7 @@ void GameEngine::command(const std::string &command) {
         }
 
         case CommandType::END_ISSUE_ORDERS: {
-            state->setState("EXECUTE_ORDERS");
+            state->setState(StateType::EXECUTE_ORDERS);
             currentPlayer = nullptr;  // Reset current player for execution phase
             break;
         }
@@ -366,7 +361,7 @@ void GameEngine::command(const std::string &command) {
             
             for (Player* player : players) {
                 if (player->getTerritories().size() == totalTerritories) {
-                    state->setState("WIN");
+                    state->setState(StateType::WIN);
                     std::cout << "Player " << player->getName() << " has won the game!" << std::endl;
                     return;
                 }
@@ -374,13 +369,13 @@ void GameEngine::command(const std::string &command) {
             
             if (!ordersRemaining) {
                 // If no more orders to execute, move back to reinforcement phase
-                state->setState("ASSIGN_REINFORCEMENT");
+                state->setState(StateType::ASSIGN_REINFORCEMENT);
             }
             break;
         }
 
         case CommandType::END_EXECUTE_ORDERS: {
-            state->setState("ASSIGN_REINFORCEMENT");
+            state->setState(StateType::ASSIGN_REINFORCEMENT);
             break;
         }
 
@@ -392,7 +387,7 @@ void GameEngine::command(const std::string &command) {
 		// Play again
         case CommandType::PLAY: {
             // Reset the game state
-            state->setState("START");
+            state->setState(StateType::START);
             players.clear();
             delete currentMap;
             currentMap = nullptr;
@@ -403,9 +398,8 @@ void GameEngine::command(const std::string &command) {
         }
 
         case CommandType::END: {
-            state->setState("END");
-            std::cout << "Thank you for playing!" << std::endl;
-            break;
+			std::cout << "Thank you for playing!" << std::endl;
+			exit(0);
         }
     }
 
@@ -421,7 +415,7 @@ void GameEngine::command(const std::string &command) {
 /// @brief Function which checks if the game is over based on state
 /// @return
 bool GameEngine::isGameOver() const {
-	return state->getState() == "END";
+	return state->getState() == StateType::WIN;
 }
 
 std::map<StateType, std::vector<CommandType>> GameEngine::getValidCommands() const {

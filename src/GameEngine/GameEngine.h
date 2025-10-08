@@ -25,7 +25,6 @@ enum class StateType {
 };
 
 enum class CommandType {
-	// START,
 	LOAD_MAP,
 	VALIDATE_MAP,
 	ADD_PLAYER,
@@ -52,18 +51,17 @@ std::string stateTypeToString(StateType state);
 
 class State {
   private:
-	std::string* state;
+	StateType state;
 	std::string* currentPlayerTurn; // name of the player whose turn it is
 
   public:
-	State(const std::string &state);
-	State(const std::string &state, const std::string &subState);
+	State(StateType state);
 	State(const State &other);			  // Copy constructor
 	State &operator=(const State &other); // Assignment operator
 	~State();
 
-	std::string getState() const;
-	void setState(const std::string &newState);
+	StateType getState() const;
+	void setState(StateType newState);
 
 	std::string getCurrentPlayerTurn() const;
 	void setCurrentPlayerTurn(const std::string &playerName);
@@ -101,8 +99,8 @@ class GameEngine {
     void addPlayer(const std::string &playerName);
     bool isGameOver() const;
 
-	std::string getState();
-	void setState(const std::string &newState);
+	StateType getState();
+	void setState(StateType newState);
 
 	friend std::ostream &operator<<(std::ostream &output,
 									const GameEngine &gameEngine);
