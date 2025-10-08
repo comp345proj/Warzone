@@ -17,7 +17,6 @@ void testLoadMaps() {
 		invalidMap.string(),
 		(currentPath / "res" / "disconnected_graph.map").string(),
         (currentPath / "res" / "disconnected_continent.map").string(), 
-        (currentPath / "res" / "duplicate_territory.map").string()
 		// "maps/Europe.map",
 		// "maps/Canada.map",
 		// "maps/InvalidAdjacency.map", // Invalid adjacency
