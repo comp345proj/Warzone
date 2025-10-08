@@ -96,6 +96,8 @@ class GameEngine {
 	~GameEngine();
 
 	void command(const std::string &command);
+    void addPlayer(const std::string &playerName);
+    bool isGameOver() const;
 
 	std::string getState();
 	void setState(const std::string &newState);
