@@ -13,6 +13,7 @@ Territory::Territory(const std::string &name, int posX, int posY) {
 	this->x = new int(posX);
 	this->y = new int(posY);
 	this->nbOfArmies = new int(0);
+	this->player = nullptr;
 }
 
 // Destructor to clean up dynamically allocated memory.
@@ -21,10 +22,12 @@ Territory::~Territory() {
 	delete this->x;
 	delete this->y;
 	delete this->nbOfArmies;
+	delete this->player;
 	this->name = nullptr;
 	this->x = nullptr;
 	this->y = nullptr;
 	this->nbOfArmies = nullptr;
+	this->player = nullptr;
 }
 
 // Copy constructor
@@ -33,6 +36,7 @@ Territory::Territory(const Territory &territory2) {
 	this->x = new int(*(territory2.x));
 	this->y = new int(*(territory2.y));
 	this->adjacentTerritories = territory2.adjacentTerritories;
+	this->nbOfArmies = new int(*(territory2.nbOfArmies));
 }
 
 // Adds an adjacent territory to the current territory's adjacency list.
@@ -61,6 +65,10 @@ const std::vector<Territory*> &Territory::getAdjacentTerritories() const {
 	return adjacentTerritories;
 }
 
+Player* Territory::getPlayer() {
+	return this->player;
+}
+
 // Basic setters
 void Territory::setName(const std::string &n) {
 	delete this->name;
@@ -80,6 +88,10 @@ void Territory::setNbOfArmies(int numOfArmies) {
 	this->nbOfArmies = new int(numOfArmies);
 }
 
+void Territory::setPlayer(Player* p) {
+	this->player = p;
+}
+
 // Assignment Operator
 // Custom Operator which handles self-assignment and deep copies the data. 
 Territory &Territory::operator=(const Territory &territory2) {
@@ -88,10 +100,14 @@ Territory &Territory::operator=(const Territory &territory2) {
 	delete name;
 	delete x;
 	delete y;
+	delete nbOfArmies;
+	delete player;
 	name = new std::string(*(territory2.name));
 	x = new int(*(territory2.x));
 	y = new int(*(territory2.y));
 	adjacentTerritories = territory2.adjacentTerritories;
+	nbOfArmies = new int(*(territory2.nbOfArmies));
+	player = territory2.player;
 	return *this;
 }
 

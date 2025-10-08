@@ -4,28 +4,53 @@
 #include <utility> // for std::move
 
 Player::Player(const std::string &name, Hand* hand)
-	: name(name),
-	  hand(hand ? std::make_unique<Hand>(*hand) : std::make_unique<Hand>()) {}
+	: name(new std::string(name)),
+			hand(hand ? std::make_unique<Hand>(*hand) : std::make_unique<Hand>()) {
+		// Ensure ordersList is initialized
+		ordersList = new OrdersList();
+}
 
 // Copy constructor (deep copy)
 Player::Player(const Player &copiedPlayer)
-	: name(copiedPlayer.name), territories(copiedPlayer.territories),
-	  hand(std::make_unique<Hand>(*copiedPlayer.hand)),
-	  ordersList(copiedPlayer.ordersList) {}
+	: name(new std::string(*copiedPlayer.name)), territories(copiedPlayer.territories),
+	  hand(std::make_unique<Hand>(*copiedPlayer.hand)) {
+	// Deep copy ordersList if present
+	if (copiedPlayer.ordersList) {
+		ordersList = new OrdersList(*copiedPlayer.ordersList);
+	} else {
+		ordersList = new OrdersList();
+	}
+}
 
 // Copy assignment (deep copy)
 Player &Player::operator=(const Player &other) {
 	if (this != &other) {
-		name = other.name;
+		delete name; // Free existing resource
+		name = new std::string(*other.name);
 		territories = other.territories;
 		hand = std::make_unique<Hand>(*other.hand);
-		ordersList = other.ordersList;
+		// Deep copy other's ordersList
+		if (ordersList) {
+			delete ordersList;
+			ordersList = nullptr;
+		}
+		if (other.ordersList) {
+			ordersList = new OrdersList(*other.ordersList);
+		} else {
+			ordersList = new OrdersList();
+		}
 	}
 	return *this;
 }
 
 // Destructor (no manual delete needed)
-Player::~Player() = default;
+Player::~Player() {
+	delete name;
+	if (ordersList) {
+		delete ordersList;
+		ordersList = nullptr;
+	}
+}
 
 // Territory management
 void Player::addTerritory(Territory* territory) {
@@ -74,11 +99,11 @@ void Player::setHand(Hand* newHand) {
 // Order management
 void Player::addOrder(Order* order) {
 	if (order) {
-		ordersList.push_back(order);
+		ordersList->add(order);
 	}
 }
 
-const std::vector<Order*> &Player::getOrders() const {
+OrdersList* Player::getOrdersList() const {
 	return ordersList;
 }
 
@@ -97,13 +122,13 @@ void Player::issueOrder(Card* playedCard, Deck* deck) {
 
 // Getters
 const std::string &Player::getName() const {
-	return name;
+	return *name;
 }
 
 std::ostream &operator<<(std::ostream &os, const Player &player) {
-	os << "Player: " << player.name << "\n";
+	os << "Player: " << *player.name << "\n";
 	os << "Territories owned: " << player.territories.size() << "\n";
 	os << "Cards in hand: " << player.hand->getCards().size() << "\n";
-	os << "Orders issued: " << player.ordersList.size();
+	os << "Orders issued: " << player.ordersList->getOrders().size() << "\n";
 	return os;
 }

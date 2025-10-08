@@ -50,8 +50,12 @@ class Order {
 
 // Class to manage a list of orders
 class OrdersList {
+  private:
+	std::list<Order*> orders;
+
   public:
 	OrdersList();
+	OrdersList(const OrdersList& other);
 	~OrdersList();
 
 	// List management methods
@@ -65,9 +69,6 @@ class OrdersList {
 	// Stream operator to print the list
 	friend std::ostream &operator<<(std::ostream &os,
 									const OrdersList &ordersList);
-
-  private:
-	std::list<Order*> orders;
 };
 
 // Concrete Order classes (sub-classes of Order)

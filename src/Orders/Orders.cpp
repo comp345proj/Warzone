@@ -56,6 +56,42 @@ std::ostream &operator<<(std::ostream &os, const Order &order) {
 // OrdersList implementation
 OrdersList::OrdersList() = default;
 
+OrdersList::OrdersList(const OrdersList& other) {
+	if (other.orders.empty())
+	{
+		return;
+	} else {
+		this->orders.clear();
+
+		for (auto it = other.orders.begin(); it != other.orders.end(); ++it)
+		{
+			switch ((*it)->getCardType())
+			{
+			case CardType::REINFORCEMENT:
+				orders.push_back(new Deploy(*dynamic_cast<Deploy*>(*it)));
+				break;
+			case CardType::UNKNOWN:
+				orders.push_back(new Advance(*dynamic_cast<Advance*>(*it)));
+				break;
+			case CardType::BOMB:
+				orders.push_back(new Bomb(*dynamic_cast<Bomb*>(*it)));
+				break;
+			case CardType::BLOCKADE:
+				orders.push_back(new Blockade(*dynamic_cast<Blockade*>(*it)));
+				break;
+			case CardType::AIRLIFT:
+				orders.push_back(new Airlift(*dynamic_cast<Airlift*>(*it)));
+				break;
+			case CardType::DIPLOMACY:
+				orders.push_back(new Negotiate(*dynamic_cast<Negotiate*>(*it)));
+				break;
+			default:
+				break;
+			}
+		}
+	}
+}
+
 OrdersList::~OrdersList() {
 	for (Order* order : orders) {
 		delete order;

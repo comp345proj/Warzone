@@ -10,8 +10,15 @@ class Territory;
 class Card;
 class Hand;
 class Deck;
+class OrdersList;
 
 class Player {
+  private:
+	std::string* name;
+	std::vector<Territory*> territories; // Owned territories
+	std::unique_ptr<Hand> hand;			 // Player's hand of cards
+	OrdersList* ordersList = nullptr;		 // List of orders
+	
   public:
 	Player(const std::string &name, Hand* hand = nullptr);
 	Player(const Player &other);			// Copy constructor
@@ -35,7 +42,6 @@ class Player {
 
 	// Order management
 	void addOrder(Order* order);
-	const std::vector<Order*> &getOrders() const;
 
 	// Required methods
 	std::vector<Territory*> toDefend(); // Returns territories to be defended
@@ -45,12 +51,7 @@ class Player {
 
 	// Getters
 	const std::string &getName() const;
+	OrdersList* getOrdersList() const;
 
 	friend std::ostream &operator<<(std::ostream &os, const Player &player);
-
-  private:
-	std::string name;
-	std::vector<Territory*> territories; // Owned territories
-	std::unique_ptr<Hand> hand;			 // Player's hand of cards
-	std::vector<Order*> ordersList;		 // List of orders
 };

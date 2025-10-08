@@ -50,7 +50,7 @@ void testPlayers() {
         std::cout << "\nTesting issueOrder():" << std::endl;
 
         player.issueOrder(player.getCards().back(), &deck);
-        std::cout << "Orders in list: " << player.getOrders().size() << std::endl;
+        std::cout << "Orders in list: " << player.getOrdersList()->getOrders().size() << std::endl;
 
         // Clean up
         delete territory1;
