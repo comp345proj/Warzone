@@ -1,0 +1,14 @@
+[Map]
+author=Test Author
+image=world.bmp
+wrap=no
+scroll=horizontal
+warn=yes
+
+[Continents]
+Europe=5
+
+[Territories]
+Great Britain,419,169,Europe,Northern Europe
+Northern Europe,460,173,Europe,Great Britain
+Iceland,380,126,Europe

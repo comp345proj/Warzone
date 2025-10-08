@@ -1,0 +1,16 @@
+[Map]
+author=Test Author
+image=world.bmp
+wrap=no
+scroll=horizontal
+warn=yes
+
+[Continents]
+North America=5
+Asia=7
+
+[Territories]
+Alaska,70,126,North America,Northwest Territory
+Alaska,70,126,Asia,Mongolia
+Northwest Territory,148,127,North America,Alaska
+Mongolia,707,188,Asia,Alaska
