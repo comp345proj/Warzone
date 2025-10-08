@@ -5,13 +5,22 @@
 
 Player::Player(const std::string &name, Hand* hand)
 	: name(new std::string(name)),
-	  hand(hand ? std::make_unique<Hand>(*hand) : std::make_unique<Hand>()) {}
+			hand(hand ? std::make_unique<Hand>(*hand) : std::make_unique<Hand>()) {
+		// Ensure ordersList is initialized
+		ordersList = new OrdersList();
+}
 
 // Copy constructor (deep copy)
 Player::Player(const Player &copiedPlayer)
 	: name(new std::string(*copiedPlayer.name)), territories(copiedPlayer.territories),
-	  hand(std::make_unique<Hand>(*copiedPlayer.hand)),
-	  ordersList(copiedPlayer.ordersList) {}
+	  hand(std::make_unique<Hand>(*copiedPlayer.hand)) {
+	// Deep copy ordersList if present
+	if (copiedPlayer.ordersList) {
+		ordersList = new OrdersList(*copiedPlayer.ordersList);
+	} else {
+		ordersList = new OrdersList();
+	}
+}
 
 // Copy assignment (deep copy)
 Player &Player::operator=(const Player &other) {
@@ -20,7 +29,16 @@ Player &Player::operator=(const Player &other) {
 		name = new std::string(*other.name);
 		territories = other.territories;
 		hand = std::make_unique<Hand>(*other.hand);
-		ordersList = other.ordersList;
+		// Deep copy other's ordersList
+		if (ordersList) {
+			delete ordersList;
+			ordersList = nullptr;
+		}
+		if (other.ordersList) {
+			ordersList = new OrdersList(*other.ordersList);
+		} else {
+			ordersList = new OrdersList();
+		}
 	}
 	return *this;
 }
@@ -28,6 +46,10 @@ Player &Player::operator=(const Player &other) {
 // Destructor (no manual delete needed)
 Player::~Player() {
 	delete name;
+	if (ordersList) {
+		delete ordersList;
+		ordersList = nullptr;
+	}
 }
 
 // Territory management
@@ -77,11 +99,11 @@ void Player::setHand(Hand* newHand) {
 // Order management
 void Player::addOrder(Order* order) {
 	if (order) {
-		ordersList.push_back(order);
+		ordersList->add(order);
 	}
 }
 
-const std::vector<Order*> &Player::getOrders() const {
+OrdersList* Player::getOrdersList() const {
 	return ordersList;
 }
 
@@ -107,6 +129,6 @@ std::ostream &operator<<(std::ostream &os, const Player &player) {
 	os << "Player: " << *player.name << "\n";
 	os << "Territories owned: " << player.territories.size() << "\n";
 	os << "Cards in hand: " << player.hand->getCards().size() << "\n";
-	os << "Orders issued: " << player.ordersList.size();
+	os << "Orders issued: " << player.ordersList->getOrders().size() << "\n";
 	return os;
 }
