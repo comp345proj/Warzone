@@ -2,6 +2,7 @@
 #include <algorithm>
 using std::cin;
 
+//---------------Enums and Helpers-------------------------------
 std::string commandTypeToString(CommandType state)
 {
 	switch (state) {
@@ -162,6 +163,8 @@ const std::vector<CommandType>& GameEngine::getValidCommandsForState(StateType s
     }
     return validCommands[state];
 }
+
+// -------------------------------
 
 // Constructors, destructor, copy constructor, assignment operator
 GameEngine::GameEngine()
@@ -439,6 +442,7 @@ bool GameEngine::isGameOver() const {
 	return state->getState() == StateType::WIN;
 }
 
+// Adds a player to the game
 void GameEngine::addPlayer(const std::string& playerName) {
     Player* newPlayer = new Player(playerName);
     players.push_back(newPlayer);

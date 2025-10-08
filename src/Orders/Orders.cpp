@@ -13,6 +13,7 @@ const std::string &Order::getEffect() const {
 	return effect;
 }
 
+// Set the effect of the order after execution (for logging purposes)
 void Order::setEffect(const std::string &effect) {
 	this->effect = effect;
 }

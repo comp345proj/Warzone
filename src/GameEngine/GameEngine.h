@@ -67,17 +67,7 @@ class State {
 	friend std::ostream &operator<<(std::ostream &out, const State &state);
 };
 
-/*--StateTransitionLogic-----------------------------
- * LOADMAP <filename> - valid in: (Start, MapLoaded) - transitions to:
- * (MapLoaded) VALIDATEMAP - valid in: (MapLoaded) - transitions to:
- * (MapValidated) ADDPLAYER <playername> - valid in: (PlayersAdded) -
- * transitions to: (PlayersAdded) START - valid in: (PlayersAdded) - transitions
- * to: (AssignReinforcement) REPLAY - valid in: (Win) - transitions to: (Start)
- * QUIT - valid in: (any state) - transitions to: (Exit)
- */
-
-//---------------------------GameEngine-------------------------------
-
+//----------------------------GameEngine-------------------------------
 class GameEngine {
   private:
 	State* state;
