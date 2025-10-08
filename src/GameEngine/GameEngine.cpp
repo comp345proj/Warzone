@@ -30,6 +30,34 @@ std::string commandTypeToString(CommandType state)
 	}
 }
 
+CommandType stringToCommandType(const std::string &commandStr)
+{
+	if (commandStr == "LOAD_MAP")
+		return CommandType::LOAD_MAP;
+	else if (commandStr == "VALIDATE_MAP")
+		return CommandType::VALIDATE_MAP;
+	else if (commandStr == "ADD_PLAYER")
+		return CommandType::ADD_PLAYER;
+	else if (commandStr == "ASSIGN_COUNTRIES")
+		return CommandType::ASSIGN_COUNTRIES;
+	else if (commandStr == "ISSUE_ORDER")
+		return CommandType::ISSUE_ORDER;
+	else if (commandStr == "EXECUTE_ORDER")
+		return CommandType::EXECUTE_ORDER;
+	else if (commandStr == "END_ISSUE_ORDERS")
+		return CommandType::END_ISSUE_ORDERS;
+	else if (commandStr == "END_EXECUTE_ORDERS")
+		return CommandType::END_EXECUTE_ORDERS;
+	else if (commandStr == "WIN")
+		return CommandType::WIN;
+	else if (commandStr == "END")
+		return CommandType::END;
+	else if (commandStr == "PLAY")
+		return CommandType::PLAY;
+	else
+		throw std::invalid_argument("Invalid command string: " + commandStr);
+}
+
 std::string stateTypeToString(StateType state)
 {
 	switch (state) {
@@ -52,26 +80,12 @@ std::string stateTypeToString(StateType state)
 	}
 }
 
-void printInvalidCommandError() {
-	std::cout << "\nInvalid Command entered..." << std::endl;
-}
-
-void printInvalidCommandError(
-	StateType currentState,
-	CommandType commandType,
-	std::map<StateType, std::vector<CommandType>> validCommands
-) {
-	const auto &validCommandsForState = validCommands[currentState];
-	if (std::find(validCommandsForState.begin(), validCommandsForState.end(),
-				  commandType) == validCommandsForState.end()) {
-		std::cout << "\nInvalid command '" << commandTypeToString(commandType)
-				  << "' for current state: " << stateTypeToString(currentState) << std::endl;
-
-		// Display available commands
-		std::cout << "Available commands in current state:" << std::endl;
-		for (const auto &cmd : validCommandsForState) {
-			std::cout << "  - " << commandTypeToString(cmd) << std::endl;
-		}
+void printInvalidCommandError(StateType currentState) {
+	std::cout << "Invalid command. Current state: "
+			  << stateTypeToString(currentState) << std::endl;
+	std::cout << "Available commands in current state:" << std::endl;
+	for (const auto &cmd : GameEngine::validCommands[currentState]) {
+		std::cout << "  - " << commandTypeToString(cmd) << std::endl;
 	}
 }
 
@@ -113,34 +127,50 @@ void State::setCurrentPlayerTurn(const std::string &playerName) {
 
 //---------------------------GameEngine-------------------------------
 
+// Initialize static member
+std::map<StateType, std::vector<CommandType>> GameEngine::validCommands;
+
+void GameEngine::initializeValidCommands() {
+    if (validCommands.empty()) {  // Only initialize if not already initialized
+        validCommands = {
+            {StateType::START, {CommandType::LOAD_MAP}},
+
+            {StateType::MAP_LOADED,
+             {CommandType::LOAD_MAP, CommandType::VALIDATE_MAP}},
+
+            {StateType::MAP_VALIDATED, {CommandType::ADD_PLAYER}},
+
+            {StateType::PLAYERS_ADDED,
+             {CommandType::ADD_PLAYER, CommandType::ASSIGN_COUNTRIES}},
+
+            {StateType::ASSIGN_REINFORCEMENT, {CommandType::ISSUE_ORDER}},
+
+            {StateType::ISSUE_ORDERS,
+             {CommandType::ISSUE_ORDER, CommandType::END_ISSUE_ORDERS}},
+
+            {StateType::EXECUTE_ORDERS,
+             {CommandType::EXECUTE_ORDER, CommandType::END_EXECUTE_ORDERS}},
+
+            {StateType::WIN, {CommandType::PLAY, CommandType::END}},
+        };
+    }
+}
+
+const std::vector<CommandType>& GameEngine::getValidCommandsForState(StateType state) {
+    if (validCommands.empty()) {
+        initializeValidCommands();
+    }
+    return validCommands[state];
+}
+
 // Constructors, destructor, copy constructor, assignment operator
 GameEngine::GameEngine()
 	: state(new State(StateType::START)), currentMap(nullptr), mapLoader(nullptr),
-	  currentMapPath(new std::string()), currentPlayer(nullptr), validCommands({
-		  {StateType::START, 
-			{CommandType::LOAD_MAP}},
-		  
-			{StateType::MAP_LOADED, 
-			{CommandType::LOAD_MAP, CommandType::VALIDATE_MAP}},
-		  
-			{StateType::MAP_VALIDATED, 
-			{CommandType::ADD_PLAYER}},
-		  
-			{StateType::PLAYERS_ADDED, 
-			{CommandType::ADD_PLAYER, CommandType::ASSIGN_COUNTRIES}},
-		  
-			{StateType::ASSIGN_REINFORCEMENT, 
-			{CommandType::ISSUE_ORDER}},
-		  
-			{StateType::ISSUE_ORDERS, 
-			{CommandType::ISSUE_ORDER, CommandType::END_ISSUE_ORDERS}},
-		  
-			{StateType::EXECUTE_ORDERS, 
-			{CommandType::EXECUTE_ORDER, CommandType::END_EXECUTE_ORDERS, CommandType::WIN}},
-		  
-			{StateType::WIN, 
-			{CommandType::PLAY, CommandType::END}},
-	  }) {}
+	  currentMapPath(new std::string()), currentPlayer(nullptr) {
+    if (validCommands.empty()) {
+        initializeValidCommands();
+    }
+}
 
 GameEngine::GameEngine(const GameEngine &other)
 	: state(new State(*other.state)), players(other.players),
@@ -164,7 +194,6 @@ GameEngine &GameEngine::operator=(const GameEngine &other) {
 GameEngine::~GameEngine() {
 	delete state;
 	delete currentMap;
-	getValidCommands().clear();
 	players.clear();
 	currentPlayer = nullptr;
 }
@@ -182,28 +211,13 @@ void GameEngine::setState(StateType newState) {
 void GameEngine::command(const std::string &command) {
     std::vector<std::string> splitCommand = splitString(command, ' ');
 	if (splitCommand.empty()) {
-        printInvalidCommandError();
+        printInvalidCommandError(state->getState());
         return;
     }
 
     // Convert command to uppercase for case-insensitive comparison
     std::string cmd = splitCommand[0];
     std::transform(cmd.begin(), cmd.end(), cmd.begin(), ::toupper);
-
-    // Convert current state string to StateType enum for validation
-    StateType currentState;
-    if (state->getState() == StateType::START) currentState = StateType::START;
-    else if (state->getState() == StateType::MAP_LOADED) currentState = StateType::MAP_LOADED;
-    else if (state->getState() == StateType::MAP_VALIDATED) currentState = StateType::MAP_VALIDATED;
-    else if (state->getState() == StateType::PLAYERS_ADDED) currentState = StateType::PLAYERS_ADDED;
-    else if (state->getState() == StateType::ASSIGN_REINFORCEMENT) currentState = StateType::ASSIGN_REINFORCEMENT;
-    else if (state->getState() == StateType::ISSUE_ORDERS) currentState = StateType::ISSUE_ORDERS;
-    else if (state->getState() == StateType::EXECUTE_ORDERS) currentState = StateType::EXECUTE_ORDERS;
-    else if (state->getState() == StateType::WIN) currentState = StateType::WIN;
-    else {
-        printInvalidCommandError();
-        return;
-    }
 
     // Convert command string to CommandType
     CommandType commandType;
@@ -219,8 +233,7 @@ void GameEngine::command(const std::string &command) {
     else if (cmd == "PLAY") commandType = CommandType::PLAY;
     else if (cmd == "END") commandType = CommandType::END;
     else {
-        printInvalidCommandError();
-		// Check if command is valid for current state
+        printInvalidCommandError(state->getState());
 		return;
     }
 
@@ -325,14 +338,22 @@ void GameEngine::command(const std::string &command) {
                 currentPlayer->issueOrder(card, nullptr);  // Pass nullptr as deck for now
             } else {
                 std::cout << "Player " << currentPlayer->getName() << " has no cards to play" << std::endl;
-            }
+				Deck *deck = new Deck();
+				Card* card = deck->draw();
+				if (card) {
+					currentPlayer->addCard(card);
+				}
+				std::cout << "Playing a random card " << *card << " for " << currentPlayer->getName() << std::endl;
+				currentPlayer->issueOrder(card, deck);  // Pass nullptr as deck for now
+			}
             
             // Move to next player
             auto it = std::find(players.begin(), players.end(), currentPlayer);
             if (it != players.end() && ++it != players.end()) {
                 currentPlayer = *it;
             }
-            break;
+			state->setState(StateType::ISSUE_ORDERS);
+			break;
         }
 
         case CommandType::END_ISSUE_ORDERS: {
@@ -405,9 +426,9 @@ void GameEngine::command(const std::string &command) {
 
 	// Display available commands for current state
 	std::cout << "\nAvailable commands in current state ("
-			  << stateTypeToString(currentState) << "):" << std::endl;
+			  << stateTypeToString(this->getState()) << "):" << std::endl;
 
-	for (const auto &cmd : validCommands[currentState]) {
+	for (const auto &cmd : validCommands[this->getState()]) {
 		std::cout << "  - " << commandTypeToString(cmd) << std::endl;
 	}
 }
@@ -416,10 +437,6 @@ void GameEngine::command(const std::string &command) {
 /// @return
 bool GameEngine::isGameOver() const {
 	return state->getState() == StateType::WIN;
-}
-
-std::map<StateType, std::vector<CommandType>> GameEngine::getValidCommands() const {
-    return validCommands;
 }
 
 void GameEngine::addPlayer(const std::string& playerName) {

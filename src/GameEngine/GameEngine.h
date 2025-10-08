@@ -41,9 +41,8 @@ enum class CommandType {
 
 
 std::string commandTypeToString(CommandType state);
-void printInvalidCommandError();
-void printInvalidCommandError(StateType currentState, CommandType commandType,
-	std::map<StateType, std::vector<CommandType>> validCommands);
+CommandType stringToCommandType(const std::string &commandStr);
+void printInvalidCommandError(StateType currentState);
 
 std::string stateTypeToString(StateType state);
 
@@ -87,9 +86,8 @@ class GameEngine {
 	Map* currentMap;
 	MapLoader* mapLoader;
 	std::string* currentMapPath;
-	std::map<StateType, std::vector<CommandType>> validCommands;
 
-  public:
+  public:  
 	GameEngine();
 	GameEngine(const GameEngine &other);			// Copy constructor
 	GameEngine &operator=(const GameEngine &other); // Assignment operator
@@ -105,7 +103,12 @@ class GameEngine {
 	friend std::ostream &operator<<(std::ostream &output,
 									const GameEngine &gameEngine);
 
-
-	std::map<StateType, std::vector<CommandType>> getValidCommands() const;
-	std::map<StateType, std::vector<CommandType>> setValidCommands() const;
+    // Static member for valid commands
+    static std::map<StateType, std::vector<CommandType>> validCommands;
+    
+    // Static method to initialize valid commands
+    static void initializeValidCommands();
+    
+    // Static method to get valid commands for a state
+    static const std::vector<CommandType>& getValidCommandsForState(StateType state);
 };

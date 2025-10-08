@@ -16,6 +16,11 @@ void testGameStates() {
 			std::string command;
 			std::getline(std::cin, command);
 
+			// Skip empty lines
+			if(command.find_first_not_of(" \t\n\r") == std::string::npos) {
+				continue;
+			}
+
 			game->command(command);
 		}
 
