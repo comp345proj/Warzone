@@ -4,19 +4,20 @@
 #include <utility> // for std::move
 
 Player::Player(const std::string &name, Hand* hand)
-	: name(name),
+	: name(new std::string(name)),
 	  hand(hand ? std::make_unique<Hand>(*hand) : std::make_unique<Hand>()) {}
 
 // Copy constructor (deep copy)
 Player::Player(const Player &copiedPlayer)
-	: name(copiedPlayer.name), territories(copiedPlayer.territories),
+	: name(new std::string(*copiedPlayer.name)), territories(copiedPlayer.territories),
 	  hand(std::make_unique<Hand>(*copiedPlayer.hand)),
 	  ordersList(copiedPlayer.ordersList) {}
 
 // Copy assignment (deep copy)
 Player &Player::operator=(const Player &other) {
 	if (this != &other) {
-		name = other.name;
+		delete name; // Free existing resource
+		name = new std::string(*other.name);
 		territories = other.territories;
 		hand = std::make_unique<Hand>(*other.hand);
 		ordersList = other.ordersList;
@@ -25,7 +26,9 @@ Player &Player::operator=(const Player &other) {
 }
 
 // Destructor (no manual delete needed)
-Player::~Player() = default;
+Player::~Player() {
+	delete name;
+}
 
 // Territory management
 void Player::addTerritory(Territory* territory) {
@@ -97,11 +100,11 @@ void Player::issueOrder(Card* playedCard, Deck* deck) {
 
 // Getters
 const std::string &Player::getName() const {
-	return name;
+	return *name;
 }
 
 std::ostream &operator<<(std::ostream &os, const Player &player) {
-	os << "Player: " << player.name << "\n";
+	os << "Player: " << *player.name << "\n";
 	os << "Territories owned: " << player.territories.size() << "\n";
 	os << "Cards in hand: " << player.hand->getCards().size() << "\n";
 	os << "Orders issued: " << player.ordersList.size();
