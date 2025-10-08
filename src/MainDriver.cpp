@@ -6,6 +6,8 @@
 #include "Orders/OrdersDriver.h"
 #include "Player/Player.h"
 #include "Player/PlayerDriver.h"
+#include "GameEngine/GameEngine.h"
+#include "GameEngine/GameEngineDriver.h"
 #include "Utils/Utils.h"
 #include <iostream>
 
@@ -26,6 +28,9 @@ int main() {
 
 	std::cout << SEPARATOR_LINE << std::endl << "Player Tests\n" << std::endl;
 	testPlayers();
+
+	std::cout << SEPARATOR_LINE << std::endl << "Game Engine Tests\n" << std::endl;
+	testGameStates();
 
 	std::cout << SEPARATOR_LINE << std::endl;
 
