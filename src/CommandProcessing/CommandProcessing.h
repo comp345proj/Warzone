@@ -21,25 +21,24 @@ class Command : Subject{
 
 		std::string& getCommand() const;
 		std::string& getEffect() const;
-		void setEffect(const std::string &effect);
+		void saveEffect(const std::string &effect);
 		friend std::ostream& operator<<(std::ostream& out, const Command &command);
 		~Command();
 };
 
-class CommandProcessor {
+class CommandProcessor : Subject{
 	private:
 		std::vector<Command*> _commandHistory;
-		void saveCommand(const std::string &command);
+		void saveCommand(const std::string& command);
 		void readCommand();
 
 	public:
 		CommandProcessor();
     	CommandProcessor(const CommandProcessor &commandProcessor);
-    	~CommandProcessor();
     	CommandProcessor& operator=(const CommandProcessor &rhs);
+    	~CommandProcessor();
 		
 		Command& getCommand() const;
-		void saveEffect();
 		bool validate(Command& command, StateType gameState);
 		friend std::ostream& operator<<(std::ostream& out, const CommandProcessor &cp);
 };

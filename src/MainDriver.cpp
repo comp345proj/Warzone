@@ -11,7 +11,28 @@
 #include "Utils/Utils.h"
 #include <iostream>
 
-int main() {
+int main(int argc, char* argv[]) {
+	std::string commandOption;
+    std::string filename;
+
+    for (int i = 0; i < argc; ++i)
+    {
+        std::cout << "Argument " << i << ": " << argv[i] << std::endl;
+        if (i == 1)
+        {
+            commandOption = argv[i];
+        }
+        else if (i == 2)
+        {
+            filename = argv[i];
+        }
+    }
+
+    if (commandOption == "-file")
+    {
+        // Load file as input
+    }
+
 	std::cout << "Warzone Game Test Driver\n"
 			  << std::endl
 			  << SEPARATOR_LINE << std::endl
