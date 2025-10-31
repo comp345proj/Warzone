@@ -2,6 +2,8 @@
 #include <iostream>
 #include <list>
 #include <string>
+#include "Observer/LogObserver.h"
+#include "Subject/Subject.h"
 
 // Forward declarations
 enum class CardType;
@@ -11,7 +13,7 @@ class Player;
 class Map;
 
 // Abstract base class for all orders
-class Order {
+class Order : public ILoggable, public Subject {
   public:
 	Order();
 	virtual ~Order();
@@ -29,6 +31,10 @@ class Order {
 	virtual bool validate() const = 0;
 	virtual void execute() = 0;
 
+	// Logging method
+	std::string stringToLog() override;
+
+
   protected:
 	Player* issuingPlayer; // Player who issued the order
 	CardType cardType;   // Type of card that made the order
@@ -40,7 +46,6 @@ class Order {
 	// Set the effect after execution
 	void setEffect(const std::string &effect);
 
-  protected:
 	std::string description; // Description of the order
 	std::string effect;		 // Effect of the order after execution
 	bool executed;			 // Flag to track if order was executed
@@ -49,7 +54,7 @@ class Order {
 };
 
 // Class to manage a list of orders
-class OrdersList {
+class OrdersList : public ILoggable, public Subject {
   private:
 	std::list<Order*> orders;
 
@@ -62,6 +67,9 @@ class OrdersList {
 	void add(Order* order);
 	void remove(Order* order);
 	bool move(Order* order, int newPosition);
+
+	// Logging method
+	std::string stringToLog() override;
 
 	// Get the list of orders
 	const std::list<Order*> &getOrders() const;
@@ -77,6 +85,8 @@ class Deploy : public Order {
 	Deploy();
 	bool validate() const override;
 	void execute() override;
+	// Logging method
+	std::string stringToLog() override;
 };
 
 class Advance : public Order {
@@ -84,6 +94,8 @@ class Advance : public Order {
 	Advance();
 	bool validate() const override;
 	void execute() override;
+	// Logging method
+	std::string stringToLog() override;
 };
 
 class Bomb : public Order {
@@ -91,6 +103,8 @@ class Bomb : public Order {
 	Bomb();
 	bool validate() const override;
 	void execute() override;
+	// Logging method
+	std::string stringToLog() override;
 };
 
 class Blockade : public Order {
@@ -98,6 +112,8 @@ class Blockade : public Order {
 	Blockade();
 	bool validate() const override;
 	void execute() override;
+	// Logging method
+	std::string stringToLog() override;
 };
 
 class Airlift : public Order {
@@ -105,6 +121,8 @@ class Airlift : public Order {
 	Airlift();
 	bool validate() const override;
 	void execute() override;
+	// Logging method
+	std::string stringToLog() override;
 };
 
 class Negotiate : public Order {
@@ -112,6 +130,8 @@ class Negotiate : public Order {
 	Negotiate();
 	bool validate() const override;
 	void execute() override;
+	// Logging method
+	std::string stringToLog() override;
 };
 
 // Stream insertion operators declarations

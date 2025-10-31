@@ -68,7 +68,7 @@ class State {
 };
 
 //----------------------------GameEngine-------------------------------
-class GameEngine {
+class GameEngine : public ILoggable, public Subject {
   private:
 	State* state;
 	std::vector<Player*> players;
@@ -86,6 +86,9 @@ class GameEngine {
 	void command(const std::string &command);
     void addPlayer(const std::string &playerName);
     bool isGameOver() const;
+
+	// Logging method
+	std::string stringToLog() override;
 
 	StateType getState();
 	void setState(StateType newState);

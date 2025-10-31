@@ -4,10 +4,11 @@
 #include <iostream>
 #include <fstream>
 #include "Subject/Subject.h"
+#include "Observer/Observer.h"
 
 enum class StateType;
 
-class Command : Subject{
+class Command : public Subject, public ILoggable{
 	private:
 		std::string* commandText;
 		std::string* effectText;
@@ -21,12 +22,13 @@ class Command : Subject{
 
 		std::string& getCommand() const;
 		std::string& getEffect() const;
+		std::string stringToLog() override;
 		void saveEffect(const std::string &effect);
 		friend std::ostream& operator<<(std::ostream& out, const Command &command);
 		~Command();
 };
 
-class CommandProcessor : Subject{
+class CommandProcessor : public Subject, public ILoggable{
 	private:
 		std::vector<Command*> _commandHistory;
 		void saveCommand(const std::string& command);
@@ -39,6 +41,7 @@ class CommandProcessor : Subject{
     	~CommandProcessor();
 		
 		Command& getCommand() const;
+		std::string stringToLog() override;
 		bool validate(Command& command, StateType gameState);
 		friend std::ostream& operator<<(std::ostream& out, const CommandProcessor &cp);
 };

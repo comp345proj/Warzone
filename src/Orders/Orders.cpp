@@ -267,3 +267,36 @@ void Negotiate::execute() {
 		executed = true;
 	}
 }
+
+std::string OrdersList::stringToLog() {
+	Order* lastOrder = orders.back();
+	const std::type_info& type = typeid(*lastOrder);
+    std::string typeName = type.name();
+    size_t pos = typeName.find_first_not_of("0123456789");
+    std::string className = typeName.substr(pos);
+    return "Order Issued: " + std::string(className);
+}
+
+std::string Deploy::stringToLog() {
+	return "Deploy order issued by " + issuingPlayer->getName();
+}
+
+std::string Advance::stringToLog() {
+	return "Advance order issued by " + issuingPlayer->getName();
+}
+
+std::string Bomb::stringToLog() {
+	return "Bomb order issued by " + issuingPlayer->getName();
+}
+
+std::string Blockade::stringToLog() {
+	return "Blockade order issued by " + issuingPlayer->getName();
+}
+
+std::string Airlift::stringToLog() {
+	return "Airlift order issued by " + issuingPlayer->getName();
+}
+
+std::string Negotiate::stringToLog() {
+	return "Negotiate order issued by " + issuingPlayer->getName();
+}

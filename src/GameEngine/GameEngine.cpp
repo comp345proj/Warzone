@@ -442,6 +442,11 @@ bool GameEngine::isGameOver() const {
 	return state->getState() == StateType::WIN;
 }
 
+// GameEngine logging method
+std::string GameEngine::stringToLog() {
+	return "GameEngine state changed to: " + stateTypeToString(this->getState());
+}
+
 // Adds a player to the game
 void GameEngine::addPlayer(const std::string& playerName) {
     Player* newPlayer = new Player(playerName);
