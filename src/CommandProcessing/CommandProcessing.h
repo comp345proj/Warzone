@@ -29,12 +29,15 @@ class Command : public Subject, public ILoggable{
 };
 
 class CommandProcessor : public Subject, public ILoggable{
-	private:
+	protected:
 		std::vector<Command*> _commandHistory;
-		void saveCommand(const std::string& command);
+		
+		private:
 		void readCommand();
-
+		
 	public:
+		void saveCommand(const std::string& command);
+		std::map<StateType, std::vector<CommandType>>* validCommands;
 		CommandProcessor();
     	CommandProcessor(const CommandProcessor &commandProcessor);
     	CommandProcessor& operator=(const CommandProcessor &rhs);

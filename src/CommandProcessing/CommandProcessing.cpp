@@ -142,50 +142,71 @@ enum class StateType {
 	WIN,
 };
 
-std::map<StateType, std::vector<CommandType>> validCommands = {
-	{StateType::START, {CommandType::LOAD_MAP}},
-
-	{StateType::MAP_LOADED,
-		{CommandType::LOAD_MAP, CommandType::VALIDATE_MAP}},
-
-	{StateType::MAP_VALIDATED, {CommandType::ADD_PLAYER}},
-
-	{StateType::PLAYERS_ADDED,
-		{CommandType::ADD_PLAYER, CommandType::ASSIGN_COUNTRIES}},
-
-	{StateType::ASSIGN_REINFORCEMENT, {CommandType::ISSUE_ORDER}},
-
-	{StateType::ISSUE_ORDERS,
-		{CommandType::ISSUE_ORDER, CommandType::END_ISSUE_ORDERS}},
-
-	{StateType::EXECUTE_ORDERS,
-		{CommandType::EXECUTE_ORDER, CommandType::END_EXECUTE_ORDERS}},
-
-	{StateType::WIN, {CommandType::PLAY, CommandType::END}},
-};
-
 bool CommandProcessor::validate(Command& command, StateType gameState) {
-	const std::string& cmdText = command.getCommand();
-	switch (gameState) {
-		case StateType::START:
-			return (cmdText == "LOAD_MAP" || cmdText == "QUIT");
-		case StateType::MAP_LOADED:
-			return (cmdText == "VALIDATE_MAP" || cmdText == "LOAD_MAP" || cmdText == "QUIT");
-		case StateType::MAP_VALIDATED:
-			return (cmdText == "ADD_PLAYER" || cmdText == "LOAD_MAP" || cmdText == "QUIT");
-		case StateType::PLAYERS_ADDED:
-			return (cmdText == "ASSIGN_COUNTRIES" || cmdText == "LOAD_MAP" || cmdText == "QUIT");
-		case StateType::ASSIGN_REINFORCEMENT:
-			return (cmdText == "ISSUE_ORDERS" || cmdText == "END_REINFORCEMENT" || cmdText == "QUIT");
-		case StateType::ISSUE_ORDERS:
-			return (cmdText == "END_ISSUE_ORDERS" || cmdText == "QUIT");
-		case StateType::EXECUTE_ORDERS:
-			return (cmdText == "END_EXECUTE_ORDERS" || cmdText == "QUIT");
-		case StateType::WIN:
-			return (cmdText == "PLAY" || cmdText == "END");
-		default:
-			return false;
-	}
+    const std::string& cmdText = command.getCommand();
+    
+    auto setCommandEffect = [&](bool isValid, const std::string& stateName) {
+        if (isValid) {
+            command.saveEffect("Command '" + cmdText + "' is valid in " + stateName + " state");
+        } else {
+            command.saveEffect("Command '" + cmdText + "' is invalid in " + stateName + " state");
+        }
+        return isValid;
+    };
+    
+    switch (gameState) {
+        case StateType::START:
+            return setCommandEffect(
+                cmdText.find("loadmap") == 0 || cmdText == "quit",
+                "START"
+            );
+            
+        case StateType::MAP_LOADED:
+            return setCommandEffect(
+                cmdText == "validatemap" || cmdText.find("loadmap") == 0 || cmdText == "quit",
+                "MAP_LOADED"
+            );
+            
+        case StateType::MAP_VALIDATED:
+            return setCommandEffect(
+                cmdText.find("addplayer") == 0 || cmdText.find("loadmap") == 0 || cmdText == "quit",
+                "MAP_VALIDATED"
+            );
+            
+        case StateType::PLAYERS_ADDED:
+            return setCommandEffect(
+                cmdText == "gamestart" || cmdText == "quit",
+                "PLAYERS_ADDED"
+            );
+            
+        case StateType::ASSIGN_REINFORCEMENT:
+            return setCommandEffect(
+                cmdText == "issueorder" || cmdText == "issueorders" || cmdText == "quit",
+                "ASSIGN_REINFORCEMENT"
+            );
+            
+        case StateType::ISSUE_ORDERS:
+            return setCommandEffect(
+                cmdText == "endissueorders" || cmdText == "quit",
+                "ISSUE_ORDERS"
+            );
+            
+        case StateType::EXECUTE_ORDERS:
+            return setCommandEffect(
+                cmdText == "execorder" || cmdText == "endexecorders" || cmdText == "quit",
+                "EXECUTE_ORDERS"
+            );
+            
+        case StateType::WIN:
+            return setCommandEffect(
+                cmdText == "play" || cmdText == "replay" || cmdText == "quit",
+                "WIN"
+            );
+            
+        default:
+            command.saveEffect("Invalid game state");
+            return false;
+    }
 }
 
 std::ostream& operator<<(std::ostream& os, const CommandProcessor& commandProcessor) {
@@ -244,9 +265,15 @@ FileCommandProcessorAdapter& FileCommandProcessorAdapter::operator=(const FileCo
 }
 
 std::string& FileCommandProcessorAdapter::readCommand() {
-	if (_fileLineReader) {
-		return _fileLineReader->readLineFromFile();
-	} else {
-		return *(new std::string("No file reader available"));
-	}
+    if (!_fileLineReader) {
+        throw std::runtime_error("No file reader available");
+    }
+    
+    try {
+        std::string& command = _fileLineReader->readLineFromFile();
+        saveCommand(command);  // Save the command to history
+        return command;
+    } catch (const std::runtime_error& e) {
+        throw std::runtime_error("Failed to read command from file: " + std::string(e.what()));
+    }
 }

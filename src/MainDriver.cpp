@@ -12,6 +12,17 @@
 #include <iostream>
 
 int main(int argc, char* argv[]) {
+	if (argc <= 1)
+	{
+		std::cout << "No arguments provided. Usage: ./WarzoneTestDriver [-console] OR [-file filename]" << std::endl;
+		return 1;
+	}
+	if (argc >= 4)
+	{
+		std::cout << "Too many arguments provided. Usage: ./WarzoneTestDriver [-console] OR [-file filename]" << std::endl;
+		return 1;
+	}
+
 	std::string commandOption;
     std::string filename;
 

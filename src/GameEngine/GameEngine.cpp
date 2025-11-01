@@ -129,38 +129,33 @@ void State::setCurrentPlayerTurn(const std::string &playerName) {
 //---------------------------GameEngine-------------------------------
 
 // Initialize static member
-std::map<StateType, std::vector<CommandType>> GameEngine::validCommands;
+std::map<StateType, std::vector<CommandType>> GameEngine::validCommands =
+{
+	{StateType::START, {CommandType::LOAD_MAP}},
 
-void GameEngine::initializeValidCommands() {
-    if (validCommands.empty()) {  // Only initialize if not already initialized
-        validCommands = {
-            {StateType::START, {CommandType::LOAD_MAP}},
+	{StateType::MAP_LOADED,
+		{CommandType::LOAD_MAP, CommandType::VALIDATE_MAP}},
 
-            {StateType::MAP_LOADED,
-             {CommandType::LOAD_MAP, CommandType::VALIDATE_MAP}},
+	{StateType::MAP_VALIDATED, {CommandType::ADD_PLAYER}},
 
-            {StateType::MAP_VALIDATED, {CommandType::ADD_PLAYER}},
+	{StateType::PLAYERS_ADDED,
+		{CommandType::ADD_PLAYER, CommandType::ASSIGN_COUNTRIES}},
 
-            {StateType::PLAYERS_ADDED,
-             {CommandType::ADD_PLAYER, CommandType::ASSIGN_COUNTRIES}},
+	{StateType::ASSIGN_REINFORCEMENT, {CommandType::ISSUE_ORDER}},
 
-            {StateType::ASSIGN_REINFORCEMENT, {CommandType::ISSUE_ORDER}},
+	{StateType::ISSUE_ORDERS,
+		{CommandType::ISSUE_ORDER, CommandType::END_ISSUE_ORDERS}},
 
-            {StateType::ISSUE_ORDERS,
-             {CommandType::ISSUE_ORDER, CommandType::END_ISSUE_ORDERS}},
+	{StateType::EXECUTE_ORDERS,
+		{CommandType::EXECUTE_ORDER, CommandType::END_EXECUTE_ORDERS}},
 
-            {StateType::EXECUTE_ORDERS,
-             {CommandType::EXECUTE_ORDER, CommandType::END_EXECUTE_ORDERS}},
-
-            {StateType::WIN, {CommandType::PLAY, CommandType::END}},
-        };
-    }
-}
+	{StateType::WIN, {CommandType::PLAY, CommandType::END}},
+};
 
 const std::vector<CommandType>& GameEngine::getValidCommandsForState(StateType state) {
-    if (validCommands.empty()) {
-        initializeValidCommands();
-    }
+    // if (validCommands.empty()) {
+    //     initializeValidCommands();
+    // }
     return validCommands[state];
 }
 
@@ -170,10 +165,14 @@ const std::vector<CommandType>& GameEngine::getValidCommandsForState(StateType s
 GameEngine::GameEngine()
 	: state(new State(StateType::START)), currentMap(nullptr), mapLoader(nullptr),
 	  currentMapPath(new std::string()), currentPlayer(nullptr) {
-    if (validCommands.empty()) {
-        initializeValidCommands();
-    }
+    // if (validCommands.empty()) {
+    //     initializeValidCommands();
+    // }
 }
+
+GameEngine::GameEngine(CommandProcessor& cP) : commandProcessor(&cP){
+	cP.validCommands = &validCommands;
+};
 
 GameEngine::GameEngine(const GameEngine &other)
 	: state(new State(*other.state)), players(other.players),
@@ -207,6 +206,10 @@ StateType GameEngine::getState() {
 }
 void GameEngine::setState(StateType newState) {
 	state->setState(newState);
+}
+
+CommandProcessor& GameEngine::getCommandProcessor() {
+    return *commandProcessor;
 }
 
 /// @brief Primitive state function to handle user input

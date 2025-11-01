@@ -3,6 +3,7 @@
 #include "Map/MapLoader.h"
 #include "Utils/Utils.h"
 #include "Player/Player.h"
+#include "CommandProcessing/CommandProcessing.h"
 #include <filesystem>
 #include <iostream>
 #include <string>
@@ -61,6 +62,7 @@ class State {
 
 	StateType getState() const;
 	void setState(StateType newState);
+	// void update(Command& command);
 
 	std::string getCurrentPlayerTurn() const;
 	void setCurrentPlayerTurn(const std::string &playerName);
@@ -76,16 +78,21 @@ class GameEngine : public ILoggable, public Subject {
 	Map* currentMap;
 	MapLoader* mapLoader;
 	std::string* currentMapPath;
+	CommandProcessor* commandProcessor;
 
   public:  
 	GameEngine();
 	GameEngine(const GameEngine &other);			// Copy constructor
 	GameEngine &operator=(const GameEngine &other); // Assignment operator
+	GameEngine(CommandProcessor& cP);
 	~GameEngine();
 
 	void command(const std::string &command);
     void addPlayer(const std::string &playerName);
     bool isGameOver() const;
+
+	CommandProcessor& getCommandProcessor();
+	// void update(Command& command);
 
 	// Logging method
 	std::string stringToLog() override;
@@ -100,7 +107,7 @@ class GameEngine : public ILoggable, public Subject {
     static std::map<StateType, std::vector<CommandType>> validCommands;
     
     // Static method to initialize valid commands
-    static void initializeValidCommands();
+    // static void initializeValidCommands();
     
     // Static method to get valid commands for a state
     static const std::vector<CommandType>& getValidCommandsForState(StateType state);
