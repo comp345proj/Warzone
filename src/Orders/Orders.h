@@ -64,7 +64,7 @@ class OrdersList : public ILoggable, public Subject {
 	~OrdersList();
 
 	// List management methods
-	void add(Order* order);
+	void addOrder(Order* order);
 	void remove(Order* order);
 	bool move(Order* order, int newPosition);
 

@@ -100,10 +100,12 @@ OrdersList::~OrdersList() {
 	orders.clear();
 }
 
-void OrdersList::add(Order* order) {
+void OrdersList::addOrder(Order* order) {
 	if (order) {
 		orders.push_back(order);
 	}
+
+	Notify(this);
 }
 
 void OrdersList::remove(Order* order) {
@@ -166,6 +168,8 @@ void Deploy::execute() {
 		setEffect("Deployed armies to territory");
 		executed = true;
 	}
+
+	Notify(this);
 }
 
 //---------------------------Advance-------------------------------
@@ -186,6 +190,8 @@ void Advance::execute() {
 		setEffect("Advanced armies to adjacent territory");
 		executed = true;
 	}
+
+	Notify(this);
 }
 
 //---------------------------Bomb-------------------------------
@@ -206,6 +212,8 @@ void Bomb::execute() {
 		setEffect("Bombed enemy territory");
 		executed = true;
 	}
+
+	Notify(this);
 }
 
 //---------------------------Blockade-------------------------------
@@ -226,6 +234,8 @@ void Blockade::execute() {
 		setEffect("Blockaded territory");
 		executed = true;
 	}
+
+	Notify(this);
 }
 
 //---------------------------Airlift-------------------------------
@@ -246,6 +256,8 @@ void Airlift::execute() {
 		setEffect("Airlifted armies between territories");
 		executed = true;
 	}
+
+	Notify(this);
 }
 
 //---------------------------Negotiate-------------------------------
@@ -266,6 +278,8 @@ void Negotiate::execute() {
 		setEffect("Negotiated peace with enemy player");
 		executed = true;
 	}
+
+	Notify(this);
 }
 
 std::string OrdersList::stringToLog() {

@@ -19,12 +19,12 @@ void testOrdersList() {
 
 	// Add orders to the list
 	std::cout << "\nAdding orders to the list:" << std::endl;
-	ordersList.add(deploy);
-	ordersList.add(advance);
-	ordersList.add(bomb);
-	ordersList.add(blockade);
-	ordersList.add(airlift);
-	ordersList.add(negotiate);
+	ordersList.addOrder(deploy);
+	ordersList.addOrder(advance);
+	ordersList.addOrder(bomb);
+	ordersList.addOrder(blockade);
+	ordersList.addOrder(airlift);
+	ordersList.addOrder(negotiate);
 
 	// Print initial list
 	std::cout << "\nInitial orders list:" << std::endl;

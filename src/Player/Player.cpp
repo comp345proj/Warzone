@@ -99,7 +99,7 @@ void Player::setHand(Hand* newHand) {
 // Order management
 void Player::addOrder(Order* order) {
 	if (order) {
-		ordersList->add(order);
+		ordersList->addOrder(order);
 	}
 }
 
