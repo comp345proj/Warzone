@@ -9,6 +9,8 @@
 #include "GameEngine/GameEngine.h"
 #include "GameEngine/GameEngineDriver.h"
 #include "Utils/Utils.h"
+#include "CommandProcessing/CommandProcessingDriver.h"
+#include "Observer/LoggingObserverDriver.h"
 #include <iostream>
 
 int main(int argc, char* argv[]) {
@@ -23,26 +25,26 @@ int main(int argc, char* argv[]) {
 		return 1;
 	}
 
-	std::string commandOption;
-    std::string filename;
+	// std::string commandOption;
+    // std::string filename;
 
-    for (int i = 0; i < argc; ++i)
-    {
-        std::cout << "Argument " << i << ": " << argv[i] << std::endl;
-        if (i == 1)
-        {
-            commandOption = argv[i];
-        }
-        else if (i == 2)
-        {
-            filename = argv[i];
-        }
-    }
+    // for (int i = 0; i < argc; ++i)
+    // {
+    //     std::cout << "Argument " << i << ": " << argv[i] << std::endl;
+    //     if (i == 1)
+    //     {
+    //         commandOption = argv[i];
+    //     }
+    //     else if (i == 2)
+    //     {
+    //         filename = argv[i];
+    //     }
+    // }
 
-    if (commandOption == "-file")
-    {
-        // Load file as input
-    }
+    // if (commandOption == "-file")
+    // {
+    //     // Load file as input
+    // }
 
 	std::cout << "Warzone Game Test Driver\n"
 			  << std::endl
@@ -65,6 +67,15 @@ int main(int argc, char* argv[]) {
 	testGameStates();
 
 	std::cout << SEPARATOR_LINE << std::endl;
+	std::cout << "ASSIGNMENT 2" << std::endl;
+	std::cout << SEPARATOR_LINE << std::endl;
+
+	std::cout << "Command Processing Tests\n" << std::endl;
+	testCommandProcessor(argc, argv);
+
+	std::cout << SEPARATOR_LINE << std::endl;
+	std::cout << "Logging Observer Tests\n" << std::endl;
+	testLoggingObserver();
 
 	return 0;
 }

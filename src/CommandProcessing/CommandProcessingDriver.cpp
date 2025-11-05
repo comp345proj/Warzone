@@ -1,6 +1,7 @@
 #include <iostream>
 #include "GameEngine/GameEngine.h"
 #include "CommandProcessing/CommandProcessing.h"
+#include "CommandProcessing/CommandProcessingDriver.h"
 
 void testCommandProcessor(int argc, char* argv[]) {
     std::cout << "\n=== Command Processor Test Driver ===" << std::endl;

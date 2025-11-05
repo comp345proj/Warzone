@@ -1,0 +1,6 @@
+CommandProcessor cmd: Command issued: loadmap World.map | Effect: 
+Command issued: sample | Effect: Command effect example
+Order Issued: Deploy
+Order Issued: Deploy
+Deploy order issued by Bob
+GameEngine state changed to: PLAYERS_ADDED
