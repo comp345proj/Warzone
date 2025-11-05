@@ -30,6 +30,10 @@ CardType Order::getCardType() const {
 	return cardType;
 }
 
+std::string Order::stringToLog() {
+	return "Order executed: " + getEffect();
+}
+
 const std::string &Order::getDescription() const {
 	return description;
 }

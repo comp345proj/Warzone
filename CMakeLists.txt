@@ -30,6 +30,9 @@ file(GLOB_RECURSE MAP_SOURCES "${PROJECT_SOURCE_DIR}/src/Map/*.cpp")
 file(GLOB_RECURSE ORDERS_SOURCES "${PROJECT_SOURCE_DIR}/src/Orders/*.cpp")
 file(GLOB_RECURSE PLAYER_SOURCES "${PROJECT_SOURCE_DIR}/src/Player/*.cpp")
 file(GLOB_RECURSE UTILS_SOURCES "${PROJECT_SOURCE_DIR}/src/Utils/*.cpp")
+file(GLOB_RECURSE OBSERVER_SOURCES "${PROJECT_SOURCE_DIR}/src/Observer/*.cpp")
+file(GLOB_RECURSE COMMAND_PROCESSING_SOURCES "${PROJECT_SOURCE_DIR}/src/CommandProcessing/*.cpp")
+file(GLOB_RECURSE SUBJECT_SOURCES "${PROJECT_SOURCE_DIR}/src/Subject/*.cpp")
 
 # Create executable
 add_executable(
@@ -40,6 +43,9 @@ add_executable(
 	${ORDERS_SOURCES}
     ${PLAYER_SOURCES}
     ${UTILS_SOURCES}
+    ${OBSERVER_SOURCES}
+    ${COMMAND_PROCESSING_SOURCES}
+    ${SUBJECT_SOURCES}
     src/MainDriver.cpp
 )
 

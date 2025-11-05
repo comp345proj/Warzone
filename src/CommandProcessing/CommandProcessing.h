@@ -5,8 +5,10 @@
 #include <fstream>
 #include "Subject/Subject.h"
 #include "Observer/Observer.h"
+#include <map>
 
 enum class StateType;
+enum class CommandType;
 
 class Command : public Subject, public ILoggable{
 	private:
