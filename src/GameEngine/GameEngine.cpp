@@ -158,6 +158,8 @@ void GameEngine::command(const std::string &command) {
 		commandType = CommandType::VALIDATE_MAP;
 	else if (cmd == "ADD_PLAYER")
 		commandType = CommandType::ADD_PLAYER;
+	else if (cmd == "GAME_START")
+		commandType = CommandType::GAME_START;
 	else if (cmd == "ASSIGN_COUNTRIES")
 		commandType = CommandType::ASSIGN_COUNTRIES;
 	else if (cmd == "ISSUE_ORDER")
@@ -230,6 +232,11 @@ void GameEngine::command(const std::string &command) {
 		break;
 	}
 
+	case CommandType::GAME_START: {
+		gameStart();
+		break;
+	}
+	
 	case CommandType::ASSIGN_COUNTRIES: {
 		if (players.empty() || currentMap == nullptr) {
 			std::cout << "Cannot assign countries: No players or map not loaded"
