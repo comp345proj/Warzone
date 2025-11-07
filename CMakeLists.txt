@@ -33,6 +33,7 @@ file(GLOB_RECURSE UTILS_SOURCES "${PROJECT_SOURCE_DIR}/src/Utils/*.cpp")
 file(GLOB_RECURSE OBSERVER_SOURCES "${PROJECT_SOURCE_DIR}/src/Observer/*.cpp")
 file(GLOB_RECURSE COMMAND_PROCESSING_SOURCES "${PROJECT_SOURCE_DIR}/src/CommandProcessing/*.cpp")
 file(GLOB_RECURSE SUBJECT_SOURCES "${PROJECT_SOURCE_DIR}/src/Subject/*.cpp")
+file(GLOB_RECURSE GAME_TYPES_SOURCES "${PROJECT_SOURCE_DIR}/src/GameTypes/*.cpp")
 
 # Create executable
 add_executable(
@@ -46,6 +47,7 @@ add_executable(
     ${OBSERVER_SOURCES}
     ${COMMAND_PROCESSING_SOURCES}
     ${SUBJECT_SOURCES}
+    ${GAME_TYPES_SOURCES}
     src/MainDriver.cpp
 )
 

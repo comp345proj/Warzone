@@ -1,9 +1,9 @@
 #pragma once
+#include "Observer/LogObserver.h"
+#include "Subject/Subject.h"
 #include <iostream>
 #include <list>
 #include <string>
-#include "Observer/LogObserver.h"
-#include "Subject/Subject.h"
 
 // Forward declarations
 enum class CardType;
@@ -34,10 +34,9 @@ class Order : public ILoggable, public Subject {
 	// Logging method
 	std::string stringToLog() override;
 
-
   protected:
 	Player* issuingPlayer; // Player who issued the order
-	CardType cardType;   // Type of card that made the order
+	CardType cardType;	   // Type of card that made the order
 
 	// Get the order description and effect
 	const std::string &getDescription() const;
@@ -60,7 +59,7 @@ class OrdersList : public ILoggable, public Subject {
 
   public:
 	OrdersList();
-	OrdersList(const OrdersList& other);
+	OrdersList(const OrdersList &other);
 	~OrdersList();
 
 	// List management methods

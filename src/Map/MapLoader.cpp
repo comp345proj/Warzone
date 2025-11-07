@@ -81,7 +81,7 @@ Map* MapLoader::loadMap() {
 	Map* map = new Map(wrap, warn, author, image, worldName, scroll);
 
 	std::cout << "Created Map: " << map->getName() << std::endl
-			  << "Author: " << map->getAuthor() 
+			  << "Author: " << map->getAuthor()
 			  << ", Image: " << map->getImage() << std::endl;
 
 	std::cout << "Starting to parse continents..." << std::endl;
@@ -91,7 +91,8 @@ Map* MapLoader::loadMap() {
 		if (line.empty())
 			continue;
 		if (line == TERRITORY_SECTION_HEADER) {
-			std::cout << "Finished parsing continents, moving to territories..." << std::endl;
+			std::cout << "Finished parsing continents, moving to territories..."
+					  << std::endl;
 			break;
 		}
 
@@ -118,9 +119,11 @@ Map* MapLoader::loadMap() {
 	// This is needed to associate adjacent territories correctly
 	std::unordered_map<std::string, Territory*> nameToTerritory;
 
-	// This will be later  used to associate territories with their adjacent territories
+	// This will be later  used to associate territories with their adjacent
+	// territories
 	//  after all territories have been created
-	std::unordered_map<Territory*, std::vector<std::string>> territoryToAdjacentNames;
+	std::unordered_map<Territory*, std::vector<std::string>>
+		territoryToAdjacentNames;
 
 	std::cout << "Starting to parse territories..." << std::endl;
 	while (std::getline(file, line)) {
@@ -143,7 +146,7 @@ Map* MapLoader::loadMap() {
 		continentName = trim(continentName);
 
 		Territory* territory = new Territory(name, x, y);
-		// Add the territory to name-to-territory 
+		// Add the territory to name-to-territory
 		// map for looking up later (to associate with correct continent)
 		nameToTerritory[name] = territory;
 
@@ -162,7 +165,6 @@ Map* MapLoader::loadMap() {
 					  << " for Territory " << name << " is not found."
 					  << std::endl;
 		}
-
 
 		// After adding the territory continent, parse the rest of the line
 		//  The rest of the line are adjacent territories, separated by ','
@@ -203,7 +205,7 @@ Map* MapLoader::loadMap() {
 	return map;
 }
 
-// Helper functions to parse lines in [Map] 
+// Helper functions to parse lines in [Map]
 // Split line at '=', trim spaces, and assign to correct variables
 // substr (0, pos) is key | substr (pos+1) to end is value
 void MapLoader::getMapDetails(const std::string line, bool &wrap, bool &warn,

@@ -17,8 +17,9 @@ class Player {
 	std::string* name;
 	std::vector<Territory*> territories; // Owned territories
 	std::unique_ptr<Hand> hand;			 // Player's hand of cards
-	OrdersList* ordersList = nullptr;		 // List of orders
-	
+	OrdersList* ordersList = nullptr;	 // List of orders
+	int* reinforcementPool; // Number of armies in reinforcement pool
+
   public:
 	Player(const std::string &name, Hand* hand = nullptr);
 	Player(const Player &other);			// Copy constructor
@@ -52,6 +53,10 @@ class Player {
 	// Getters
 	const std::string &getName() const;
 	OrdersList* getOrdersList() const;
+	int getReinforcementPool() const;
+
+	// Setters
+	void setReinforcementPool(int amount);
 
 	friend std::ostream &operator<<(std::ostream &os, const Player &player);
 };

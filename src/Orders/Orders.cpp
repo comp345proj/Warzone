@@ -61,17 +61,14 @@ std::ostream &operator<<(std::ostream &os, const Order &order) {
 // OrdersList implementation
 OrdersList::OrdersList() = default;
 
-OrdersList::OrdersList(const OrdersList& other) {
-	if (other.orders.empty())
-	{
+OrdersList::OrdersList(const OrdersList &other) {
+	if (other.orders.empty()) {
 		return;
 	} else {
-		this->orders.clear();
+		orders.clear();
 
-		for (auto it = other.orders.begin(); it != other.orders.end(); ++it)
-		{
-			switch ((*it)->getCardType())
-			{
+		for (auto it = other.orders.begin(); it != other.orders.end(); ++it) {
+			switch ((*it)->getCardType()) {
 			case CardType::REINFORCEMENT:
 				orders.push_back(new Deploy(*dynamic_cast<Deploy*>(*it)));
 				break;
@@ -121,8 +118,9 @@ void OrdersList::remove(Order* order) {
 				player->addCard(new Card(order->getCardType()));
 			}
 			delete order;
-		} catch (const std::exception& e) {
-			std::cerr << "Exception in OrdersList::remove: " << e.what() << std::endl;
+		} catch (const std::exception &e) {
+			std::cerr << "Exception in OrdersList::remove: " << e.what()
+					  << std::endl;
 		}
 	}
 }
@@ -288,11 +286,11 @@ void Negotiate::execute() {
 
 std::string OrdersList::stringToLog() {
 	Order* lastOrder = orders.back();
-	const std::type_info& type = typeid(*lastOrder);
-    std::string typeName = type.name();
-    size_t pos = typeName.find_first_not_of("0123456789");
-    std::string className = typeName.substr(pos);
-    return "Order Issued: " + std::string(className);
+	const std::type_info &type = typeid(*lastOrder);
+	std::string typeName = type.name();
+	size_t pos = typeName.find_first_not_of("0123456789");
+	std::string className = typeName.substr(pos);
+	return "Order Issued: " + std::string(className);
 }
 
 std::string Deploy::stringToLog() {

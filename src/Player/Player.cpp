@@ -5,15 +5,18 @@
 
 Player::Player(const std::string &name, Hand* hand)
 	: name(new std::string(name)),
-			hand(hand ? std::make_unique<Hand>(*hand) : std::make_unique<Hand>()) {
-		// Ensure ordersList is initialized
-		ordersList = new OrdersList();
+	  hand(hand ? std::make_unique<Hand>(*hand) : std::make_unique<Hand>()),
+	  reinforcementPool(new int(0)) {
+	// Ensure ordersList is initialized
+	ordersList = new OrdersList();
 }
 
 // Copy constructor (deep copy)
 Player::Player(const Player &copiedPlayer)
-	: name(new std::string(*copiedPlayer.name)), territories(copiedPlayer.territories),
-	  hand(std::make_unique<Hand>(*copiedPlayer.hand)) {
+	: name(new std::string(*copiedPlayer.name)),
+	  territories(copiedPlayer.territories),
+	  hand(std::make_unique<Hand>(*copiedPlayer.hand)),
+	  reinforcementPool(new int(*copiedPlayer.reinforcementPool)) {
 	// Deep copy ordersList if present
 	if (copiedPlayer.ordersList) {
 		ordersList = new OrdersList(*copiedPlayer.ordersList);
@@ -26,9 +29,11 @@ Player::Player(const Player &copiedPlayer)
 Player &Player::operator=(const Player &other) {
 	if (this != &other) {
 		delete name; // Free existing resource
+		delete reinforcementPool;
 		name = new std::string(*other.name);
 		territories = other.territories;
 		hand = std::make_unique<Hand>(*other.hand);
+		reinforcementPool = new int(*other.reinforcementPool);
 		// Deep copy other's ordersList
 		if (ordersList) {
 			delete ordersList;
@@ -46,6 +51,7 @@ Player &Player::operator=(const Player &other) {
 // Destructor (no manual delete needed)
 Player::~Player() {
 	delete name;
+	delete reinforcementPool;
 	if (ordersList) {
 		delete ordersList;
 		ordersList = nullptr;
@@ -125,10 +131,19 @@ const std::string &Player::getName() const {
 	return *name;
 }
 
+int Player::getReinforcementPool() const {
+	return *reinforcementPool;
+}
+
+void Player::setReinforcementPool(int amount) {
+	*reinforcementPool = amount;
+}
+
 std::ostream &operator<<(std::ostream &os, const Player &player) {
 	os << "Player: " << *player.name << "\n";
 	os << "Territories owned: " << player.territories.size() << "\n";
 	os << "Cards in hand: " << player.hand->getCards().size() << "\n";
 	os << "Orders issued: " << player.ordersList->getOrders().size() << "\n";
+	os << "Reinforcement pool: " << *player.reinforcementPool << "\n";
 	return os;
 }

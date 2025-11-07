@@ -1,50 +1,52 @@
 #include "Cards/Cards.h"
 #include "Cards/CardsDriver.h"
+#include "CommandProcessing/CommandProcessingDriver.h"
+#include "GameEngine/GameEngine.h"
+#include "GameEngine/GameEngineDriver.h"
 #include "Map/Map.h"
 #include "Map/MapDriver.h"
+#include "Observer/LoggingObserverDriver.h"
 #include "Orders/Orders.h"
 #include "Orders/OrdersDriver.h"
 #include "Player/Player.h"
 #include "Player/PlayerDriver.h"
-#include "GameEngine/GameEngine.h"
-#include "GameEngine/GameEngineDriver.h"
 #include "Utils/Utils.h"
-#include "CommandProcessing/CommandProcessingDriver.h"
-#include "Observer/LoggingObserverDriver.h"
 #include <iostream>
 
 int main(int argc, char* argv[]) {
-	if (argc <= 1)
-	{
-		std::cout << "No arguments provided. Usage: ./WarzoneTestDriver [-console] OR [-file filename]" << std::endl;
+	if (argc <= 1) {
+		std::cout << "No arguments provided. Usage: ./WarzoneTestDriver "
+					 "[-console] OR [-file filename]"
+				  << std::endl;
 		return 1;
 	}
-	if (argc >= 4)
-	{
-		std::cout << "Too many arguments provided. Usage: ./WarzoneTestDriver [-console] OR [-file filename]" << std::endl;
+	if (argc >= 4) {
+		std::cout << "Too many arguments provided. Usage: ./WarzoneTestDriver "
+					 "[-console] OR [-file filename]"
+				  << std::endl;
 		return 1;
 	}
 
 	// std::string commandOption;
-    // std::string filename;
+	// std::string filename;
 
-    // for (int i = 0; i < argc; ++i)
-    // {
-    //     std::cout << "Argument " << i << ": " << argv[i] << std::endl;
-    //     if (i == 1)
-    //     {
-    //         commandOption = argv[i];
-    //     }
-    //     else if (i == 2)
-    //     {
-    //         filename = argv[i];
-    //     }
-    // }
+	// for (int i = 0; i < argc; ++i)
+	// {
+	//     std::cout << "Argument " << i << ": " << argv[i] << std::endl;
+	//     if (i == 1)
+	//     {
+	//         commandOption = argv[i];
+	//     }
+	//     else if (i == 2)
+	//     {
+	//         filename = argv[i];
+	//     }
+	// }
 
-    // if (commandOption == "-file")
-    // {
-    //     // Load file as input
-    // }
+	// if (commandOption == "-file")
+	// {
+	//     // Load file as input
+	// }
 
 	std::cout << "Warzone Game Test Driver\n"
 			  << std::endl
@@ -63,7 +65,9 @@ int main(int argc, char* argv[]) {
 	std::cout << SEPARATOR_LINE << std::endl << "Player Tests\n" << std::endl;
 	testPlayers();
 
-	std::cout << SEPARATOR_LINE << std::endl << "Game Engine Tests\n" << std::endl;
+	std::cout << SEPARATOR_LINE << std::endl
+			  << "Game Engine Tests\n"
+			  << std::endl;
 	testGameStates();
 
 	std::cout << SEPARATOR_LINE << std::endl;

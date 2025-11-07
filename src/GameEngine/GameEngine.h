@@ -1,51 +1,20 @@
 #pragma once
+#include "CommandProcessing/CommandProcessing.h"
 #include "Map/Map.h"
 #include "Map/MapLoader.h"
-#include "Utils/Utils.h"
 #include "Player/Player.h"
-#include "CommandProcessing/CommandProcessing.h"
+#include "Utils/Utils.h"
 #include <filesystem>
 #include <iostream>
+#include <map>
 #include <string>
 #include <vector>
-#include <map>
-// forward declarations
+
+// Forward declarations
 class State;
 class GameEngine;
 
-
-enum class StateType {
-	START,
-	MAP_LOADED,
-	MAP_VALIDATED,
-	PLAYERS_ADDED,
-	ASSIGN_REINFORCEMENT,
-	ISSUE_ORDERS,
-	EXECUTE_ORDERS,
-	WIN,
-};
-
-enum class CommandType {
-	LOAD_MAP,
-	VALIDATE_MAP,
-	ADD_PLAYER,
-	ASSIGN_COUNTRIES,
-	ISSUE_ORDER,
-	END_ISSUE_ORDERS,
-	EXECUTE_ORDER,
-	END_EXECUTE_ORDERS,
-	WIN,
-	END,
-	PLAY,
-};
-
-
-
-std::string commandTypeToString(CommandType state);
-CommandType stringToCommandType(const std::string &commandStr);
 void printInvalidCommandError(StateType currentState);
-
-std::string stateTypeToString(StateType state);
 
 //----------------------------State-------------------------------
 
@@ -79,19 +48,20 @@ class GameEngine : public ILoggable, public Subject {
 	MapLoader* mapLoader;
 	std::string* currentMapPath;
 	CommandProcessor* commandProcessor;
+	Deck* deck;
 
-  public:  
+  public:
 	GameEngine();
 	GameEngine(const GameEngine &other);			// Copy constructor
 	GameEngine &operator=(const GameEngine &other); // Assignment operator
-	GameEngine(CommandProcessor& cP);
+	GameEngine(CommandProcessor &cP);
 	~GameEngine();
 
 	void command(const std::string &command);
-    void addPlayer(const std::string &playerName);
-    bool isGameOver() const;
+	void addPlayer(const std::string &playerName);
+	bool isGameOver() const;
 
-	CommandProcessor& getCommandProcessor();
+	CommandProcessor &getCommandProcessor();
 	// void update(Command& command);
 
 	// Logging method
@@ -103,12 +73,23 @@ class GameEngine : public ILoggable, public Subject {
 	friend std::ostream &operator<<(std::ostream &output,
 									const GameEngine &gameEngine);
 
-    // Static member for valid commands
-    static std::map<StateType, std::vector<CommandType>> validCommands;
-    
-    // Static method to initialize valid commands
-    // static void initializeValidCommands();
-    
-    // Static method to get valid commands for a state
-    static const std::vector<CommandType>& getValidCommandsForState(StateType state);
+	// Static member for valid commands
+	static std::map<StateType, std::vector<CommandType>> validCommands;
+
+	// Static method to initialize valid commands
+	// static void initializeValidCommands();
+
+	// Static method to get valid commands for a state
+	static const std::vector<CommandType> &
+	getValidCommandsForState(StateType state);
+
+	// Startup phase method
+	void startupPhase();
+
+	// Helper methods for startup phase
+	void loadMap(const std::string &filename);
+	void validateMap();
+	void gameStart();
+	void distributeInitialArmies();
+	void drawInitialCards();
 };

@@ -1,7 +1,7 @@
 #pragma once
 
-#include <string>
 #include <sstream>
+#include <string>
 #include <vector>
 
 extern const std::string MAP_SECTION_HEADER;

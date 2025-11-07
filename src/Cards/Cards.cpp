@@ -26,7 +26,8 @@ Order* Card::createOrder() const {
 	}
 }
 
-// Plays a card, creates corresponding order, and returns card to deck atomically
+// Plays a card, creates corresponding order, and returns card to deck
+// atomically
 void Card::play(Player* player, Deck* deck) {
 	if (!player || !deck) {
 		std::cout << "Invalid player or deck" << std::endl;
@@ -36,8 +37,7 @@ void Card::play(Player* player, Deck* deck) {
 	// Create corresponding order
 	Order* order = createOrder();
 	if (order) {
-		std::cout << "Created " << getTypeString(this->type) << " order"
-				  << std::endl;
+		std::cout << "Created " << getTypeString(type) << " order" << std::endl;
 
 		player->removeCard(this); // Remove card from player's hand
 		player->addOrder(order);  // Add order to player's order list
@@ -107,6 +107,30 @@ std::ostream &operator<<(std::ostream &os, const Hand &hand) {
 Deck::Deck()
 	: rng(std::chrono::system_clock::now().time_since_epoch().count()) {
 	initialize();
+}
+
+Deck::Deck(const Deck &other)
+	: rng(std::chrono::system_clock::now().time_since_epoch().count()) {
+	// Deep copy of cards
+	for (Card* card : other.cards) {
+		cards.push_back(new Card(card->getType()));
+	}
+}
+
+Deck &Deck::operator=(const Deck &other) {
+	if (this != &other) {
+		// Clear existing cards
+		for (Card* card : cards) {
+			delete card;
+		}
+		cards.clear();
+
+		// Deep copy of cards
+		for (Card* card : other.cards) {
+			cards.push_back(new Card(card->getType()));
+		}
+	}
+	return *this;
 }
 
 Deck::~Deck() {

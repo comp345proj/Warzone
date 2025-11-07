@@ -51,7 +51,7 @@ class Card {
 class Hand {
   private:
 	std::vector<Card*> cards;
-	
+
   public:
 	Hand();
 	~Hand();
@@ -75,6 +75,8 @@ class Deck {
 
   public:
 	Deck();
+	Deck(const Deck &other);
+	Deck &operator=(const Deck &other);
 	~Deck();
 
 	// Initialize deck with cards

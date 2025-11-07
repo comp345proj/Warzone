@@ -7,36 +7,30 @@
 //---------------------------Territory-------------------------------
 
 // Constructor with parameters for name and coordinates.
-// Initializes number of armies to 0 
-Territory::Territory(const std::string &name, int posX, int posY) {
-	this->name = new std::string(name);
-	this->x = new int(posX);
-	this->y = new int(posY);
-	this->nbOfArmies = new int(0);
-	this->player = nullptr;
-}
+// Initializes number of armies to 0
+Territory::Territory(const std::string &name, int posX, int posY)
+	: name(new std::string(name)), x(new int(posX)), y(new int(posY)),
+	  nbOfArmies(new int(0)), player(nullptr) {}
 
 // Destructor to clean up dynamically allocated memory.
 Territory::~Territory() {
-	delete this->name;
-	delete this->x;
-	delete this->y;
-	delete this->nbOfArmies;
-	delete this->player;
-	this->name = nullptr;
-	this->x = nullptr;
-	this->y = nullptr;
-	this->nbOfArmies = nullptr;
-	this->player = nullptr;
+	delete name;
+	delete x;
+	delete y;
+	delete nbOfArmies;
+	name = nullptr;
+	x = nullptr;
+	y = nullptr;
+	nbOfArmies = nullptr;
 }
 
 // Copy constructor
 Territory::Territory(const Territory &territory2) {
-	this->name = new std::string(*(territory2.name));
-	this->x = new int(*(territory2.x));
-	this->y = new int(*(territory2.y));
-	this->adjacentTerritories = territory2.adjacentTerritories;
-	this->nbOfArmies = new int(*(territory2.nbOfArmies));
+	name = new std::string(*(territory2.name));
+	x = new int(*(territory2.x));
+	y = new int(*(territory2.y));
+	adjacentTerritories = territory2.adjacentTerritories;
+	nbOfArmies = new int(*(territory2.nbOfArmies));
 }
 
 // Adds an adjacent territory to the current territory's adjacency list.
@@ -45,8 +39,9 @@ void Territory::addAdjacentTerritory(Territory* territory) {
 }
 
 /*
-	** Getters for name, coordinates, number of armies, and adjacent territories. **
-*/
+ ** Getters for name, coordinates, number of armies, and adjacent territories.
+ * **
+ */
 std::string Territory::getName() const {
 	return *name;
 }
@@ -66,34 +61,34 @@ const std::vector<Territory*> &Territory::getAdjacentTerritories() const {
 }
 
 Player* Territory::getPlayer() {
-	return this->player;
+	return player;
 }
 
 // Basic setters
 void Territory::setName(const std::string &n) {
-	delete this->name;
-	this->name = new std::string(n);
+	delete name;
+	name = new std::string(n);
 }
 void Territory::setX(int posX) {
-	delete this->x;
-	this->x = new int(posX);
+	delete x;
+	x = new int(posX);
 }
 void Territory::setY(int posY) {
-	delete this->y;
-	this->y = new int(posY);
+	delete y;
+	y = new int(posY);
 }
 
 void Territory::setNbOfArmies(int numOfArmies) {
-	delete this->nbOfArmies;
-	this->nbOfArmies = new int(numOfArmies);
+	delete nbOfArmies;
+	nbOfArmies = new int(numOfArmies);
 }
 
 void Territory::setPlayer(Player* p) {
-	this->player = p;
+	player = p;
 }
 
 // Assignment Operator
-// Custom Operator which handles self-assignment and deep copies the data. 
+// Custom Operator which handles self-assignment and deep copies the data.
 Territory &Territory::operator=(const Territory &territory2) {
 	if (this == &territory2)
 		return *this;
@@ -101,7 +96,6 @@ Territory &Territory::operator=(const Territory &territory2) {
 	delete x;
 	delete y;
 	delete nbOfArmies;
-	delete player;
 	name = new std::string(*(territory2.name));
 	x = new int(*(territory2.x));
 	y = new int(*(territory2.y));
@@ -122,52 +116,52 @@ std::ostream &operator<<(std::ostream &out, const Territory &territory) {
 
 //-------------------------------Continent-----------------------------
 // Constructor with parameters for name and reinforcement bonus.
-Continent::Continent(const std::string &name, int reinforcementBonus) {
-	this->name = new std::string(name);
-	this->reinforcementBonus = new int(reinforcementBonus);
-}
+Continent::Continent(const std::string &name, int reinforcementBonus)
+	: name(new std::string(name)),
+	  reinforcementBonus(new int(reinforcementBonus)) {}
 
 // Copy constructor
 Continent::Continent(const Continent &continent2) {
-	this->name = new std::string(*(continent2.name));
-	this->reinforcementBonus = new int(*(continent2.reinforcementBonus));
-	this->territories = continent2.territories;
+	name = new std::string(*(continent2.name));
+	reinforcementBonus = new int(*(continent2.reinforcementBonus));
+	territories = continent2.territories;
 }
 
 // Custom Destructor to clean up dynamically allocated memory.
-// territories vector is not deleted here, will be handled by Map class destructor.
+// territories vector is not deleted here, will be handled by Map class
+// destructor.
 Continent::~Continent() {
-	delete this->name;
-	delete this->reinforcementBonus;
-	this->name = nullptr;
-	this->reinforcementBonus = nullptr;
+	delete name;
+	delete reinforcementBonus;
+	name = nullptr;
+	reinforcementBonus = nullptr;
 }
 
 // Adds a territory to the current continent's territories vector.
 void Continent::addTerritory(Territory* territory) {
-	this->territories.push_back(territory);
+	territories.push_back(territory);
 }
 
 // Basic getters
 const std::vector<Territory*> &Continent::getTerritories() const {
-	return this->territories;
+	return territories;
 }
 int Continent::getReinforcementBonus() const {
-	return *this->reinforcementBonus;
+	return *reinforcementBonus;
 }
 std::string Continent::getName() const {
-	return *this->name;
+	return *name;
 }
 
 // Assignment Operator, handles self-assignment and deep copies the data.
 Continent &Continent::operator=(const Continent &continent2) {
 	if (this == &continent2)
 		return *this;
-	delete this->name;
-	delete this->reinforcementBonus;
-	this->name = new std::string(*(continent2.name));
-	this->reinforcementBonus = new int(*(continent2.reinforcementBonus));
-	this->territories = continent2.territories;
+	delete name;
+	delete reinforcementBonus;
+	name = new std::string(*(continent2.name));
+	reinforcementBonus = new int(*(continent2.reinforcementBonus));
+	territories = continent2.territories;
 	return *this;
 }
 
@@ -182,14 +176,10 @@ std::ostream &operator<<(std::ostream &out, const Continent &continent) {
 // Constructor with parameters for map properties.
 Map::Map(bool wrap, bool warn, const std::string &author,
 		 const std::string &image, const std::string &name,
-		 const std::string &scroll) {
-	this->wrap = new bool(wrap);
-	this->warn = new bool(warn);
-	this->author = new std::string(author);
-	this->image = new std::string(image);
-	this->name = new std::string(name);
-	this->scroll = new std::string(scroll);
-}
+		 const std::string &scroll)
+	: wrap(new bool(wrap)), warn(new bool(warn)),
+	  author(new std::string(author)), image(new std::string(image)),
+	  name(new std::string(name)), scroll(new std::string(scroll)) {}
 
 // Custom Destructor to clean up dynamically allocated memory.
 // Also deletes all territories and continents associated with the map.
@@ -218,27 +208,28 @@ Map::~Map() {
 	territories.clear();
 }
 
-// Copy constructor for deep copying map properties and references to territories and continents.
+// Copy constructor for deep copying map properties and references to
+// territories and continents.
 Map::Map(const Map &map2) {
-	this->image = new std::string(*(map2.image));
-	this->scroll = new std::string(*(map2.scroll));
-	this->author = new std::string(*(map2.author));
-	this->name = new std::string(*(map2.name));
-	this->wrap = new bool(*(map2.wrap));
-	this->warn = new bool(*(map2.warn));
+	image = new std::string(*(map2.image));
+	scroll = new std::string(*(map2.scroll));
+	author = new std::string(*(map2.author));
+	name = new std::string(*(map2.name));
+	wrap = new bool(*(map2.wrap));
+	warn = new bool(*(map2.warn));
 
-	this->territories = map2.territories;
-	this->continents = map2.continents;
+	territories = map2.territories;
+	continents = map2.continents;
 }
 
 // Adds a territory to the map's territories vector.
 void Map::addTerritory(Territory* territory) {
-	this->territories.push_back(territory);
+	territories.push_back(territory);
 }
 
 // Adds a continent to the map's continents vector.
 void Map::addContinent(Continent* continent) {
-	this->continents.push_back(continent);
+	continents.push_back(continent);
 }
 
 // Basic getters
@@ -274,14 +265,14 @@ Map &Map::operator=(const Map &map2) {
 	delete name;
 	delete wrap;
 	delete warn;
-	this->image = new std::string(*(map2.image));
-	this->scroll = new std::string(*(map2.scroll));
-	this->author = new std::string(*(map2.author));
-	this->name = new std::string(*(map2.name));
-	this->wrap = new bool(*(map2.wrap));
-	this->warn = new bool(*(map2.warn));
-	this->territories = map2.territories;
-	this->continents = map2.continents;
+	image = new std::string(*(map2.image));
+	scroll = new std::string(*(map2.scroll));
+	author = new std::string(*(map2.author));
+	name = new std::string(*(map2.name));
+	wrap = new bool(*(map2.wrap));
+	warn = new bool(*(map2.warn));
+	territories = map2.territories;
+	continents = map2.continents;
 	return *this;
 }
 
@@ -293,7 +284,8 @@ std::ostream &operator<<(std::ostream &out, const Map &map) {
 
 //----------------------- Map Validation Methods -----------------------
 // Depth-first search to visit territories and build the visited set.
-void Map::depthFirstSearch(Territory* start, std::unordered_set<Territory*> &visited) const {
+void Map::depthFirstSearch(Territory* start,
+						   std::unordered_set<Territory*> &visited) const {
 	// Base case: if already visited, return.
 	if (visited.find(start) != visited.end())
 		return;
@@ -313,22 +305,24 @@ bool Map::isConnectedGraph() const {
 	std::unordered_set<Territory*> visited;
 	depthFirstSearch(territories[0], visited);
 
-	// If the number of visited territories equals total territories, it's connected.
+	// If the number of visited territories equals total territories, it's
+	// connected.
 	return visited.size() == territories.size();
 }
 
-// Checks if all continents in the map are interconnected through their territories.
-// Satisfies: 2) all continents are connected subgraphs
+// Checks if all continents in the map are interconnected through their
+// territories. Satisfies: 2) all continents are connected subgraphs
 bool Map::areContinentsConnected() const {
 	if (continents.empty() || territories.empty())
 		return true;
 
-	// Perform DFS from the first territory and see if we can reach at least one territory in each continent.
+	// Perform DFS from the first territory and see if we can reach at least one
+	// territory in each continent.
 	std::unordered_set<Territory*> visited;
 	depthFirstSearch(territories[0], visited);
 
-	// Loops through each continent to check if at least one territory has been visited.
-	// If any continent has no visited territories, return false.
+	// Loops through each continent to check if at least one territory has been
+	// visited. If any continent has no visited territories, return false.
 	for (Continent* continent : continents) {
 		bool continentVisited = false;
 
