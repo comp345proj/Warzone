@@ -11,7 +11,6 @@ Player::Player(const std::string &name, Hand* hand)
 	ordersList = new OrdersList();
 }
 
-// Copy constructor (deep copy)
 Player::Player(const Player &copiedPlayer)
 	: name(new std::string(*copiedPlayer.name)),
 	  territories(copiedPlayer.territories),
@@ -25,7 +24,6 @@ Player::Player(const Player &copiedPlayer)
 	}
 }
 
-// Copy assignment (deep copy)
 Player &Player::operator=(const Player &other) {
 	if (this != &other) {
 		delete name; // Free existing resource
@@ -48,7 +46,6 @@ Player &Player::operator=(const Player &other) {
 	return *this;
 }
 
-// Destructor (no manual delete needed)
 Player::~Player() {
 	delete name;
 	delete reinforcementPool;
@@ -58,7 +55,6 @@ Player::~Player() {
 	}
 }
 
-// Territory management
 void Player::addTerritory(Territory* territory) {
 	if (territory) {
 		territories.push_back(territory);
@@ -75,7 +71,6 @@ const std::vector<Territory*> &Player::getTerritories() const {
 	return territories;
 }
 
-// Card management
 void Player::addCard(Card* card) {
 	if (card && hand) {
 		hand->addCard(card);
@@ -102,7 +97,6 @@ void Player::setHand(Hand* newHand) {
 	}
 }
 
-// Order management
 void Player::addOrder(Order* order) {
 	if (order) {
 		ordersList->addOrder(order);
@@ -113,20 +107,103 @@ OrdersList* Player::getOrdersList() const {
 	return ordersList;
 }
 
-// Required methods
 std::vector<Territory*> Player::toDefend() {
-	return territories;
+	std::vector<Territory*> toDefendList = territories;
+
+	// Sort territories by priority (in this case, by number of armies)
+	std::sort(
+		toDefendList.begin(), toDefendList.end(),
+		[](Territory* a, Territory* b) {
+			return a->getArmies() <
+				   b->getArmies(); // Prioritize territories with fewer armies
+		});
+
+	return toDefendList;
 }
 
 std::vector<Territory*> Player::toAttack() {
-	return {};
+	std::vector<Territory*> toAttackList;
+	std::set<Territory*> enemyTerritories;
+
+	// Find all neighboring enemy territories
+	for (Territory* myTerritory : territories) {
+		const std::vector<Territory*> &neighbors = myTerritory->getNeighbors();
+		for (Territory* neighbor : neighbors) {
+			// Check if this territory belongs to another player
+			bool isEnemyTerritory = true;
+			for (Territory* ownedTerritory : territories) {
+				if (neighbor == ownedTerritory) {
+					isEnemyTerritory = false;
+					break;
+				}
+			}
+			if (isEnemyTerritory) {
+				enemyTerritories.insert(neighbor);
+			}
+		}
+	}
+
+	// Convert set to vector and sort by priority (in this case, by number of
+	// armies)
+	toAttackList = std::vector<Territory*>(enemyTerritories.begin(),
+										   enemyTerritories.end());
+	std::sort(
+		toAttackList.begin(), toAttackList.end(),
+		[](Territory* a, Territory* b) {
+			return a->getArmies() <
+				   b->getArmies(); // Prioritize territories with fewer armies
+		});
+
+	return toAttackList;
 }
 
-void Player::issueOrder(Card* playedCard, Deck* deck) {
-	playedCard->play(this, deck);
+void Player::issueOrder(Deck* deck, Card* playedCard) {
+	if (getReinforcementPool() > 0) {
+		auto territoriesToDefend = toDefend();
+		if (!territoriesToDefend.empty()) {
+			Territory* target = territoriesToDefend[0];
+			int armies = getReinforcementPool();
+			Deploy* deployOrder = new Deploy(this, target, armies);
+			addOrder(deployOrder);
+			setReinforcementPool(0);
+			return;
+		}
+	}
+
+	if (playedCard != nullptr && deck != nullptr) {
+		playedCard->play(this, deck);
+		return;
+	}
+
+	auto defendList = toDefend();
+	auto attackList = toAttack();
+
+	if (!defendList.empty() && (attackList.empty() || rand() % 2 == 0)) {
+		// Issue a defend order
+		Territory* fromTerritory = defendList[rand() % defendList.size()];
+		Territory* toTerritory = defendList[rand() % defendList.size()];
+		if (fromTerritory != toTerritory && fromTerritory->getArmies() > 0) {
+			int armiesToMove = rand() % fromTerritory->getArmies() + 1;
+			issueAdvanceOrder(fromTerritory, toTerritory, armiesToMove);
+		}
+	} else if (!attackList.empty()) {
+		// Issue an attack order
+		Territory* fromTerritory = defendList[rand() % defendList.size()];
+		Territory* toTerritory = attackList[rand() % attackList.size()];
+		if (fromTerritory->getArmies() > 0) {
+			int armiesToAttack = rand() % fromTerritory->getArmies() + 1;
+			issueAdvanceOrder(fromTerritory, toTerritory, armiesToAttack);
+		}
+	}
 }
 
-// Getters
+void Player::issueAdvanceOrder(Territory* from, Territory* to, int numArmies) {
+	if (from && to && numArmies > 0) {
+		Advance* advanceOrder = new Advance(this, from, to, numArmies);
+		addOrder(advanceOrder);
+	}
+}
+
 const std::string &Player::getName() const {
 	return *name;
 }

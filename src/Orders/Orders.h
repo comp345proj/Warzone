@@ -1,16 +1,17 @@
 #pragma once
 #include "Observer/LogObserver.h"
 #include "Subject/Subject.h"
+#include "GameTypes/GameTypes.h"
 #include <iostream>
 #include <list>
 #include <string>
 
 // Forward declarations
-enum class CardType;
 class Order;
 class OrdersList;
 class Player;
 class Map;
+class Territory;
 
 // Abstract base class for all orders
 class Order : public ILoggable, public Subject {
@@ -80,56 +81,85 @@ class OrdersList : public ILoggable, public Subject {
 
 // Concrete Order classes (sub-classes of Order)
 class Deploy : public Order {
+  private:
+	Territory* target;
+	int numArmies;
+
   public:
-	Deploy();
+	Deploy(Player* player, Territory* target, int numArmies);
 	bool validate() const override;
 	void execute() override;
-	// Logging method
 	std::string stringToLog() override;
 };
 
 class Advance : public Order {
+  private:
+	Territory* source;
+	Territory* target;
+	int numArmies;
+	static bool canAttack(Player* attacker,
+						  Player* defender); // For negotiate validation
+
   public:
-	Advance();
+	Advance(Player* player, Territory* source, Territory* target,
+			int numArmies);
 	bool validate() const override;
 	void execute() override;
-	// Logging method
 	std::string stringToLog() override;
+
+	// Static method to track negotiated pairs
+	static void addNegotiatedPair(Player* p1, Player* p2);
+	static void clearNegotiatedPairs();
 };
 
 class Bomb : public Order {
+  private:
+	Territory* target;
+
   public:
-	Bomb();
+	Bomb(Player* player, Territory* target);
 	bool validate() const override;
 	void execute() override;
-	// Logging method
 	std::string stringToLog() override;
 };
 
 class Blockade : public Order {
+  private:
+	Territory* target;
+	static Player* neutralPlayer; // Singleton neutral player
+
   public:
-	Blockade();
+	Blockade(Player* player, Territory* target);
 	bool validate() const override;
 	void execute() override;
-	// Logging method
 	std::string stringToLog() override;
+
+	// Static method to get/create neutral player
+	static Player* getNeutralPlayer();
 };
 
 class Airlift : public Order {
+  private:
+	Territory* source;
+	Territory* target;
+	int numArmies;
+
   public:
-	Airlift();
+	Airlift(Player* player, Territory* source, Territory* target,
+			int numArmies);
 	bool validate() const override;
 	void execute() override;
-	// Logging method
 	std::string stringToLog() override;
 };
 
 class Negotiate : public Order {
+  private:
+	Player* targetPlayer;
+
   public:
-	Negotiate();
+	Negotiate(Player* player, Player* targetPlayer);
 	bool validate() const override;
 	void execute() override;
-	// Logging method
 	std::string stringToLog() override;
 };
 

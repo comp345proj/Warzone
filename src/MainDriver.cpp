@@ -1,6 +1,6 @@
 #include "Cards/Cards.h"
 #include "Cards/CardsDriver.h"
-#include "CommandProcessing/CommandProcessingDriver.h"
+#include "CommandProcessor/CommandProcessorDriver.h"
 #include "GameEngine/GameEngine.h"
 #include "GameEngine/GameEngineDriver.h"
 #include "Map/Map.h"
@@ -65,21 +65,21 @@ int main(int argc, char* argv[]) {
 	std::cout << SEPARATOR_LINE << std::endl << "Player Tests\n" << std::endl;
 	testPlayers();
 
+	std::cout << SEPARATOR_LINE << std::endl;
+	std::cout << "ASSIGNMENT 2" << std::endl;
+	std::cout << SEPARATOR_LINE << std::endl;
+	
+	std::cout << "Command Processing Tests\n" << std::endl;
+	testCommandProcessor(argc, argv);
+	
+	std::cout << SEPARATOR_LINE << std::endl;
+	std::cout << "Logging Observer Tests\n" << std::endl;
+	testLoggingObserver();
+
 	std::cout << SEPARATOR_LINE << std::endl
 			  << "Game Engine Tests\n"
 			  << std::endl;
 	testGameStates();
-
-	std::cout << SEPARATOR_LINE << std::endl;
-	std::cout << "ASSIGNMENT 2" << std::endl;
-	std::cout << SEPARATOR_LINE << std::endl;
-
-	std::cout << "Command Processing Tests\n" << std::endl;
-	testCommandProcessor(argc, argv);
-
-	std::cout << SEPARATOR_LINE << std::endl;
-	std::cout << "Logging Observer Tests\n" << std::endl;
-	testLoggingObserver();
 
 	return 0;
 }

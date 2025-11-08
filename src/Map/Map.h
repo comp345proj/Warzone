@@ -19,7 +19,7 @@ class Territory {
 	Player* player;
 	std::string* name;
 	IntPtr x, y; // Coordinates on the map
-	IntPtr nbOfArmies;
+	IntPtr armies;
 	std::vector<Territory*> adjacentTerritories;
 
   public:
@@ -35,10 +35,20 @@ class Territory {
 
 	int getY() const;
 
-	int getNbOfArmies() const;
+	int getArmies() const {
+		return *armies;
+	}
+	void addArmies(int amount) {
+		*armies += amount;
+	}
+	void removeArmies(int amount) {
+		*armies = std::max(0, *armies - amount);
+	}
+	const std::vector<Territory*> &getNeighbors() const {
+		return adjacentTerritories;
+	}
 
 	const std::vector<Territory*> &getAdjacentTerritories() const;
-
 	Player* getPlayer();
 
 	// Setters
@@ -48,7 +58,7 @@ class Territory {
 
 	void setY(int newY);
 
-	void setNbOfArmies(int nb);
+	void setArmies(int nb);
 
 	void addAdjacentTerritory(Territory* t);
 
@@ -72,6 +82,9 @@ class Continent {
 	// Basic getters
 	const std::vector<Territory*> &getTerritories() const;
 	int getReinforcementBonus() const;
+	int getBonus() const {
+		return *reinforcementBonus;
+	}
 	std::string getName() const;
 };
 

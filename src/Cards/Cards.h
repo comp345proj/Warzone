@@ -1,4 +1,5 @@
 #pragma once
+#include "GameTypes/GameTypes.h"
 #include "Orders/Orders.h"
 #include "Player/Player.h"
 #include <memory>
@@ -12,33 +13,17 @@ class Card;
 class Hand;
 class Deck;
 
-// Enum for card types
-enum class CardType {
-	BOMB,
-	REINFORCEMENT,
-	BLOCKADE,
-	AIRLIFT,
-	DIPLOMACY,
-	UNKNOWN
-};
-
 // Card class
 class Card {
   private:
 	CardType type;
 
-	// Helper to create appropriate order based on card type
-	Order* createOrder() const;
-
   public:
 	Card(CardType type);
 	virtual ~Card();
 
-	// Convert card type to string
-	static std::string getTypeString(CardType type);
-
 	// Play the card, create corresponding order, and return card to deck
-	void play(Player* player, Deck* deck);
+	bool play(Player* player, Deck* deck);
 
 	// Get the type of card
 	CardType getType() const;

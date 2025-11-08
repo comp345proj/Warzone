@@ -15,15 +15,15 @@ class OrdersList;
 class Player {
   private:
 	std::string* name;
-	std::vector<Territory*> territories; // Owned territories
-	std::unique_ptr<Hand> hand;			 // Player's hand of cards
-	OrdersList* ordersList = nullptr;	 // List of orders
-	int* reinforcementPool; // Number of armies in reinforcement pool
+	std::vector<Territory*> territories;
+	std::unique_ptr<Hand> hand;
+	OrdersList* ordersList = nullptr;
+	int* reinforcementPool;
 
   public:
 	Player(const std::string &name, Hand* hand = nullptr);
-	Player(const Player &other);			// Copy constructor
-	Player &operator=(const Player &other); // Assignment operator
+	Player(const Player &other);
+	Player &operator=(const Player &other);
 	~Player();
 
 	// Territory management
@@ -38,17 +38,20 @@ class Player {
 
 	Hand* getHand() const;
 
-	// Set the player's hand (takes ownership)
 	void setHand(Hand* newHand);
 
 	// Order management
 	void addOrder(Order* order);
 
-	// Required methods
-	std::vector<Territory*> toDefend(); // Returns territories to be defended
-	std::vector<Territory*> toAttack(); // Returns territories to be attacked
-	void issueOrder(Card* playedCard,
-					Deck* deck); // Creates an order and adds to list
+	// Strategy methods
+	std::vector<Territory*>
+	toDefend(); // Returns territories to be defended in priority
+	std::vector<Territory*>
+	toAttack(); // Returns neighboring territories to be attacked in priority
+
+	// Order issuing
+	void issueOrder(Deck* deck, Card* playedCard = nullptr);
+	void issueAdvanceOrder(Territory* from, Territory* to, int numArmies);
 
 	// Getters
 	const std::string &getName() const;

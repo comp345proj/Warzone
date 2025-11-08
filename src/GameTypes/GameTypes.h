@@ -1,40 +1,52 @@
 #pragma once
 #include <string>
+#include <map>
 
 namespace GameTypes {
 
 enum class StateType {
-	START,
-	MAP_LOADED,
-	MAP_VALIDATED,
-	PLAYERS_ADDED,
-	ASSIGN_REINFORCEMENT,
-	ISSUE_ORDERS,
-	EXECUTE_ORDERS,
-	WIN,
+	start,
+	maploaded,
+	mapvalidated,
+	playeradded,
+	assignreinforcement,
+	issueorders,
+	executeorders,
+	win,
+	invalid
 };
 
 enum class CommandType {
-	LOAD_MAP,
-	VALIDATE_MAP,
-	ADD_PLAYER,
-	GAME_START,
-	ASSIGN_COUNTRIES,
-	ISSUE_ORDER,
-	END_ISSUE_ORDERS,
-	EXECUTE_ORDER,
-	END_EXECUTE_ORDERS,
-	WIN,
-	END,
-	PLAY,
+	loadmap,
+	validatemap,
+	addplayer,
+	gamestart,
+	replay,
+	quit,
+	invalid
 };
+
+enum class CardType {
+	REINFORCEMENT,
+	BOMB,
+	AIRLIFT,
+	BLOCKADE,
+	DIPLOMACY,
+	UNKNOWN
+};
+
+extern std::map<StateType, std::vector<CommandType>> validCommands;
 
 // Helper functions for string conversion
 std::string stateTypeToString(StateType state);
+StateType stringToStateType(const std::string &stateStr);
 std::string commandTypeToString(CommandType command);
 CommandType stringToCommandType(const std::string &commandStr);
-StateType stringToStateType(const std::string &stateStr);
+std::string cardTypeToString(CardType type);
+CardType stringToCardType(const std::string &cardStr);
 
-} // namespace GameTypes
+std::string getCommandArgs(CommandType command);
+
+}
 
 using namespace GameTypes;

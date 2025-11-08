@@ -3,105 +3,126 @@
 namespace GameTypes {
 
 std::string stateTypeToString(StateType state) {
-	switch (state) {
-	case StateType::START:
-		return "START";
-	case StateType::MAP_LOADED:
-		return "MAP_LOADED";
-	case StateType::MAP_VALIDATED:
-		return "MAP_VALIDATED";
-	case StateType::PLAYERS_ADDED:
-		return "PLAYERS_ADDED";
-	case StateType::ASSIGN_REINFORCEMENT:
-		return "ASSIGN_REINFORCEMENT";
-	case StateType::ISSUE_ORDERS:
-		return "ISSUE_ORDERS";
-	case StateType::EXECUTE_ORDERS:
-		return "EXECUTE_ORDERS";
-	case StateType::WIN:
-		return "WIN";
-	default:
-		return "UNKNOWN";
-	}
+	if (state == StateType::start)
+		return "start";
+	if (state == StateType::maploaded)
+		return "maploaded";
+	if (state == StateType::mapvalidated)
+		return "mapvalidated";
+	if (state == StateType::playeradded)
+		return "playeradded";
+	if (state == StateType::assignreinforcement)
+		return "assignreinforcement";
+	if (state == StateType::issueorders)
+		return "issueorders";
+	if (state == StateType::executeorders)
+		return "executeorders";
+	if (state == StateType::win)
+		return "win";
+	return "invalid";
 }
 
 StateType stringToStateType(const std::string &stateStr) {
-	if (stateStr == "START")
-		return StateType::START;
-	if (stateStr == "MAP_LOADED")
-		return StateType::MAP_LOADED;
-	if (stateStr == "MAP_VALIDATED")
-		return StateType::MAP_VALIDATED;
-	if (stateStr == "PLAYERS_ADDED")
-		return StateType::PLAYERS_ADDED;
-	if (stateStr == "ASSIGN_REINFORCEMENT")
-		return StateType::ASSIGN_REINFORCEMENT;
-	if (stateStr == "ISSUE_ORDERS")
-		return StateType::ISSUE_ORDERS;
-	if (stateStr == "EXECUTE_ORDERS")
-		return StateType::EXECUTE_ORDERS;
-	if (stateStr == "WIN")
-		return StateType::WIN;
-	throw std::invalid_argument("Invalid state string: " + stateStr);
+	if (stateStr == "start")
+		return StateType::start;
+	if (stateStr == "maploaded")
+		return StateType::maploaded;
+	if (stateStr == "mapvalidated")
+		return StateType::mapvalidated;
+	if (stateStr == "playeradded")
+		return StateType::playeradded;
+	if (stateStr == "assignreinforcement")
+		return StateType::assignreinforcement;
+	if (stateStr == "issueorders")
+		return StateType::issueorders;
+	if (stateStr == "executeorders")
+		return StateType::executeorders;
+	if (stateStr == "win")
+		return StateType::win;
+	return StateType::invalid;
 }
 
 std::string commandTypeToString(CommandType command) {
-	switch (command) {
-	case CommandType::LOAD_MAP:
-		return "LOAD_MAP";
-	case CommandType::VALIDATE_MAP:
-		return "VALIDATE_MAP";
-	case CommandType::ADD_PLAYER:
-		return "ADD_PLAYER";
-	case CommandType::GAME_START:
-		return "GAME_START";
-	case CommandType::ASSIGN_COUNTRIES:
-		return "ASSIGN_COUNTRIES";
-	case CommandType::ISSUE_ORDER:
-		return "ISSUE_ORDER";
-	case CommandType::END_ISSUE_ORDERS:
-		return "END_ISSUE_ORDERS";
-	case CommandType::EXECUTE_ORDER:
-		return "EXECUTE_ORDER";
-	case CommandType::END_EXECUTE_ORDERS:
-		return "END_EXECUTE_ORDERS";
-	case CommandType::WIN:
-		return "WIN";
-	case CommandType::END:
-		return "END";
-	case CommandType::PLAY:
-		return "PLAY";
-	default:
-		return "UNKNOWN";
-	}
+	if (command == CommandType::loadmap)
+		return "loadmap";
+	if (command == CommandType::validatemap)
+		return "validatemap";
+	if (command == CommandType::addplayer)
+		return "addplayer";
+	if (command == CommandType::gamestart)
+		return "gamestart";
+	if (command == CommandType::replay)
+		return "replay";
+	if (command == CommandType::quit)
+		return "quit";
+	return "invalid";
 }
 
 CommandType stringToCommandType(const std::string &commandStr) {
-	if (commandStr == "LOAD_MAP")
-		return CommandType::LOAD_MAP;
-	if (commandStr == "VALIDATE_MAP")
-		return CommandType::VALIDATE_MAP;
-	if (commandStr == "ADD_PLAYER")
-		return CommandType::ADD_PLAYER;
-	if (commandStr == "GAME_START")
-		return CommandType::GAME_START;
-	if (commandStr == "ASSIGN_COUNTRIES")
-		return CommandType::ASSIGN_COUNTRIES;
-	if (commandStr == "ISSUE_ORDER")
-		return CommandType::ISSUE_ORDER;
-	if (commandStr == "END_ISSUE_ORDERS")
-		return CommandType::END_ISSUE_ORDERS;
-	if (commandStr == "EXECUTE_ORDER")
-		return CommandType::EXECUTE_ORDER;
-	if (commandStr == "END_EXECUTE_ORDERS")
-		return CommandType::END_EXECUTE_ORDERS;
-	if (commandStr == "WIN")
-		return CommandType::WIN;
-	if (commandStr == "END")
-		return CommandType::END;
-	if (commandStr == "PLAY")
-		return CommandType::PLAY;
-	throw std::invalid_argument("Invalid command string: " + commandStr);
+	if (commandStr == "loadmap")
+		return CommandType::loadmap;
+	if (commandStr == "validatemap")
+		return CommandType::validatemap;
+	if (commandStr == "addplayer")
+		return CommandType::addplayer;
+	if (commandStr == "gamestart")
+		return CommandType::gamestart;
+	if (commandStr == "replay")
+		return CommandType::replay;
+	if (commandStr == "quit")
+		return CommandType::quit;
+	return CommandType::invalid;
 }
+
+std::string getCommandArgs(CommandType command) {
+	switch (command) {
+		case CommandType::loadmap:
+			return "filename";
+		case CommandType::addplayer:
+			return "playername";
+		default:
+			return "";
+	}
+}
+
+std::string cardTypeToString(CardType type) {
+	if (type == CardType::REINFORCEMENT)
+		return "Reinforcement";
+	if (type == CardType::BOMB)
+		return "Bomb";
+	if (type == CardType::BLOCKADE)
+		return "Blockade";
+	if (type == CardType::AIRLIFT)
+		return "Airlift";
+	if (type == CardType::DIPLOMACY)
+		return "Diplomacy";
+	return "Unknown";
+}
+
+CardType stringToCardType(const std::string &cardStr) {
+	if (cardStr == "Reinforcement")
+		return CardType::REINFORCEMENT;
+	if (cardStr == "Blockade")
+		return CardType::BLOCKADE;
+	if (cardStr == "Bomb")
+		return CardType::BOMB;
+	if (cardStr == "Airlift")
+		return CardType::AIRLIFT;
+	if (cardStr == "Diplomacy")
+		return CardType::DIPLOMACY;
+	return CardType::UNKNOWN;
+}
+
+std::map<StateType, std::vector<CommandType>> validCommands = {
+	{StateType::start, {CommandType::loadmap}},
+
+	{StateType::maploaded, {CommandType::loadmap, CommandType::validatemap}},
+
+	{StateType::mapvalidated, {CommandType::addplayer}},
+
+	{StateType::playeradded, {CommandType::addplayer, CommandType::gamestart}},
+
+	{StateType::win, {CommandType::replay, CommandType::quit}}
+};
 
 } // namespace GameTypes

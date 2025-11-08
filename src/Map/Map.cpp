@@ -10,18 +10,18 @@
 // Initializes number of armies to 0
 Territory::Territory(const std::string &name, int posX, int posY)
 	: name(new std::string(name)), x(new int(posX)), y(new int(posY)),
-	  nbOfArmies(new int(0)), player(nullptr) {}
+	  armies(new int(0)), player(nullptr) {}
 
 // Destructor to clean up dynamically allocated memory.
 Territory::~Territory() {
 	delete name;
 	delete x;
 	delete y;
-	delete nbOfArmies;
+	delete armies;
 	name = nullptr;
 	x = nullptr;
 	y = nullptr;
-	nbOfArmies = nullptr;
+	armies = nullptr;
 }
 
 // Copy constructor
@@ -30,7 +30,7 @@ Territory::Territory(const Territory &territory2) {
 	x = new int(*(territory2.x));
 	y = new int(*(territory2.y));
 	adjacentTerritories = territory2.adjacentTerritories;
-	nbOfArmies = new int(*(territory2.nbOfArmies));
+	armies = new int(*(territory2.armies));
 }
 
 // Adds an adjacent territory to the current territory's adjacency list.
@@ -50,10 +50,6 @@ int Territory::getX() const {
 }
 int Territory::getY() const {
 	return *y;
-}
-
-int Territory::getNbOfArmies() const {
-	return *nbOfArmies;
 }
 
 const std::vector<Territory*> &Territory::getAdjacentTerritories() const {
@@ -78,9 +74,9 @@ void Territory::setY(int posY) {
 	y = new int(posY);
 }
 
-void Territory::setNbOfArmies(int numOfArmies) {
-	delete nbOfArmies;
-	nbOfArmies = new int(numOfArmies);
+void Territory::setArmies(int numOfArmies) {
+	delete armies;
+	armies = new int(numOfArmies);
 }
 
 void Territory::setPlayer(Player* p) {
@@ -95,12 +91,12 @@ Territory &Territory::operator=(const Territory &territory2) {
 	delete name;
 	delete x;
 	delete y;
-	delete nbOfArmies;
+	delete armies;
 	name = new std::string(*(territory2.name));
 	x = new int(*(territory2.x));
 	y = new int(*(territory2.y));
 	adjacentTerritories = territory2.adjacentTerritories;
-	nbOfArmies = new int(*(territory2.nbOfArmies));
+	armies = new int(*(territory2.armies));
 	player = territory2.player;
 	return *this;
 }
@@ -110,7 +106,7 @@ Territory &Territory::operator=(const Territory &territory2) {
 std::ostream &operator<<(std::ostream &out, const Territory &territory) {
 	out << "Territory Name: " << territory.getName()
 		<< ", X: " << territory.getX() << ", Y: " << territory.getY()
-		<< ", Number of armies: " << territory.getNbOfArmies();
+		<< ", Number of armies: " << territory.getArmies();
 	return out;
 }
 
@@ -168,7 +164,8 @@ Continent &Continent::operator=(const Continent &continent2) {
 // Stream insertion Operator for printing continent details.
 std::ostream &operator<<(std::ostream &out, const Continent &continent) {
 	out << "Continent Name: " << continent.getName()
-		<< ", Number of Armies: " << continent.getReinforcementBonus();
+		<< ", Territories: " << continent.getTerritories().size()
+		<< ", Bonus: " << continent.getReinforcementBonus();
 	return out;
 }
 

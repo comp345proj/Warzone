@@ -1,4 +1,5 @@
 #include "GameEngine.h"
+#include "Map/Map.h"
 #include <algorithm>
 using std::cin;
 
@@ -6,14 +7,13 @@ void printInvalidCommandError(StateType currentState) {
 	std::cout << "Invalid command. Current state: "
 			  << stateTypeToString(currentState) << std::endl;
 	std::cout << "Available commands in current state:" << std::endl;
-	for (const auto &cmd : GameEngine::validCommands[currentState]) {
-		std::cout << "  - " << commandTypeToString(cmd) << std::endl;
+	for (const auto &cmd : validCommands[currentState]) {
+		std::cout << "  - " << commandTypeToString(cmd) << " "
+				  << getCommandArgs(cmd) << std::endl;
 	}
 }
 
 //---------------------------State-------------------------------
-
-// Constructors, destructor, copy constructor, assignment operator
 State::State(StateType state) : state(state) {}
 State::State(const State &other)
 	: state(other.state), currentPlayerTurn(other.currentPlayerTurn) {}
@@ -48,59 +48,18 @@ void State::setCurrentPlayerTurn(const std::string &playerName) {
 }
 
 //---------------------------GameEngine-------------------------------
-
-// Initialize static member
-std::map<StateType, std::vector<CommandType>> GameEngine::validCommands = {
-	{StateType::START, {CommandType::LOAD_MAP}},
-
-	{StateType::MAP_LOADED, {CommandType::LOAD_MAP, CommandType::VALIDATE_MAP}},
-
-	{StateType::MAP_VALIDATED, {CommandType::ADD_PLAYER}},
-
-	{StateType::PLAYERS_ADDED,
-	 {CommandType::ADD_PLAYER, CommandType::GAME_START,
-	  CommandType::ASSIGN_COUNTRIES}},
-
-	{StateType::ASSIGN_REINFORCEMENT, {CommandType::ISSUE_ORDER}},
-
-	{StateType::ISSUE_ORDERS,
-	 {CommandType::ISSUE_ORDER, CommandType::END_ISSUE_ORDERS}},
-
-	{StateType::EXECUTE_ORDERS,
-	 {CommandType::EXECUTE_ORDER, CommandType::END_EXECUTE_ORDERS}},
-
-	{StateType::WIN, {CommandType::PLAY, CommandType::END}},
-};
-
-const std::vector<CommandType> &
-GameEngine::getValidCommandsForState(StateType state) {
-	// if (validCommands.empty()) {
-	//     initializeValidCommands();
-	// }
-	return validCommands[state];
-}
-
-// -------------------------------
-
-// Constructors, destructor, copy constructor, assignment operator
 GameEngine::GameEngine()
-	: state(new State(StateType::START)), currentMap(nullptr),
+	: state(new State(StateType::start)), currentMap(nullptr),
 	  mapLoader(nullptr), currentMapPath(new std::string()),
-	  currentPlayer(nullptr), deck(new Deck()) {
-	// if (validCommands.empty()) {
-	//     initializeValidCommands();
-	// }
-}
-
-GameEngine::GameEngine(CommandProcessor &cP) : commandProcessor(&cP) {
-	cP.validCommands = &validCommands;
-};
+	  currentPlayer(nullptr), deck(new Deck()),
+	  commandProcessor(new CommandProcessor()) {}
 
 GameEngine::GameEngine(const GameEngine &other)
 	: state(new State(*other.state)), players(other.players),
 	  currentPlayer(other.currentPlayer),
 	  currentMap(new Map(*other.currentMap)),
-	  mapLoader(new MapLoader(*other.mapLoader)), deck(new Deck(*other.deck)) {}
+	  mapLoader(new MapLoader(*other.mapLoader)), deck(new Deck(*other.deck)),
+	  commandProcessor(new CommandProcessor(*other.commandProcessor)) {}
 
 GameEngine &GameEngine::operator=(const GameEngine &other) {
 	if (this != &other) {
@@ -113,6 +72,7 @@ GameEngine &GameEngine::operator=(const GameEngine &other) {
 		currentMap = new Map(*other.currentMap);
 		mapLoader = new MapLoader(*other.mapLoader);
 		deck = new Deck(*other.deck);
+		commandProcessor = new CommandProcessor(*other.commandProcessor);
 	}
 	return *this;
 }
@@ -125,304 +85,93 @@ GameEngine::~GameEngine() {
 	currentPlayer = nullptr;
 }
 
-// Getters and setters
-StateType GameEngine::getState() {
-	return state->getState();
-}
-void GameEngine::setState(StateType newState) {
-	state->setState(newState);
-}
+void GameEngine::startupPhase() {
+    std::cout << "\nStarting Warzone Game" << std::endl;
+    std::cout << "===================" << std::endl;
 
-CommandProcessor &GameEngine::getCommandProcessor() {
-	return *commandProcessor;
-}
+    while (state->getState() != StateType::win) {
+        StateType currentState = state->getState();
+        std::cout << "\nCurrent state: " << stateTypeToString(currentState) << std::endl;
+        std::cout << "Available commands:" << std::endl;
+        for (const auto& cmd : validCommands[currentState]) {
+            std::cout << "  - " << commandTypeToString(cmd) << " " << getCommandArgs(cmd) << std::endl;
+        }
 
-/// @brief Primitive state function to handle user input
-/// @param command
-void GameEngine::command(const std::string &command) {
-	std::vector<std::string> splitCommand = splitString(command, ' ');
-	if (splitCommand.empty()) {
-		printInvalidCommandError(state->getState());
-		return;
-	}
+        Command* cmd = commandProcessor->getCommand();
+        if (cmd == nullptr) {
+            continue;
+        }
 
-	// Convert command to uppercase for case-insensitive comparison
-	std::string cmd = splitCommand[0];
-	std::transform(cmd.begin(), cmd.end(), cmd.begin(), ::toupper);
+        std::string cmdText = cmd->getCommandText();
+        
+        // Validate command for current state
+        if (!commandProcessor->validate(cmdText, currentState)) {
+            std::string effect = "Invalid command for state: " + stateTypeToString(currentState);
+            cmd->saveEffect(effect);
+            printInvalidCommandError(currentState);
+            continue;
+        }
 
-	// Convert command string to CommandType
-	CommandType commandType;
-	if (cmd == "LOAD_MAP")
-		commandType = CommandType::LOAD_MAP;
-	else if (cmd == "VALIDATE_MAP")
-		commandType = CommandType::VALIDATE_MAP;
-	else if (cmd == "ADD_PLAYER")
-		commandType = CommandType::ADD_PLAYER;
-	else if (cmd == "GAME_START")
-		commandType = CommandType::GAME_START;
-	else if (cmd == "ASSIGN_COUNTRIES")
-		commandType = CommandType::ASSIGN_COUNTRIES;
-	else if (cmd == "ISSUE_ORDER")
-		commandType = CommandType::ISSUE_ORDER;
-	else if (cmd == "EXECUTE_ORDER")
-		commandType = CommandType::EXECUTE_ORDER;
-	else if (cmd == "END_ISSUE_ORDERS")
-		commandType = CommandType::END_ISSUE_ORDERS;
-	else if (cmd == "END_EXECUTE_ORDERS")
-		commandType = CommandType::END_EXECUTE_ORDERS;
-	else if (cmd == "WIN")
-		commandType = CommandType::WIN;
-	else if (cmd == "PLAY")
-		commandType = CommandType::PLAY;
-	else if (cmd == "END")
-		commandType = CommandType::END;
-	else {
-		printInvalidCommandError(state->getState());
-		return;
-	}
+        // Process valid command
+        try {
+            // Extract command part (first word) for command type determination
+            std::string cmdPart = cmdText.substr(0, cmdText.find(' '));
+            CommandType cmdType = stringToCommandType(cmdPart);
+            switch (cmdType) {
+                case CommandType::loadmap: {
+                    size_t spacePos = cmdText.find(" ");
+                    if (spacePos != std::string::npos) {
+                        std::string filename = cmdText.substr(spacePos + 1);
+                        loadMap(filename);
+                        cmd->saveEffect("Map '" + filename + "' processed");
+                    } else {
+                        cmd->saveEffect("Invalid loadmap command: missing filename");
+                    }
+                    break;
+                }
 
-	// Handle each command type
-	switch (commandType) {
-	case CommandType::LOAD_MAP: {
-		std::string mapName = "World.map"; // Default map
-		if (splitCommand.size() > 1) {
-			mapName = splitCommand[1];
-		}
+                case CommandType::validatemap:
+                    validateMap();
+                    cmd->saveEffect("Map validation processed");
+                    break;
 
-		std::filesystem::path currentPath = std::filesystem::current_path();
-		std::filesystem::path mapPath = currentPath / "res" / mapName;
+                case CommandType::addplayer: {
+                    size_t spacePos = cmdText.find(" ");
+                    if (spacePos != std::string::npos) {
+                        std::string playerName = cmdText.substr(spacePos + 1);
+                        addPlayer(playerName);
+                        cmd->saveEffect("Player '" + playerName + "' processed");
+                    } else {
+                        cmd->saveEffect("Invalid addplayer command: missing player name");
+                    }
+                    break;
+                }
 
-		try {
-			mapLoader = new MapLoader(mapPath.string());
-			currentMap = mapLoader->loadMap();
-			if (currentMap != nullptr) {
-				state->setState(StateType::MAP_LOADED);
-				std::cout << "Map loaded successfully: " << mapName
-						  << std::endl;
-			} else {
-				std::cout << "Failed to load map: " << mapName << std::endl;
-			}
-		} catch (const std::exception &e) {
-			std::cout << "Error loading map: " << e.what() << std::endl;
-		}
-		break;
-	}
+                case CommandType::gamestart:
+                    gameStart();
+                    cmd->saveEffect("Game start processed");
+                    break;
 
-	case CommandType::VALIDATE_MAP: {
-		if (currentMap != nullptr && currentMap->validate()) {
-			state->setState(StateType::MAP_VALIDATED);
-			std::cout << "Map validated successfully" << std::endl;
-		} else {
-			std::cout << "Map validation failed" << std::endl;
-		}
-		break;
-	}
+                case CommandType::quit:
+                    state->setState(StateType::win);
+                    cmd->saveEffect("Game ended");
+                    break;
 
-	case CommandType::ADD_PLAYER: {
-		if (splitCommand.size() < 2) {
-			std::cout << "Please provide a player name" << std::endl;
-			break;
-		}
-		addPlayer(splitCommand[1]);
-
-		// If we have added at least one player, move to PLAYERS_ADDED state
-		if (players.size() > 0) {
-			state->setState(StateType::PLAYERS_ADDED);
-		}
-		break;
-	}
-
-	case CommandType::GAME_START: {
-		gameStart();
-		break;
-	}
-	
-	case CommandType::ASSIGN_COUNTRIES: {
-		if (players.empty() || currentMap == nullptr) {
-			std::cout << "Cannot assign countries: No players or map not loaded"
-					  << std::endl;
-			break;
-		}
-
-		// Get all territories from the map
-		// Get all territories from map
-		std::vector<Territory*> territories;
-		for (Continent* continent : currentMap->getContinents()) {
-			std::vector<Territory*> continentTerritories =
-				continent->getTerritories();
-			territories.insert(territories.end(), continentTerritories.begin(),
-							   continentTerritories.end());
-		}
-
-		if (territories.empty()) {
-			std::cout << "No territories to assign" << std::endl;
-			break;
-		}
-
-		// Randomly assign territories to players using modern C++ random
-		std::random_device rd;
-		std::mt19937 g(rd());
-		std::shuffle(territories.begin(), territories.end(), g);
-
-		size_t playerCount = players.size();
-		for (size_t i = 0; i < territories.size(); ++i) {
-			Player* player = players[i % playerCount];
-			Territory* territory = territories[i];
-
-			// Assign territory to player
-			player->addTerritory(territory); // Takes Territory pointer
-		}
-
-		state->setState(StateType::ASSIGN_REINFORCEMENT);
-		std::cout << "Countries assigned successfully" << std::endl;
-		break;
-	}
-
-	case CommandType::ISSUE_ORDER: {
-		// Assuming current player is set
-		if (currentPlayer == nullptr) {
-			currentPlayer = players[0]; // Start with first player
-		}
-
-		// Get a card from player's hand and issue order
-		Hand* playerHand = currentPlayer->getHand();
-		if (playerHand != nullptr && !playerHand->getCards().empty()) {
-			Card* card = playerHand->getCards().front(); // Get first card
-			currentPlayer->issueOrder(card,
-									  nullptr); // Pass nullptr as deck for now
-		} else {
-			std::cout << "Player " << currentPlayer->getName()
-					  << " has no cards to play" << std::endl;
-			Card* card = deck->draw();
-			if (card) {
-				currentPlayer->addCard(card);
-			}
-			std::cout << "Playing a random card " << *card << " for "
-					  << currentPlayer->getName() << std::endl;
-			currentPlayer->issueOrder(card,
-									  deck); // Pass nullptr as deck for now
-		}
-
-		// Move to next player
-		auto it = std::find(players.begin(), players.end(), currentPlayer);
-		if (it != players.end() && ++it != players.end()) {
-			currentPlayer = *it;
-		}
-		state->setState(StateType::ISSUE_ORDERS);
-		break;
-	}
-
-	case CommandType::END_ISSUE_ORDERS: {
-		state->setState(StateType::EXECUTE_ORDERS);
-		currentPlayer = nullptr; // Reset current player for execution phase
-		break;
-	}
-
-	case CommandType::EXECUTE_ORDER: {
-		bool ordersRemaining = false;
-		for (Player* player : players) {
-			OrdersList* orders = player->getOrdersList();
-			if (orders != nullptr && !orders->getOrders().empty()) {
-				Order* order = orders->getOrders().front();
-				order->execute();
-				orders->remove(order);
-				ordersRemaining = true;
-			}
-		}
-
-		// Check for win condition
-		size_t totalTerritories = 0;
-		for (const auto &continent : currentMap->getContinents()) {
-			totalTerritories += continent->getTerritories().size();
-		}
-
-		for (Player* player : players) {
-			if (player->getTerritories().size() == totalTerritories) {
-				state->setState(StateType::WIN);
-				std::cout << "Player " << player->getName()
-						  << " has won the game!" << std::endl;
-				return;
-			}
-		}
-
-		if (!ordersRemaining) {
-			// If no more orders to execute, move back to reinforcement phase
-			state->setState(StateType::ASSIGN_REINFORCEMENT);
-		}
-		break;
-	}
-
-	case CommandType::END_EXECUTE_ORDERS: {
-		state->setState(StateType::ASSIGN_REINFORCEMENT);
-		break;
-	}
-
-	case CommandType::WIN: {
-		// Already in win state, waiting for PLAY or END command
-		break;
-	}
-
-	// Play again
-	case CommandType::PLAY: {
-		// Reset the game state
-		state->setState(StateType::START);
-		players.clear();
-		delete currentMap;
-		currentMap = nullptr;
-		delete mapLoader;
-		mapLoader = nullptr;
-		currentPlayer = nullptr;
-		break;
-	}
-
-	case CommandType::END: {
-		std::cout << "Thank you for playing!" << std::endl;
-		exit(0);
-	}
-	}
-
-	// Display available commands for current state
-	std::cout << "\nAvailable commands in current state ("
-			  << stateTypeToString(getState()) << "):" << std::endl;
-
-	for (const auto &cmd : validCommands[getState()]) {
-		std::cout << "  - " << commandTypeToString(cmd) << std::endl;
-	}
+                default:
+                    cmd->saveEffect("Command not implemented");
+                    break;
+            }
+        } catch (const std::exception& e) {
+            cmd->saveEffect("Error executing command: " + std::string(e.what()));
+        }
+    }
+    
+    std::cout << "\nGame ended." << std::endl;
 }
 
-/// @brief Function which checks if the game is over based on state
-/// @return
-bool GameEngine::isGameOver() const {
-	return state->getState() == StateType::WIN;
-}
-
-// GameEngine logging method
-std::string GameEngine::stringToLog() {
-	return "GameEngine state changed to: " + stateTypeToString(getState());
-}
-
-// Adds a player to the game
-void GameEngine::addPlayer(const std::string &playerName) {
-	// Check if we already have 6 players
-	if (players.size() >= 6) {
-		std::cout << "Maximum number of players (6) reached" << std::endl;
-		return;
-	}
-
-	Player* newPlayer = new Player(playerName);
-	players.push_back(newPlayer);
-	std::cout << "Player added: " << playerName << std::endl;
-
-	// Move to PLAYERS_ADDED state if we have at least 2 players
-	if (players.size() >= 2) {
-		state->setState(StateType::PLAYERS_ADDED);
-	}
-}
-
-// Implementation of helper methods
 void GameEngine::loadMap(const std::string &filename) {
-	if (state->getState() != StateType::START &&
-		state->getState() != StateType::MAP_LOADED) {
+	if (state->getState() != StateType::start &&
+		state->getState() != StateType::maploaded) {
 		std::cout << "Cannot load map in current state" << std::endl;
 		return;
 	}
@@ -434,7 +183,7 @@ void GameEngine::loadMap(const std::string &filename) {
 		mapLoader = new MapLoader(mapPath.string());
 		currentMap = mapLoader->loadMap();
 		if (currentMap != nullptr) {
-			state->setState(StateType::MAP_LOADED);
+			state->setState(StateType::maploaded);
 			std::cout << "Map loaded successfully: " << filename << std::endl;
 			Notify(this);
 		} else {
@@ -445,14 +194,31 @@ void GameEngine::loadMap(const std::string &filename) {
 	}
 }
 
+void GameEngine::addPlayer(const std::string &playerName) {
+	// Check if we already have 6 players
+	if (players.size() >= 6) {
+		std::cout << "Maximum number of players (6) reached" << std::endl;
+		return;
+	}
+
+	Player* newPlayer = new Player(playerName);
+	players.push_back(newPlayer);
+	std::cout << "Player added: " << playerName << std::endl;
+
+	// Move to playeradded state if we have at least 2 players
+	if (players.size() >= 2) {
+		state->setState(StateType::playeradded);
+	}
+}
+
 void GameEngine::validateMap() {
-	if (state->getState() != StateType::MAP_LOADED) {
+	if (state->getState() != StateType::maploaded) {
 		std::cout << "Must load a map before validating" << std::endl;
 		return;
 	}
 
 	if (currentMap != nullptr && currentMap->validate()) {
-		state->setState(StateType::MAP_VALIDATED);
+		state->setState(StateType::mapvalidated);
 		std::cout << "Map validated successfully" << std::endl;
 		Notify(this);
 	} else {
@@ -483,7 +249,7 @@ void GameEngine::drawInitialCards() {
 }
 
 void GameEngine::gameStart() {
-	if (state->getState() != StateType::PLAYERS_ADDED) {
+	if (state->getState() != StateType::playeradded) {
 		std::cout << "Cannot start game in current state" << std::endl;
 		return;
 	}
@@ -492,6 +258,14 @@ void GameEngine::gameStart() {
 		std::cout << "Need between 2 and 6 players to start the game"
 				  << std::endl;
 		return;
+	}
+
+	// Print all continents and their details first
+	std::cout << "\n=== Map Continents ===" << std::endl;
+	for (Continent* continent : currentMap->getContinents()) {
+		std::cout << "Continent Name: " << continent->getName()
+				  << ", Territories: " << continent->getTerritories().size()
+				  << ", Bonus: " << continent->getBonus() << std::endl;
 	}
 
 	// 1. Fairly distribute territories
@@ -512,7 +286,18 @@ void GameEngine::gameStart() {
 	for (size_t i = 0; i < allTerritories.size(); ++i) {
 		players[i % playerCount]->addTerritory(allTerritories[i]);
 	}
-	std::cout << "Territories have been fairly distributed" << std::endl;
+
+	// Print each player's allocated territories
+	std::cout << "\n=== Territory Distribution ===" << std::endl;
+	for (Player* player : players) {
+		std::cout << "\nPlayer " << player->getName()
+				  << " received:" << std::endl;
+		for (Territory* territory : player->getTerritories()) {
+			std::cout << "  - " << territory->getName() << std::endl;
+		}
+	}
+
+	std::cout << "\nTerritories have been fairly distributed" << std::endl;
 
 	// 2. Randomly determine play order
 	std::shuffle(players.begin(), players.end(), g);
@@ -528,48 +313,195 @@ void GameEngine::gameStart() {
 	drawInitialCards();
 
 	// 5. Switch to play phase
-	state->setState(StateType::ASSIGN_REINFORCEMENT);
+	state->setState(StateType::assignreinforcement);
 	std::cout << "\nGame has started! Moving to reinforcement phase."
 			  << std::endl;
 	Notify(this);
+	mainGameLoop();
 }
 
-void GameEngine::startupPhase() {
-	state->setState(StateType::START);
-	std::cout << "=== Game Startup Phase ===" << std::endl;
+void GameEngine::mainGameLoop() {
+	while (!checkWinCondition()) {
+		// Remove any defeated players before starting the next round
+		removeDefeatedPlayers();
 
-	while (state->getState() != StateType::ASSIGN_REINFORCEMENT) {
-		std::cout << "\nCurrent state: " << stateTypeToString(state->getState())
-				  << std::endl;
-		std::cout << "Available commands:" << std::endl;
+		// Check if we have a winner after removing defeated players
+		if (checkWinCondition())
+			break;
 
-		// Display available commands for current state
-		for (const auto &cmd : validCommands[state->getState()]) {
-			std::cout << "  - " << commandTypeToString(cmd) << std::endl;
-		}
+		// Execute each phase in order
+		reinforcementPhase();
+		issueOrdersPhase();
+		executeOrdersPhase();
+	}
 
-		std::cout << "\nEnter command: ";
-		std::string input;
-		std::getline(std::cin, input);
-
-		// Split input into command and arguments
-		std::vector<std::string> parts = splitString(input, ' ');
-		if (parts.empty())
-			continue;
-
-		std::string cmd = parts[0];
-		std::transform(cmd.begin(), cmd.end(), cmd.begin(), ::toupper);
-
-		if (cmd == "LOAD_MAP" && parts.size() > 1) {
-			loadMap(parts[1]);
-		} else if (cmd == "VALIDATE_MAP") {
-			validateMap();
-		} else if (cmd == "ADD_PLAYER" && parts.size() > 1) {
-			addPlayer(parts[1]);
-		} else if (cmd == "GAME_START") {
-			gameStart();
-		} else {
-			std::cout << "Invalid command. Please try again." << std::endl;
+	// Announce winner
+	for (Player* player : players) {
+		if (!player->getTerritories().empty()) {
+			std::cout << "Player " << player->getName() << " has won the game!"
+					  << std::endl;
+			break;
 		}
 	}
+
+	state->setState(StateType::win);
+}
+
+void GameEngine::reinforcementPhase() {
+	std::cout << "\n=== Reinforcement Phase ===" << std::endl;
+
+	for (Player* player : players) {
+		int reinforcements = calculateReinforcement(player);
+		player->setReinforcementPool(player->getReinforcementPool() +
+									 reinforcements);
+
+		std::cout << "Player " << player->getName() << " receives "
+				  << reinforcements << " reinforcement armies" << std::endl;
+	}
+}
+
+void GameEngine::issueOrdersPhase() {
+	std::cout << "\n=== Issue Orders Phase ===" << std::endl;
+	for (Player* player : players) {
+		player->issueOrder(deck);
+	}
+}
+
+void GameEngine::executeOrdersPhase() {
+	std::cout << "\n=== Execute Orders Phase ===" << std::endl;
+
+	bool ordersRemaining;
+
+	// First execute all deploy orders
+	do {
+		ordersRemaining = false;
+		for (Player* player : players) {
+			OrdersList* ordersList = player->getOrdersList();
+			if (!ordersList->getOrders().empty()) {
+				Order* order = ordersList->getOrders().front();
+				if (dynamic_cast<Deploy*>(order) != nullptr) {
+					std::cout << "Executing deploy order for "
+							  << player->getName() << std::endl;
+					order->execute();
+					ordersList->remove(order);
+					ordersRemaining = true;
+				}
+			}
+		}
+	} while (ordersRemaining);
+
+	// Then execute all other orders
+	do {
+		ordersRemaining = false;
+		for (Player* player : players) {
+			OrdersList* ordersList = player->getOrdersList();
+			if (!ordersList->getOrders().empty()) {
+				Order* order = ordersList->getOrders().front();
+				std::cout << "Executing " << order->getCardType() << " for "
+						  << player->getName() << std::endl;
+				order->execute();
+				ordersList->remove(order);
+				ordersRemaining = true;
+			}
+		}
+	} while (ordersRemaining);
+}
+
+int GameEngine::calculateReinforcement(Player* player) {
+	int territoryCount = player->getTerritories().size();
+	int baseReinforcement = std::max(3, territoryCount / 3);
+	int continentBonus = 0;
+
+	// Check for continent control bonuses
+	for (Continent* continent : currentMap->getContinents()) {
+		bool controlsContinent = true;
+		for (Territory* territory : continent->getTerritories()) {
+			// Check if territory is in player's territories
+			bool found = false;
+			for (Territory* playerTerritory : player->getTerritories()) {
+				if (territory == playerTerritory) {
+					found = true;
+					break;
+				}
+			}
+			if (!found) {
+				controlsContinent = false;
+				break;
+			}
+		}
+		if (controlsContinent) {
+			continentBonus += continent->getBonus();
+		}
+	}
+
+	return baseReinforcement + continentBonus;
+}
+
+bool GameEngine::checkWinCondition() {
+	if (players.empty())
+		return false;
+
+	size_t totalTerritories = 0;
+	for (Continent* continent : currentMap->getContinents()) {
+		totalTerritories += continent->getTerritories().size();
+	}
+
+	for (Player* player : players) {
+		if (player->getTerritories().size() == totalTerritories) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+void GameEngine::removeDefeatedPlayers() {
+	players.erase(std::remove_if(players.begin(), players.end(),
+								 [](Player* player) {
+									 if (player->getTerritories().empty()) {
+										 std::cout << "Player "
+												   << player->getName()
+												   << " has been eliminated!"
+												   << std::endl;
+										 return true;
+									 }
+									 return false;
+								 }),
+				  players.end());
+}
+
+bool GameEngine::isGameOver() const {
+	return state->getState() == StateType::win;
+}
+
+std::string GameEngine::stringToLog() {
+	return "GameEngine state changed to: " + stateTypeToString(getState());
+}
+
+CommandProcessor &GameEngine::getCommandProcessor() {
+	return *commandProcessor;
+}
+
+const std::vector<Player*> &GameEngine::getPlayers() const {
+	return players;
+}
+
+Player* GameEngine::getCurrentPlayer() const {
+	return currentPlayer;
+}
+
+Map* GameEngine::getCurrentMap() const {
+	return currentMap;
+}
+
+MapLoader* GameEngine::getMapLoader() const {
+	return mapLoader;
+}
+
+StateType GameEngine::getState() {
+	return state->getState();
+}
+
+void GameEngine::setState(StateType newState) {
+	state->setState(newState);
 }

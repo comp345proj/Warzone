@@ -8,60 +8,84 @@
 Card::Card(CardType type) : type(type) {}
 Card::~Card() = default;
 
-// Make order based on card type
-Order* Card::createOrder() const {
-	switch (type) {
-	case CardType::BOMB:
-		return new Bomb();
-	case CardType::REINFORCEMENT:
-		return new Deploy();
-	case CardType::BLOCKADE:
-		return new Blockade();
-	case CardType::AIRLIFT:
-		return new Airlift();
-	case CardType::DIPLOMACY:
-		return new Negotiate();
-	default:
-		return nullptr;
-	}
-}
-
-// Plays a card, creates corresponding order, and returns card to deck
-// atomically
-void Card::play(Player* player, Deck* deck) {
+// Play card >> create order >> return card to deck
+bool Card::play(Player* player, Deck* deck) {
 	if (!player || !deck) {
 		std::cout << "Invalid player or deck" << std::endl;
-		return;
+		return false;
 	}
 
-	// Create corresponding order
-	Order* order = createOrder();
-	if (order) {
-		std::cout << "Created " << getTypeString(type) << " order" << std::endl;
+	// Get territories for the order
+	auto playerTerritories = player->getTerritories();
+	if (playerTerritories.empty()) {
+		std::cout << "Player has no territories" << std::endl;
+		return false;
+	}
 
-		player->removeCard(this); // Remove card from player's hand
-		player->addOrder(order);  // Add order to player's order list
+	// Create order based on card type with appropriate parameters
+	Order* order = nullptr;
+	switch (type) {
+		case CardType::BOMB: {
+
+			// Find first adjacent enemy territory
+			Territory* target = nullptr;
+			for (Territory* t : playerTerritories[0]->getNeighbors()) {
+				if (t->getPlayer() != player) {
+					target = t;
+					break;
+				}
+			}
+			if (target) {
+				order = new Bomb(player, target);
+			}
+			break;
+		}
+		case CardType::REINFORCEMENT: {
+			// Deploy to first owned territory
+			order =
+				new Deploy(player, playerTerritories[0], 5); // Default 5 armies
+			break;
+		}
+		case CardType::BLOCKADE: {
+			order = new Blockade(player, playerTerritories[0]);
+			break;
+		}
+		case CardType::AIRLIFT: {
+			if (playerTerritories.size() >= 2) {
+				order = new Airlift(player, playerTerritories[0],
+									playerTerritories[1], 3);
+			}
+			break;
+		}
+		case CardType::DIPLOMACY: {
+			// Find a player that owns an adjacent territory
+			Player* targetPlayer = nullptr;
+			for (Territory* t : playerTerritories[0]->getNeighbors()) {
+				if (t->getPlayer() != player) {
+					targetPlayer = t->getPlayer();
+					break;
+				}
+			}
+			if (targetPlayer) {
+				order = new Negotiate(player, targetPlayer);
+			}
+			break;
+		}
+	}
+
+	if (order) {
+		std::cout << "Created " << cardTypeToString(type) << " order" << std::endl;
+		player->removeCard(this);
+		player->addOrder(order);
+	} else {
+		std::cout << "Could not create order for " << cardTypeToString(type)
+				  << std::endl;
+		return false;
 	}
 
 	// Return card to deck
 	deck->returnCard(this);
-}
-
-std::string Card::getTypeString(CardType type) {
-	switch (type) {
-	case CardType::BOMB:
-		return "Bomb";
-	case CardType::REINFORCEMENT:
-		return "Reinforcement";
-	case CardType::BLOCKADE:
-		return "Blockade";
-	case CardType::AIRLIFT:
-		return "Airlift";
-	case CardType::DIPLOMACY:
-		return "Diplomacy";
-	default:
-		return "Unknown";
-	}
+	return true;
 }
 
 CardType Card::getType() const {
@@ -69,7 +93,7 @@ CardType Card::getType() const {
 }
 
 std::ostream &operator<<(std::ostream &os, const Card &card) {
-	os << Card::getTypeString(card.getType());
+	os << cardTypeToString(card.getType());
 	return os;
 }
 

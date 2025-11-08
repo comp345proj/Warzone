@@ -65,17 +65,19 @@ void testCards() {
 
 		// Playing a card creates order, removes card from hand,
 		// and returns to deck, atomic operation
-		card->play(&testPlayer, &deck);
-
-		std::cout << "Card played and returned to deck, deck now has "
-				  << deck.size() << " cards" << std::endl;
+		if (card->play(&testPlayer, &deck)) {
+			std::cout << "Card played successfully. Deck now has "
+					  << deck.size() << " cards." << std::endl;
+		} else {
+			std::cout << "Card play failed. Deck has " << deck.size()
+					  << " cards." << std::endl;
+		}
 	}
 
 	// Show final state
-	std::cout << "\nFinal hand state (should be empty):" << std::endl;
+	std::cout << "\nFinal hand state:" << std::endl;
 	std::cout << *testPlayer.getHand();
-	std::cout << "\nFinal deck state (should have all cards back):"
-			  << std::endl;
+	std::cout << "\nFinal deck state:" << std::endl;
 	std::cout << deck;
 
 	std::cout << "\nTest completed successfully!" << std::endl;

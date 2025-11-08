@@ -1,7 +1,7 @@
 // Driver to demonstrate the logging observer behaviour
 #include "Observer/LoggingObserverDriver.h"
 #include "Cards/Cards.h"
-#include "CommandProcessing/CommandProcessing.h"
+#include "CommandProcessor/CommandProcessor.h"
 #include "GameEngine/GameEngine.h"
 #include "Observer/LogObserver.h"
 #include "Orders/Orders.h"
@@ -20,7 +20,10 @@ void testLoggingObserver() {
 	std::cout << "-- Verifying class relationships --" << std::endl;
 	CommandProcessor cp;
 	Command cmd("sample");
-	Deploy deployOrder;
+	// Create a test player and territory for deploy order
+	Player* testPlayer = new Player("TestPlayer");
+	Territory* testTerritory = new Territory("TestTerritory", 0, 0);
+	Deploy* deployOrder = new Deploy(testPlayer, testTerritory, 5);
 	OrdersList ordersList;
 	GameEngine ge;
 
@@ -30,7 +33,7 @@ void testLoggingObserver() {
 	std::cout << "Command is ILoggable: "
 			  << (dynamic_cast<ILoggable*>(&cmd) != nullptr) << std::endl;
 	std::cout << "Order (Deploy) is ILoggable: "
-			  << (dynamic_cast<ILoggable*>(&deployOrder) != nullptr)
+			  << (dynamic_cast<ILoggable*>(deployOrder) != nullptr)
 			  << std::endl;
 	std::cout << "OrdersList is ILoggable: "
 			  << (dynamic_cast<ILoggable*>(&ordersList) != nullptr)
@@ -43,7 +46,7 @@ void testLoggingObserver() {
 	std::cout << "Command is Subject: "
 			  << (dynamic_cast<Subject*>(&cmd) != nullptr) << std::endl;
 	std::cout << "Order (Deploy) is Subject: "
-			  << (dynamic_cast<Subject*>(&deployOrder) != nullptr) << std::endl;
+			  << (dynamic_cast<Subject*>(deployOrder) != nullptr) << std::endl;
 	std::cout << "OrdersList is Subject: "
 			  << (dynamic_cast<Subject*>(&ordersList) != nullptr) << std::endl;
 	std::cout << "GameEngine is Subject: "
@@ -53,7 +56,7 @@ void testLoggingObserver() {
 
 	// 1) CommandProcessor: saveCommand() should notify and write to gamelog
 	cp.Attach(logger);
-	cp.saveCommand("loadmap World.map");
+	cp.saveCommand(new Command("loadmap World.map"));
 
 	// 2) Command: saveEffect() should notify and write to gamelog
 	cmd.Attach(logger);
@@ -62,9 +65,9 @@ void testLoggingObserver() {
 	// 3) OrdersList: addOrder() should notify and write to gamelog
 	ordersList.Attach(logger);
 	Player alice("Alice");
-	// create a deploy order, set player and add to orders list
-	Deploy* d = new Deploy();
-	d->setPlayer(&alice);
+	Territory* aliceTerritory = new Territory("AliceTerritory", 1, 1);
+	// create a deploy order with parameters, set player and add to orders list
+	Deploy* d = new Deploy(&alice, aliceTerritory, 5);
 	ordersList.addOrder(d);
 
 	// 4) When an order is added to a player's orders list, observer is notified
@@ -79,7 +82,7 @@ void testLoggingObserver() {
 	bob.addCard(reinfCard);
 	// Issue order by playing the card; this will add an order to bob's orders
 	// list and notify
-	bob.issueOrder(reinfCard, &deck);
+	bob.issueOrder(&deck, reinfCard);
 
 	// Attach logger to the actual order so its execute() will notify
 	Order* lastBobOrder = bob.getOrdersList()->getOrders().back();
@@ -92,7 +95,7 @@ void testLoggingObserver() {
 	// 6) When GameEngine changes state, ensure the new state is output to the
 	// log file
 	ge.Attach(logger);
-	ge.setState(StateType::PLAYERS_ADDED);
+	ge.setState(StateType::playeradded);
 	// GameEngine doesn't automatically call Notify in this implementation, so
 	// call it explicitly
 	ge.Notify(&ge);
@@ -109,4 +112,11 @@ void testLoggingObserver() {
 	} else {
 		std::cout << "Could not open gamelog.txt" << std::endl;
 	}
+
+	// Cleanup
+	delete testPlayer;
+	delete testTerritory;
+	delete deployOrder;
+	delete aliceTerritory;
+	delete logger;
 }
