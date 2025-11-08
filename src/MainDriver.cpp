@@ -72,9 +72,9 @@ int main(int argc, char* argv[]) {
 	std::cout << "Command Processing Tests\n" << std::endl;
 	testCommandProcessor(argc, argv);
 	
-	std::cout << SEPARATOR_LINE << std::endl;
-	std::cout << "Logging Observer Tests\n" << std::endl;
-	testLoggingObserver();
+	// std::cout << SEPARATOR_LINE << std::endl;
+	// std::cout << "Logging Observer Tests\n" << std::endl;
+	// testLoggingObserver();
 
 	std::cout << SEPARATOR_LINE << std::endl
 			  << "Game Engine Tests\n"

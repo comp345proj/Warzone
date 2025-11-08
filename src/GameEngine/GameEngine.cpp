@@ -6,11 +6,6 @@ using std::cin;
 void printInvalidCommandError(StateType currentState) {
 	std::cout << "Invalid command. Current state: "
 			  << stateTypeToString(currentState) << std::endl;
-	std::cout << "Available commands in current state:" << std::endl;
-	for (const auto &cmd : validCommands[currentState]) {
-		std::cout << "  - " << commandTypeToString(cmd) << " "
-				  << getCommandArgs(cmd) << std::endl;
-	}
 }
 
 //---------------------------State-------------------------------
@@ -86,87 +81,94 @@ GameEngine::~GameEngine() {
 }
 
 void GameEngine::startupPhase() {
-    std::cout << "\nStarting Warzone Game" << std::endl;
-    std::cout << "===================" << std::endl;
+	std::cout << "\nStarting Warzone Game" << std::endl;
+	std::cout << "===================" << std::endl;
 
-    while (state->getState() != StateType::win) {
-        StateType currentState = state->getState();
-        std::cout << "\nCurrent state: " << stateTypeToString(currentState) << std::endl;
-        std::cout << "Available commands:" << std::endl;
-        for (const auto& cmd : validCommands[currentState]) {
-            std::cout << "  - " << commandTypeToString(cmd) << " " << getCommandArgs(cmd) << std::endl;
-        }
+	while (state->getState() != StateType::win) {
+		StateType currentState = state->getState();
+		std::cout << "\nCurrent state: " << stateTypeToString(currentState)
+				  << std::endl;
+		std::cout << "Available commands:" << std::endl;
+		for (const auto &cmd : validCommands[currentState]) {
+			std::cout << "  - " << commandTypeToString(cmd) << " "
+					  << getCommandArgs(cmd) << std::endl;
+		}
 
-        Command* cmd = commandProcessor->getCommand();
-        if (cmd == nullptr) {
-            continue;
-        }
+		Command* cmd = commandProcessor->getCommand();
+		if (cmd == nullptr) {
+			continue;
+		}
 
-        std::string cmdText = cmd->getCommandText();
-        
-        // Validate command for current state
-        if (!commandProcessor->validate(cmdText, currentState)) {
-            std::string effect = "Invalid command for state: " + stateTypeToString(currentState);
-            cmd->saveEffect(effect);
-            printInvalidCommandError(currentState);
-            continue;
-        }
+		std::string cmdText = cmd->getCommandText();
 
-        // Process valid command
-        try {
-            // Extract command part (first word) for command type determination
-            std::string cmdPart = cmdText.substr(0, cmdText.find(' '));
-            CommandType cmdType = stringToCommandType(cmdPart);
-            switch (cmdType) {
-                case CommandType::loadmap: {
-                    size_t spacePos = cmdText.find(" ");
-                    if (spacePos != std::string::npos) {
-                        std::string filename = cmdText.substr(spacePos + 1);
-                        loadMap(filename);
-                        cmd->saveEffect("Map '" + filename + "' processed");
-                    } else {
-                        cmd->saveEffect("Invalid loadmap command: missing filename");
-                    }
-                    break;
-                }
+		// Validate command for current state
+		if (!commandProcessor->validate(cmdText, currentState)) {
+			std::string effect =
+				"Invalid command for state: " + stateTypeToString(currentState);
+			cmd->saveEffect(effect);
+			printInvalidCommandError(currentState);
+			continue;
+		}
 
-                case CommandType::validatemap:
-                    validateMap();
-                    cmd->saveEffect("Map validation processed");
-                    break;
+		// Process valid command
+		try {
+			// Extract command part (first word) for command type determination
+			std::string cmdPart = cmdText.substr(0, cmdText.find(' '));
+			CommandType cmdType = stringToCommandType(cmdPart);
+			switch (cmdType) {
+				case CommandType::loadmap: {
+					size_t spacePos = cmdText.find(" ");
+					if (spacePos != std::string::npos) {
+						std::string filename = cmdText.substr(spacePos + 1);
+						loadMap(filename);
+						cmd->saveEffect("Map '" + filename + "' processed");
+					} else {
+						cmd->saveEffect(
+							"Invalid loadmap command: missing filename");
+					}
+					break;
+				}
 
-                case CommandType::addplayer: {
-                    size_t spacePos = cmdText.find(" ");
-                    if (spacePos != std::string::npos) {
-                        std::string playerName = cmdText.substr(spacePos + 1);
-                        addPlayer(playerName);
-                        cmd->saveEffect("Player '" + playerName + "' processed");
-                    } else {
-                        cmd->saveEffect("Invalid addplayer command: missing player name");
-                    }
-                    break;
-                }
+				case CommandType::validatemap:
+					validateMap();
+					cmd->saveEffect("Map validation processed");
+					break;
 
-                case CommandType::gamestart:
-                    gameStart();
-                    cmd->saveEffect("Game start processed");
-                    break;
+				case CommandType::addplayer: {
+					size_t spacePos = cmdText.find(" ");
+					if (spacePos != std::string::npos) {
+						std::string playerName = cmdText.substr(spacePos + 1);
+						addPlayer(playerName);
+						cmd->saveEffect("Player '" + playerName +
+										"' processed");
+					} else {
+						cmd->saveEffect(
+							"Invalid addplayer command: missing player name");
+					}
+					break;
+				}
 
-                case CommandType::quit:
-                    state->setState(StateType::win);
-                    cmd->saveEffect("Game ended");
-                    break;
+				case CommandType::gamestart:
+					gameStart();
+					cmd->saveEffect("Game start processed");
+					break;
 
-                default:
-                    cmd->saveEffect("Command not implemented");
-                    break;
-            }
-        } catch (const std::exception& e) {
-            cmd->saveEffect("Error executing command: " + std::string(e.what()));
-        }
-    }
-    
-    std::cout << "\nGame ended." << std::endl;
+				case CommandType::quit:
+					state->setState(StateType::win);
+					cmd->saveEffect("Game ended");
+					break;
+
+				default:
+					cmd->saveEffect("Command not implemented");
+					break;
+			}
+		} catch (const std::exception &e) {
+			cmd->saveEffect("Error executing command: " +
+							std::string(e.what()));
+		}
+	}
+
+	std::cout << "\nGame ended." << std::endl;
 }
 
 void GameEngine::loadMap(const std::string &filename) {
