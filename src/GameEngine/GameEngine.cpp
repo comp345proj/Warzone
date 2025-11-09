@@ -95,7 +95,9 @@ void GameEngine::startupPhase() {
 
         Command* cmd = commandProcessor->getCommand();
         if (cmd == nullptr) {
-            continue;
+            std::cout << "\nEnd of command file reached. Exiting game." << std::endl;
+            state->setState(StateType::win);
+            break;
         }
 
         std::string cmdText = cmd->getCommandText();

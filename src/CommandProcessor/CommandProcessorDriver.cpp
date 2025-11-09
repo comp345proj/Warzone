@@ -9,7 +9,7 @@ void testCommandProcessor() {
     std::cout << "=======================" << std::endl;
 
     // Create a test command file
-    std::string filename = "commands.txt";
+    std::string filename = "code-generated-commands.txt";
     std::ofstream testFile(filename);
     testFile << "loadmap testmap.map\n";
     testFile << "validatemap\n";
@@ -47,9 +47,6 @@ void testCommandProcessor() {
                       << fileProcessor.getFileName() << "':" << std::endl;
 
             while (Command* cmd = fileProcessor.getCommand()) {
-                std::cout << "\nCommand read from file: '"
-                          << cmd->getCommandText() << "'" << std::endl;
-
                 fileProcessor.validate(cmd, StateType::start);
                 std::cout << "----------------" << std::endl;
             }
@@ -88,7 +85,7 @@ void testCommandProcessor() {
     }
 
     // Cleanup
-    if (std::remove("commands.txt") != 0) {
+    if (std::remove("code-generated-commands.txt") != 0) {
         std::cout << "Note: Could not remove test file. It may have "
                      "already been deleted."
                   << std::endl;

@@ -218,6 +218,8 @@ Command* FileCommandProcessorAdapter::readCommand() {
             || input.find_first_not_of(" \t\n\r") == std::string::npos) {
             return readCommand();
         }
+        std::cout << "Reading command from file: '" << input << "'"
+                  << std::endl;
         Command* cmd = new Command(input);
         saveCommand(cmd);
         return cmd;
