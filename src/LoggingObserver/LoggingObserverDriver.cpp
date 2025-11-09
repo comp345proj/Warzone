@@ -1,9 +1,9 @@
 // Driver to demonstrate the logging observer behaviour
-#include "Observer/LoggingObserverDriver.h"
+#include "LoggingObserver/LoggingObserverDriver.h"
 #include "Cards/Cards.h"
 #include "CommandProcessor/CommandProcessor.h"
 #include "GameEngine/GameEngine.h"
-#include "Observer/LogObserver.h"
+#include "LoggingObserver/LoggingObserver.h"
 #include "Orders/Orders.h"
 #include "Player/Player.h"
 #include <cstdio>
@@ -66,6 +66,8 @@ void testLoggingObserver() {
     ordersList.Attach(logger);
     Player alice("Alice");
     Territory* aliceTerritory = new Territory("AliceTerritory", 1, 1);
+	alice.addTerritory(aliceTerritory);
+	aliceTerritory->setPlayer(&alice);
     // create a deploy order with parameters, set player and add to orders list
     Deploy* d = new Deploy(&alice, aliceTerritory, 5);
     ordersList.addOrder(d);
@@ -73,16 +75,17 @@ void testLoggingObserver() {
     // 4) When an order is added to a player's orders list, observer is notified
     // Use Player's orders list and attach observer
     Player bob("Bob");
+    Territory* bobTerritory = new Territory("BobTerritory", 2, 2);
+    bob.addTerritory(bobTerritory);
+    bobTerritory->setPlayer(&bob);
+	bob.setReinforcementPool(10);
+	bob.resetAvailableReinforcementPool();
+
     OrdersList* bobOrders = bob.getOrdersList();
     bobOrders->Attach(logger);
 
-    // Give Bob a reinforcement card so Deploy::validate() will succeed
-    Card* reinfCard = new Card(CardType::REINFORCEMENT);
-    Deck deck; // local deck required by Card::play
-    bob.addCard(reinfCard);
-    // Issue order by playing the card; this will add an order to bob's orders
-    // list and notify
-    bob.issueOrder(&deck, reinfCard);
+    Deck deck;
+    bob.issueOrder(&deck);
 
     // Attach logger to the actual order so its execute() will notify
     Order* lastBobOrder = bob.getOrdersList()->getOrders().back();
@@ -96,9 +99,6 @@ void testLoggingObserver() {
     // log file
     ge.Attach(logger);
     ge.setState(StateType::playeradded);
-    // GameEngine doesn't automatically call Notify in this implementation, so
-    // call it explicitly
-    ge.Notify(&ge);
 
     // Read and print the gamelog.txt contents to demonstrate results
     std::cout << "\n-- Contents of gamelog.txt --" << std::endl;

@@ -1,7 +1,6 @@
 #pragma once
 #include "GameTypes/GameTypes.h"
-#include "Observer/LogObserver.h"
-#include "Subject/Subject.h"
+#include "LoggingObserver/LoggingObserver.h"
 #include <iostream>
 #include <list>
 #include <string>

@@ -19,13 +19,15 @@ Command::Command(const std::string &cmd) {
     }
 
     commandText = new std::string(trimmedCmd);
-    type = stringToCommandType(commandText->substr(0, commandText->find(' ')));
-    effectText = new std::string(commandEffect[type]);
+    commandType =
+        stringToCommandType(commandText->substr(0, commandText->find(' ')));
+    effectText = new std::string(commandEffect[commandType]);
 }
 
 Command::Command(const Command &other)
     : commandText(new std::string(*(other.commandText))),
-      effectText(new std::string(*(other.effectText))), type(other.type) {}
+      effectText(new std::string(*(other.effectText))),
+      commandType(other.commandType) {}
 
 Command &Command::operator=(const Command &other) {
     if (this != &other) {
@@ -33,7 +35,7 @@ Command &Command::operator=(const Command &other) {
         delete effectText;
         commandText = new std::string(*(other.commandText));
         effectText = new std::string(*(other.effectText));
-        type = other.type;
+        commandType = other.commandType;
     }
     return *this;
 }
@@ -51,8 +53,8 @@ std::string &Command::getEffectText() const {
     return *effectText;
 }
 
-CommandType Command::getType() const {
-    return type;
+CommandType Command::getCommandType() const {
+    return commandType;
 }
 
 std::string Command::stringToLog() {
@@ -130,9 +132,9 @@ Command* CommandProcessor::readCommand() {
 
 bool CommandProcessor::validate(Command* command, StateType state, bool print) {
 
-    bool isValidSyntax = command->getType() != CommandType::invalid;
+    bool isValidSyntax = command->getCommandType() != CommandType::invalid;
 
-    size_t expectedArgsCount = getCommandArgsCount(command->getType());
+    size_t expectedArgsCount = getCommandArgsCount(command->getCommandType());
     size_t actualArgsCount = 0;
 
     size_t pos = command->getCommandText().find(' ');
@@ -154,7 +156,7 @@ bool CommandProcessor::validate(Command* command, StateType state, bool print) {
     bool isValidInState = validCommands[state].end()
         != std::find(validCommands[state].begin(),
                      validCommands[state].end(),
-                     command->getType());
+                     command->getCommandType());
 
     bool isValidOverall = isValidSyntax && isValidArgs && isValidInState;
 

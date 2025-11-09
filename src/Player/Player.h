@@ -18,9 +18,17 @@ class Player {
     std::vector<Territory*> territories;
     std::unique_ptr<Hand> hand;
     OrdersList* ordersList = nullptr;
-    int* reinforcementPool;
+    int* reinforcementPool; // Actual pool, modified only during execution
+    int availableReinforcementPool; // Available pool for issuing orders
+    bool hasReceivedCardThisTurn = false;
 
   public:
+    bool hasConqueredTerritoryThisTurn() const {
+        return hasReceivedCardThisTurn;
+    }
+    void setConqueredTerritoryThisTurn(bool value) {
+        hasReceivedCardThisTurn = value;
+    }
     Player(const std::string &name, Hand* hand = nullptr);
     Player(const Player &other);
     Player &operator=(const Player &other);
@@ -50,16 +58,19 @@ class Player {
     toAttack(); // Returns neighboring territories to be attacked in priority
 
     // Order issuing
-    void issueOrder(Deck* deck, Card* playedCard = nullptr);
+    void issueOrder(Deck* deck);
     void issueAdvanceOrder(Territory* from, Territory* to, int numArmies);
 
     // Getters
     const std::string &getName() const;
     OrdersList* getOrdersList() const;
     int getReinforcementPool() const;
+    int getAvailableReinforcementPool() const;
 
     // Setters
     void setReinforcementPool(int amount);
+    void
+    resetAvailableReinforcementPool(); // Call at start of issue orders phase
 
     friend std::ostream &operator<<(std::ostream &os, const Player &player);
 };

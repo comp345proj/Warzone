@@ -16,12 +16,13 @@ void testCards() {
               << std::endl;
     std::unordered_map<CardType, bool> cardTypesSeen;
     Hand tempHand;
-    while (cardTypesSeen.size() < 5 && deck.size() > 0) {
+    const int EXPECTED_CARD_TYPES = 5;
+    while (cardTypesSeen.size() < EXPECTED_CARD_TYPES && deck.size() > 0) {
         Card* card = deck.draw();
         if (card) {
-            if (!cardTypesSeen[card->getType()]) {
+            if (!cardTypesSeen[card->getCardType()]) {
                 std::cout << "Found card type: " << *card << std::endl;
-                cardTypesSeen[card->getType()] = true;
+                cardTypesSeen[card->getCardType()] = true;
             }
             tempHand.addCard(card);
         }
@@ -63,8 +64,6 @@ void testCards() {
 
         std::cout << "\nPlaying " << *card << " card" << std::endl;
 
-        // Playing a card creates order, removes card from hand,
-        // and returns to deck, atomic operation
         if (card->play(&testPlayer, &deck)) {
             std::cout << "Card played successfully. Deck now has "
                       << deck.size() << " cards." << std::endl;

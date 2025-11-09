@@ -16,7 +16,7 @@ class Deck;
 // Card class
 class Card {
   private:
-    CardType type;
+    CardType cardType;
 
   public:
     Card(CardType type);
@@ -26,7 +26,7 @@ class Card {
     bool play(Player* player, Deck* deck);
 
     // Get the type of card
-    CardType getType() const;
+    CardType getCardType() const;
 
     // Stream insertion operator
     friend std::ostream &operator<<(std::ostream &os, const Card &card);

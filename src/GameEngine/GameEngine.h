@@ -1,5 +1,6 @@
 #pragma once
 #include "CommandProcessor/CommandProcessor.h"
+#include "LoggingObserver/LoggingObserver.h"
 #include "Map/Map.h"
 #include "Map/MapLoader.h"
 #include "Player/Player.h"
@@ -17,13 +18,13 @@ class GameEngine;
 // Function to demonstrate the main game loop
 void testMainGameLoop();
 
-void printInvalidCommandError(StateType currentState);
+void printInvalidCommandError();
 
 //----------------------------State-------------------------------
 
 class State {
   private:
-    StateType type;
+    StateType stateType;
     std::string* currentPlayerTurn;
 
   public:
@@ -32,8 +33,8 @@ class State {
     State &operator=(const State &other);
     ~State();
 
-    StateType getState() const;
-    void setState(StateType newType);
+    StateType getStateType() const;
+    void setStateType(StateType newType);
     // void update(Command& command);
 
     std::string getCurrentPlayerTurn() const;
@@ -52,6 +53,7 @@ class GameEngine : public ILoggable, public Subject {
     std::string* currentMapPath;
     CommandProcessor* commandProcessor;
     Deck* deck;
+    LogObserver* logObserver;
 
   public:
     explicit GameEngine(CommandProcessor* cmdProcessor);
@@ -89,6 +91,7 @@ class GameEngine : public ILoggable, public Subject {
     Map* getCurrentMap() const;
     MapLoader* getMapLoader() const;
     Deck* getDeck() const;
+    LogObserver* getLogObserver() const;
     CommandProcessor &getCommandProcessor();
     StateType getState();
     void setState(StateType newState);

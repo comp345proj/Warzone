@@ -1,7 +1,6 @@
 #pragma once
 #include "GameTypes/GameTypes.h"
-#include "Observer/Observer.h"
-#include "Subject/Subject.h"
+#include "LoggingObserver/LoggingObserver.h"
 #include <fstream>
 #include <iostream>
 #include <map>
@@ -15,7 +14,7 @@ class Command : public Subject, public ILoggable {
   private:
     std::string* commandText; // Full command text (including args)
     std::string* effectText;
-    CommandType type;
+    CommandType commandType;
 
   public:
     Command();
@@ -25,7 +24,7 @@ class Command : public Subject, public ILoggable {
 
     std::string &getCommandText() const;
     std::string &getEffectText() const;
-    CommandType getType() const;
+    CommandType getCommandType() const;
     std::string stringToLog() override;
     void saveEffect(const std::string &effect);
     friend std::ostream &operator<<(std::ostream &out, const Command &command);

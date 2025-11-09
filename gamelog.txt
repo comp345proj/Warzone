@@ -1,3 +1,0 @@
-Latest Command: Command: loadmap World.map | Effect: 
-Command: sample | Effect: Command effect example
-Order Issued: Deploy

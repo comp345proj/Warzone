@@ -1,1 +1,5 @@
 loadmap World.map
+validatemap
+addplayer p1
+addplayer p2
+gamestart

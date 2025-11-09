@@ -5,7 +5,7 @@
 #include "GameEngine/GameEngineDriver.h"
 #include "Map/Map.h"
 #include "Map/MapDriver.h"
-#include "Observer/LoggingObserverDriver.h"
+#include "LoggingObserver/LoggingObserverDriver.h"
 #include "Orders/Orders.h"
 #include "Orders/OrdersDriver.h"
 #include "Player/Player.h"
@@ -38,9 +38,9 @@ int main(int argc, char* argv[]) {
     std::cout << "Command Processing Tests\n" << std::endl;
     testCommandProcessor();
 
-    // std::cout << SEPARATOR_LINE << std::endl;
-    // std::cout << "Logging Observer Tests\n" << std::endl;
-    // testLoggingObserver();
+    std::cout << SEPARATOR_LINE << std::endl;
+    std::cout << "Logging Observer Tests\n" << std::endl;
+    testLoggingObserver();
 
     std::cout << SEPARATOR_LINE << std::endl
               << "Game Engine Tests\n"
