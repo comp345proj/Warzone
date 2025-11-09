@@ -28,8 +28,7 @@ class Command : public Subject, public ILoggable {
     CommandType getType() const;
     std::string stringToLog() override;
     void saveEffect(const std::string &effect);
-    friend std::ostream &operator<<(std::ostream &out,
-                                    const Command &command);
+    friend std::ostream &operator<<(std::ostream &out, const Command &command);
     virtual ~Command();
 };
 
@@ -38,9 +37,8 @@ class ICommandProcessor {
   public:
     virtual ~ICommandProcessor() = default;
     virtual Command* getCommand() = 0;
-    virtual bool validate(Command* command,
-                          StateType stateType,
-                          bool print = true) = 0;
+    virtual bool
+    validate(Command* command, StateType stateType, bool print = true) = 0;
     virtual void saveCommand(Command* command) = 0;
 };
 
@@ -61,9 +59,8 @@ class CommandProcessor : public Subject,
 
     Command* getCommand() override;
     std::vector<Command*>* getCommandsList();
-    bool validate(Command* command,
-                  StateType stateType,
-                  bool print = true) override;
+    bool
+    validate(Command* command, StateType stateType, bool print = true) override;
     void saveCommand(Command* command) override;
     std::string stringToLog() override;
     friend std::ostream &operator<<(std::ostream &out,

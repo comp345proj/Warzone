@@ -4,7 +4,7 @@ IndentWidth: 4
 TabWidth: 4
 PointerAlignment: Left
 ReferenceAlignment: Right
-ColumnLimit: 70
+ColumnLimit: 80
 IndentCaseLabels: true
 BreakBeforeBraces: Attach
 SpaceAfterCStyleCast: false

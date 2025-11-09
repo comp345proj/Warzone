@@ -1,7 +1,7 @@
 #include "CommandProcessor.h"
+#include <algorithm>
 #include <iostream>
 #include <map>
-#include <algorithm>
 
 //---------------------------Command-------------------------------
 Command::Command() = default;
@@ -19,15 +19,13 @@ Command::Command(const std::string &cmd) {
     }
 
     commandText = new std::string(trimmedCmd);
-    type = stringToCommandType(
-        commandText->substr(0, commandText->find(' ')));
+    type = stringToCommandType(commandText->substr(0, commandText->find(' ')));
     effectText = new std::string(commandEffect[type]);
 }
 
 Command::Command(const Command &other)
     : commandText(new std::string(*(other.commandText))),
-      effectText(new std::string(*(other.effectText))),
-      type(other.type) {}
+      effectText(new std::string(*(other.effectText))), type(other.type) {}
 
 Command &Command::operator=(const Command &other) {
     if (this != &other) {
@@ -58,8 +56,7 @@ CommandType Command::getType() const {
 }
 
 std::string Command::stringToLog() {
-    return "Command: " + getCommandText()
-        + " | Effect: " + getEffectText();
+    return "Command: " + getCommandText() + " | Effect: " + getEffectText();
 }
 
 void Command::saveEffect(const std::string &effect) {
@@ -78,16 +75,14 @@ CommandProcessor::CommandProcessor() {
     _commandsList = std::vector<Command*>();
 };
 
-CommandProcessor::CommandProcessor(
-    const CommandProcessor &commandProcessor) {
+CommandProcessor::CommandProcessor(const CommandProcessor &commandProcessor) {
     _commandsList = std::vector<Command*>();
     for (const auto &cmd : commandProcessor._commandsList) {
         _commandsList.push_back(new Command(*cmd));
     }
 }
 
-CommandProcessor &
-CommandProcessor::operator=(const CommandProcessor &rhs) {
+CommandProcessor &CommandProcessor::operator=(const CommandProcessor &rhs) {
     if (this != &rhs) {
         for (auto &cmd : _commandsList) {
             delete cmd;
@@ -117,9 +112,8 @@ std::vector<Command*>* CommandProcessor::getCommandsList() {
 
 std::string CommandProcessor::stringToLog() {
     return "Latest Command: "
-        + (_commandsList.empty()
-               ? "No commands processed yet."
-               : _commandsList.back()->stringToLog());
+        + (_commandsList.empty() ? "No commands processed yet."
+                                 : _commandsList.back()->stringToLog());
 }
 
 Command* CommandProcessor::readCommand() {
@@ -134,29 +128,24 @@ Command* CommandProcessor::readCommand() {
     return cmd;
 }
 
-bool CommandProcessor::validate(Command* command,
-                                StateType state,
-                                bool print) {
+bool CommandProcessor::validate(Command* command, StateType state, bool print) {
 
     bool isValidSyntax = command->getType() != CommandType::invalid;
 
-    size_t expectedArgsCount =
-        getCommandArgsCount(command->getType());
+    size_t expectedArgsCount = getCommandArgsCount(command->getType());
     size_t actualArgsCount = 0;
 
     size_t pos = command->getCommandText().find(' ');
     if (pos != std::string::npos) {
-        std::string argsStr =
-            command->getCommandText().substr(pos + 1);
+        std::string argsStr = command->getCommandText().substr(pos + 1);
         argsStr.erase(0, argsStr.find_first_not_of(" \t"));
         argsStr.erase(argsStr.find_last_not_of(" \t") + 1);
 
         if (!argsStr.empty()) {
             actualArgsCount = 1;
-            actualArgsCount += std::count_if(
-                argsStr.begin(), argsStr.end(), [](char c) {
-                    return c == ' ';
-                });
+            actualArgsCount += std::count_if(argsStr.begin(),
+                                             argsStr.end(),
+                                             [](char c) { return c == ' '; });
         }
     }
 
@@ -167,30 +156,24 @@ bool CommandProcessor::validate(Command* command,
                      validCommands[state].end(),
                      command->getType());
 
-    bool isValidOverall = isValidSyntax && isValidArgs
-        && isValidInState;
+    bool isValidOverall = isValidSyntax && isValidArgs && isValidInState;
 
     if (print) {
-        std::cout << "Validating command '"
-                  << command->getCommandText() << "' in state '"
-                  << stateTypeToString(state) << "'\n"
+        std::cout << "Validating command '" << command->getCommandText()
+                  << "' in state '" << stateTypeToString(state) << "'\n"
                   << std::endl;
 
-        std::cout << "Command assumed effect: "
-                  << command->getEffectText() << std::endl;
-
-        std::cout << "\n1- Valid syntax: " << isValidSyntax
+        std::cout << "Command assumed effect: " << command->getEffectText()
                   << std::endl;
 
-        std::cout << "2- Valid arguments: " << isValidArgs
+        std::cout << "\n1- Valid syntax: " << isValidSyntax << std::endl;
+
+        std::cout << "2- Valid arguments: " << isValidArgs << std::endl;
+
+        std::cout << "3- Valid in current state: " << isValidInState << "\n"
                   << std::endl;
 
-        std::cout << "3- Valid in current state: " << isValidInState
-                  << "\n"
-                  << std::endl;
-
-        std::cout << "Will command take effect? " << isValidOverall
-                  << "\n"
+        std::cout << "Will command take effect? " << isValidOverall << "\n"
                   << std::endl;
     }
 
@@ -232,8 +215,7 @@ Command* FileCommandProcessorAdapter::readCommand() {
     std::string input;
     if (std::getline(fileStream, input)) {
         if (input.empty()
-            || input.find_first_not_of(" \t\n\r")
-                == std::string::npos) {
+            || input.find_first_not_of(" \t\n\r") == std::string::npos) {
             return readCommand();
         }
         Command* cmd = new Command(input);

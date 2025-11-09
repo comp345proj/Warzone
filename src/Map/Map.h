@@ -16,114 +16,109 @@ class Map;
 
 class Territory {
   private:
-	Player* player;
-	std::string* name;
-	IntPtr x, y; // Coordinates on the map
-	IntPtr armies;
-	std::vector<Territory*> adjacentTerritories;
+    Player* player;
+    std::string* name;
+    IntPtr x, y; // Coordinates on the map
+    IntPtr armies;
+    std::vector<Territory*> adjacentTerritories;
 
   public:
-	Territory(const std::string &name, int x, int y);
-	Territory(const Territory &other);			  // Copy constructor
-	Territory &operator=(const Territory &other); // Assignment operator
-	~Territory();
+    Territory(const std::string &name, int x, int y);
+    Territory(const Territory &other);            // Copy constructor
+    Territory &operator=(const Territory &other); // Assignment operator
+    ~Territory();
 
-	// Getters
-	std::string getName() const;
+    // Getters
+    std::string getName() const;
 
-	int getX() const;
+    int getX() const;
 
-	int getY() const;
+    int getY() const;
 
-	int getArmies() const {
-		return *armies;
-	}
-	void addArmies(int amount) {
-		*armies += amount;
-	}
-	void removeArmies(int amount) {
-		*armies = std::max(0, *armies - amount);
-	}
-	const std::vector<Territory*> &getNeighbors() const {
-		return adjacentTerritories;
-	}
+    int getArmies() const { return *armies; }
+    void addArmies(int amount) { *armies += amount; }
+    void removeArmies(int amount) { *armies = std::max(0, *armies - amount); }
+    const std::vector<Territory*> &getNeighbors() const {
+        return adjacentTerritories;
+    }
 
-	const std::vector<Territory*> &getAdjacentTerritories() const;
-	Player* getPlayer();
+    const std::vector<Territory*> &getAdjacentTerritories() const;
+    Player* getPlayer();
 
-	// Setters
-	void setName(const std::string &newName);
+    // Setters
+    void setName(const std::string &newName);
 
-	void setX(int newX);
+    void setX(int newX);
 
-	void setY(int newY);
+    void setY(int newY);
 
-	void setArmies(int nb);
+    void setArmies(int nb);
 
-	void addAdjacentTerritory(Territory* t);
+    void addAdjacentTerritory(Territory* t);
 
-	void setPlayer(Player*);
+    void setPlayer(Player*);
 };
 
 class Continent {
   private:
-	std::string* name;
-	IntPtr reinforcementBonus;
-	std::vector<Territory*> territories;
+    std::string* name;
+    IntPtr reinforcementBonus;
+    std::vector<Territory*> territories;
 
   public:
-	Continent(const std::string &name, int bonus);
-	Continent(const Continent &other);			  // Copy constructor
-	Continent &operator=(const Continent &other); // Assignment operator
-	~Continent();
+    Continent(const std::string &name, int bonus);
+    Continent(const Continent &other);            // Copy constructor
+    Continent &operator=(const Continent &other); // Assignment operator
+    ~Continent();
 
-	void addTerritory(Territory* territory);
+    void addTerritory(Territory* territory);
 
-	// Basic getters
-	const std::vector<Territory*> &getTerritories() const;
-	int getReinforcementBonus() const;
-	int getBonus() const {
-		return *reinforcementBonus;
-	}
-	std::string getName() const;
+    // Basic getters
+    const std::vector<Territory*> &getTerritories() const;
+    int getReinforcementBonus() const;
+    int getBonus() const { return *reinforcementBonus; }
+    std::string getName() const;
 };
 
 class Map {
   private:
-	bool* wrap;
-	bool* warn;
-	std::string* author;
-	std::string* image;
-	std::string* name;
-	std::string* scroll;
-	std::vector<Territory*> territories;
-	std::vector<Continent*> continents;
+    bool* wrap;
+    bool* warn;
+    std::string* author;
+    std::string* image;
+    std::string* name;
+    std::string* scroll;
+    std::vector<Territory*> territories;
+    std::vector<Continent*> continents;
 
-	void depthFirstSearch(Territory* start,
-						  std::unordered_set<Territory*> &visited) const;
-	bool isConnectedGraph() const;
-	bool areContinentsConnected() const;
-	bool isTerritoryInOneContinent() const;
+    void depthFirstSearch(Territory* start,
+                          std::unordered_set<Territory*> &visited) const;
+    bool isConnectedGraph() const;
+    bool areContinentsConnected() const;
+    bool isTerritoryInOneContinent() const;
 
   public:
-	Map(const Map &other); // Copy constructor
-	Map(bool wrap, bool warn, const std::string &author,
-		const std::string &image, const std::string &name,
-		const std::string &scroll);
-	Map &operator=(const Map &other); // Assignment operator
-	~Map();
+    Map(const Map &other); // Copy constructor
+    Map(bool wrap,
+        bool warn,
+        const std::string &author,
+        const std::string &image,
+        const std::string &name,
+        const std::string &scroll);
+    Map &operator=(const Map &other); // Assignment operator
+    ~Map();
 
-	// Getters
-	bool getWrap() const;
-	bool getWarn() const;
-	std::string getAuthor() const;
-	std::string getImage() const;
-	std::string getName() const;
-	std::string getScroll() const;
-	const std::vector<Continent*> &getContinents() const;
+    // Getters
+    bool getWrap() const;
+    bool getWarn() const;
+    std::string getAuthor() const;
+    std::string getImage() const;
+    std::string getName() const;
+    std::string getScroll() const;
+    const std::vector<Continent*> &getContinents() const;
 
-	void addTerritory(Territory* territory);
-	void addContinent(Continent* continent);
+    void addTerritory(Territory* territory);
+    void addContinent(Continent* continent);
 
-	bool validate() const;
+    bool validate() const;
 };

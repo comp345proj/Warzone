@@ -1,39 +1,39 @@
 #pragma once
-#include <string>
 #include <map>
+#include <string>
 #include <vector>
 
 namespace GameTypes {
 
 enum class StateType {
-	start,
-	maploaded,
-	mapvalidated,
-	playeradded,
-	assignreinforcement,
-	issueorders,
-	executeorders,
-	win,
-	invalid
+    start,
+    maploaded,
+    mapvalidated,
+    playeradded,
+    assignreinforcement,
+    issueorders,
+    executeorders,
+    win,
+    invalid
 };
 
 enum class CommandType {
-	loadmap,
-	validatemap,
-	addplayer,
-	gamestart,
-	replay,
-	quit,
-	invalid
+    loadmap,
+    validatemap,
+    addplayer,
+    gamestart,
+    replay,
+    quit,
+    invalid
 };
 
 enum class CardType {
-	REINFORCEMENT,
-	BOMB,
-	AIRLIFT,
-	BLOCKADE,
-	DIPLOMACY,
-	UNKNOWN
+    REINFORCEMENT,
+    BOMB,
+    AIRLIFT,
+    BLOCKADE,
+    DIPLOMACY,
+    UNKNOWN
 };
 
 extern std::map<StateType, std::vector<CommandType>> validCommands;
@@ -51,6 +51,6 @@ CardType stringToCardType(const std::string &cardStr);
 std::string getCommandArgsStr(CommandType command);
 int getCommandArgsCount(CommandType command);
 
-}
+} // namespace GameTypes
 
 using namespace GameTypes;

@@ -3,12 +3,12 @@
 
 class ILoggable {
   public:
-	virtual std::string stringToLog() = 0;
+    virtual std::string stringToLog() = 0;
 };
 
 class Observer {
   public:
-	Observer();
-	~Observer();
-	virtual void Update(ILoggable* loggable) = 0;
+    Observer();
+    ~Observer();
+    virtual void Update(ILoggable* loggable) = 0;
 };

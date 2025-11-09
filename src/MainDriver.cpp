@@ -14,72 +14,38 @@
 #include <iostream>
 
 int main(int argc, char* argv[]) {
-	if (argc <= 1) {
-		std::cout << "No arguments provided. Usage: ./WarzoneTestDriver "
-					 "[-console] OR [-file filename]"
-				  << std::endl;
-		return 1;
-	}
-	if (argc >= 4) {
-		std::cout << "Too many arguments provided. Usage: ./WarzoneTestDriver "
-					 "[-console] OR [-file filename]"
-				  << std::endl;
-		return 1;
-	}
 
-	// std::string commandOption;
-	// std::string filename;
+    std::cout << SEPARATOR_LINE << std::endl;
+    std::cout << "ASSIGNMENT 1" << std::endl;
+    std::cout << SEPARATOR_LINE << std::endl;
 
-	// for (int i = 0; i < argc; ++i)
-	// {
-	//     std::cout << "Argument " << i << ": " << argv[i] << std::endl;
-	//     if (i == 1)
-	//     {
-	//         commandOption = argv[i];
-	//     }
-	//     else if (i == 2)
-	//     {
-	//         filename = argv[i];
-	//     }
-	// }
+    std::cout << "Map Tests\n" << std::endl;
+    testLoadMaps();
 
-	// if (commandOption == "-file")
-	// {
-	//     // Load file as input
-	// }
+    std::cout << SEPARATOR_LINE << std::endl << "Cards Tests\n" << std::endl;
+    testCards();
 
-	std::cout << "Warzone Game Test Driver\n"
-			  << std::endl
-			  << SEPARATOR_LINE << std::endl
-			  << "Map Tests\n"
-			  << std::endl;
+    std::cout << SEPARATOR_LINE << std::endl << "Orders Tests\n" << std::endl;
+    testOrdersList();
 
-	testLoadMaps();
+    std::cout << SEPARATOR_LINE << std::endl << "Player Tests\n" << std::endl;
+    testPlayers();
 
-	std::cout << SEPARATOR_LINE << std::endl << "Cards Tests\n" << std::endl;
-	testCards();
+    std::cout << SEPARATOR_LINE << std::endl;
+    std::cout << "ASSIGNMENT 2" << std::endl;
+    std::cout << SEPARATOR_LINE << std::endl;
 
-	std::cout << SEPARATOR_LINE << std::endl << "Orders Tests\n" << std::endl;
-	testOrdersList();
+    std::cout << "Command Processing Tests\n" << std::endl;
+    testCommandProcessor();
 
-	std::cout << SEPARATOR_LINE << std::endl << "Player Tests\n" << std::endl;
-	testPlayers();
+    // std::cout << SEPARATOR_LINE << std::endl;
+    // std::cout << "Logging Observer Tests\n" << std::endl;
+    // testLoggingObserver();
 
-	std::cout << SEPARATOR_LINE << std::endl;
-	std::cout << "ASSIGNMENT 2" << std::endl;
-	std::cout << SEPARATOR_LINE << std::endl;
-	
-	std::cout << "Command Processing Tests\n" << std::endl;
-	testCommandProcessor();
-	
-	// std::cout << SEPARATOR_LINE << std::endl;
-	// std::cout << "Logging Observer Tests\n" << std::endl;
-	// testLoggingObserver();
+    std::cout << SEPARATOR_LINE << std::endl
+              << "Game Engine Tests\n"
+              << std::endl;
+    testGameStates(argc, argv);
 
-	std::cout << SEPARATOR_LINE << std::endl
-			  << "Game Engine Tests\n"
-			  << std::endl;
-	testGameStates();
-
-	return 0;
+    return 0;
 }

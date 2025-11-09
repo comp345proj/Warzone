@@ -1,3 +1,3 @@
 #pragma once
 
-void testGameStates();
+void testGameStates(int argc, char* argv[]);

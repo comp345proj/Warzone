@@ -9,7 +9,7 @@ void testCommandProcessor() {
     std::cout << "=======================" << std::endl;
 
     // Create a test command file
-	std::string filename = "commands.txt";
+    std::string filename = "commands.txt";
     std::ofstream testFile(filename);
     testFile << "loadmap testmap.map\n";
     testFile << "validatemap\n";
@@ -20,10 +20,8 @@ void testCommandProcessor() {
     testFile.close();
 
     // Test Scenario 1: Console Command Processing
-    std::cout << "\n1. Testing Console Command Processing:"
-              << std::endl;
-    std::cout << "--------------------------------------------"
-              << std::endl;
+    std::cout << "\n1. Testing Console Command Processing:" << std::endl;
+    std::cout << "--------------------------------------------" << std::endl;
     {
         CommandProcessor consoleProcessor;
         std::cout << "Please enter a command (e.g., 'loadmap "
@@ -33,28 +31,24 @@ void testCommandProcessor() {
         if (cmd1) {
             std::cout << "Command entered: " << cmd1->getCommandText()
                       << std::endl;
-            std::cout << "Effect: " << cmd1->getEffectText()
-                      << std::endl;
+            std::cout << "Effect: " << cmd1->getEffectText() << std::endl;
         }
         cmd1 = nullptr;
     }
 
     // Test Scenario 2: File Command Processing
     std::cout << "\n2. Testing File Command Processing:" << std::endl;
-    std::cout << "--------------------------------------------"
-              << std::endl;
+    std::cout << "--------------------------------------------" << std::endl;
     {
         try {
             // Use the same filename as created above
             FileCommandProcessorAdapter fileProcessor(filename);
             std::cout << "Reading commands from file '"
-                      << fileProcessor.getFileName()
-                      << "':" << std::endl;
+                      << fileProcessor.getFileName() << "':" << std::endl;
 
             while (Command* cmd = fileProcessor.getCommand()) {
                 std::cout << "\nCommand read from file: '"
-                          << cmd->getCommandText() << "'"
-                          << std::endl;
+                          << cmd->getCommandText() << "'" << std::endl;
 
                 fileProcessor.validate(cmd, StateType::start);
                 std::cout << "----------------" << std::endl;
@@ -67,8 +61,7 @@ void testCommandProcessor() {
     // Test Scenario 3: Command Validation and State Changes
     std::cout << "\n3. Testing Command Validation and State Changes:"
               << std::endl;
-    std::cout << "--------------------------------------------"
-              << std::endl;
+    std::cout << "--------------------------------------------" << std::endl;
     {
         // Create a processor to test validation
         CommandProcessor consoleProcessor;
