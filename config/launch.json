@@ -14,11 +14,29 @@
 			"preLaunchTask": "Build Warzone"
 		},
 		{
-			"name": "Warzone (Mac)",
+			"name": "Warzone Console (Mac)",
 			"type": "cppdbg",
 			"request": "launch",
 			"program": "${workspaceFolder}/build/bin/Warzone",
-			"args": [],
+			"args": [
+				"-console"
+			],
+			"stopAtEntry": false,
+			"cwd": "${workspaceFolder}",
+			"environment": [],
+			"externalConsole": true,
+			"MIMode": "lldb",
+			"preLaunchTask": "Build Warzone"
+		},
+		{
+			"name": "Warzone File Mode (Mac)",
+			"type": "cppdbg",
+			"request": "launch",
+			"program": "${workspaceFolder}/build/bin/Warzone",
+			"args": [
+				"-file",
+				"commands.txt"
+			],
 			"stopAtEntry": false,
 			"cwd": "${workspaceFolder}",
 			"environment": [],

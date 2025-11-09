@@ -4,18 +4,17 @@
 using std::cin;
 
 void printInvalidCommandError(StateType currentState) {
-	std::cout << "Invalid command. Current state: "
-			  << stateTypeToString(currentState) << std::endl;
+	std::cout << "Invalid command." << std::endl;
 }
 
 //---------------------------State-------------------------------
-State::State(StateType state) : state(state) {}
+State::State(StateType type) : type(type) {}
 State::State(const State &other)
-	: state(other.state), currentPlayerTurn(other.currentPlayerTurn) {}
+	: type(other.type), currentPlayerTurn(other.currentPlayerTurn) {}
 
 State &State::operator=(const State &other) {
 	if (this != &other) {
-		state = other.state;
+		type = other.type;
 		currentPlayerTurn = other.currentPlayerTurn;
 	}
 	return *this;
@@ -27,11 +26,11 @@ State::~State() {
 
 // Getters and setters
 StateType State::getState() const {
-	return state;
+	return type;
 }
 
 void State::setState(StateType newState) {
-	state = newState;
+	type = newState;
 }
 
 std::string State::getCurrentPlayerTurn() const {
@@ -91,7 +90,7 @@ void GameEngine::startupPhase() {
 		std::cout << "Available commands:" << std::endl;
 		for (const auto &cmd : validCommands[currentState]) {
 			std::cout << "  - " << commandTypeToString(cmd) << " "
-					  << getCommandArgs(cmd) << std::endl;
+					  << getCommandArgsStr(cmd) << std::endl;
 		}
 
 		Command* cmd = commandProcessor->getCommand();
@@ -102,17 +101,13 @@ void GameEngine::startupPhase() {
 		std::string cmdText = cmd->getCommandText();
 
 		// Validate command for current state
-		if (!commandProcessor->validate(cmdText, currentState)) {
-			std::string effect =
-				"Invalid command for state: " + stateTypeToString(currentState);
-			cmd->saveEffect(effect);
+		if (!commandProcessor->validate(cmd, currentState, false)) {
 			printInvalidCommandError(currentState);
 			continue;
 		}
 
 		// Process valid command
 		try {
-			// Extract command part (first word) for command type determination
 			std::string cmdPart = cmdText.substr(0, cmdText.find(' '));
 			CommandType cmdType = stringToCommandType(cmdPart);
 			switch (cmdType) {

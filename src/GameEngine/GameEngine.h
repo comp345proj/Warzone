@@ -23,17 +23,17 @@ void printInvalidCommandError(StateType currentState);
 
 class State {
   private:
-	StateType state;
-	std::string* currentPlayerTurn; // name of the player whose turn it is
+	StateType type;
+	std::string* currentPlayerTurn;
 
   public:
-	State(StateType state);
-	State(const State &other);			  // Copy constructor
-	State &operator=(const State &other); // Assignment operator
+	State(StateType type);
+	State(const State &other);
+	State &operator=(const State &other);
 	~State();
 
 	StateType getState() const;
-	void setState(StateType newState);
+	void setState(StateType newType);
 	// void update(Command& command);
 
 	std::string getCurrentPlayerTurn() const;

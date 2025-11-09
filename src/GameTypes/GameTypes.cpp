@@ -74,15 +74,36 @@ CommandType stringToCommandType(const std::string &commandStr) {
 	return CommandType::invalid;
 }
 
-std::string getCommandArgs(CommandType command) {
-	switch (command) {
-		case CommandType::loadmap:
-			return "filename";
-		case CommandType::addplayer:
-			return "playername";
-		default:
-			return "";
-	}
+std::string getCommandArgsStr(CommandType command) {
+	if (command == CommandType::loadmap)
+		return "filename";
+	if (command == CommandType::validatemap)
+		return "";
+	if (command == CommandType::addplayer)
+		return "playername";
+	if (command == CommandType::gamestart)
+		return "";
+	if (command == CommandType::replay)
+		return "";
+	if (command == CommandType::quit)
+		return "";
+	return "invalid";
+}
+
+int getCommandArgsCount(CommandType command) {
+	if (command == CommandType::loadmap)
+		return 1;
+	if (command == CommandType::validatemap)
+		return 0;
+	if (command == CommandType::addplayer)
+		return 1;
+	if (command == CommandType::gamestart)
+		return 0;
+	if (command == CommandType::replay)
+		return 0;
+	if (command == CommandType::quit)
+		return 0;
+	return -1;
 }
 
 std::string cardTypeToString(CardType type) {
@@ -123,6 +144,16 @@ std::map<StateType, std::vector<CommandType>> validCommands = {
 	{StateType::playeradded, {CommandType::addplayer, CommandType::gamestart}},
 
 	{StateType::win, {CommandType::replay, CommandType::quit}}
+};
+
+std::map<CommandType, std::string> commandEffect = {
+	{CommandType::loadmap, "Loads the map."},
+	{CommandType::validatemap, "Validates the map."},
+	{CommandType::addplayer, "Adds a player."},
+	{CommandType::gamestart, "Starts the game."},
+	{CommandType::replay, "Replays the game."},
+	{CommandType::quit, "Exits the game."},
+	{CommandType::invalid, "Invalid command."}
 };
 
 } // namespace GameTypes
