@@ -1,13 +1,11 @@
----
-Language: Cpp
+BasedOnStyle: LLVM
+UseTab: Never
+IndentWidth: 4
+TabWidth: 4
 PointerAlignment: Left
 ReferenceAlignment: Right
-BasedOnStyle: LLVM
-UseTab: Always
-TabWidth: 4
-IndentWidth: 4
-ColumnLimit: 80
-AllowShortFunctionsOnASingleLine: Empty
+ColumnLimit: 70
+IndentCaseLabels: true
 BreakBeforeBraces: Attach
 SpaceAfterCStyleCast: false
 SpaceAfterTemplateKeyword: true
@@ -17,4 +15,13 @@ SpaceInEmptyParentheses: false
 SpacesInCStyleCastParentheses: false
 SpacesInParentheses: false
 SpacesInSquareBrackets: false
-IndentCaseLabels: true
+BreakBeforeTernaryOperators: true
+BreakAfterTernaryOperators: false
+AlignOperands: false
+BinPackArguments: false
+BinPackParameters: false
+AllowShortFunctionsOnASingleLine: Inline
+AllowShortConditionalStatementsOnASingleLine: true
+BreakBeforeBinaryOperators: NonAssignment
+PenaltyBreakBeforeFirstCallParameter: 1
+PenaltyBreakAssignment: 5

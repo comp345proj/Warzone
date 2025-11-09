@@ -13,61 +13,73 @@ class CommandProcessor;
 
 class Command : public Subject, public ILoggable {
   private:
-	std::string* commandText;
-	std::string* effectText;
+    std::string* commandText; // Full command text (including args)
+    std::string* effectText;
+    CommandType type;
 
   public:
-	Command();
-	Command(const std::string &cmd, const std::string &effect = "");
-	Command(const Command &other);
-	Command &operator=(const Command &other);
+    Command();
+    Command(const std::string &cmd);
+    Command(const Command &other);
+    Command &operator=(const Command &other);
 
-	std::string &getCommandText() const;
-	std::string &getEffectText() const;
-	std::string stringToLog() override;
-	void saveEffect(const std::string &effect);
-	friend std::ostream &operator<<(std::ostream &out, const Command &command);
-	~Command();
+    std::string &getCommandText() const;
+    std::string &getEffectText() const;
+    CommandType getType() const;
+    std::string stringToLog() override;
+    void saveEffect(const std::string &effect);
+    friend std::ostream &operator<<(std::ostream &out,
+                                    const Command &command);
+    virtual ~Command();
 };
 
 // Interface for command processing
 class ICommandProcessor {
   public:
-	virtual ~ICommandProcessor() = default;
-	virtual Command* getCommand() = 0;
-	virtual bool validate(std::string cmdText, StateType state) = 0;
-	virtual void saveCommand(Command* command) = 0;
+    virtual ~ICommandProcessor() = default;
+    virtual Command* getCommand() = 0;
+    virtual bool validate(Command* command,
+                          StateType stateType,
+                          bool print = true) = 0;
+    virtual void saveCommand(Command* command) = 0;
 };
 
-class CommandProcessor : public Subject, public ILoggable, public ICommandProcessor {
+class CommandProcessor : public Subject,
+                         public ILoggable,
+                         public ICommandProcessor {
   protected:
-	std::vector<Command*> _commandsList;
+    std::vector<Command*> _commandsList;
 
   private:
-	virtual Command* readCommand();
+    virtual Command* readCommand();
 
   public:
-	CommandProcessor();
-	CommandProcessor(const CommandProcessor &commandProcessor);
-	CommandProcessor &operator=(const CommandProcessor &rhs);
-	virtual ~CommandProcessor();
+    CommandProcessor();
+    CommandProcessor(const CommandProcessor &commandProcessor);
+    CommandProcessor &operator=(const CommandProcessor &rhs);
+    virtual ~CommandProcessor();
 
-	Command* getCommand() override;
-	std::vector<Command*>* getCommandsList();
-	bool validate(std::string cmdText, StateType state) override;
-	void saveCommand(Command* command) override;
-	std::string stringToLog() override;
-	friend std::ostream &operator<<(std::ostream &out,
-									const CommandProcessor &cp);
+    Command* getCommand() override;
+    std::vector<Command*>* getCommandsList();
+    bool validate(Command* command,
+                  StateType stateType,
+                  bool print = true) override;
+    void saveCommand(Command* command) override;
+    std::string stringToLog() override;
+    friend std::ostream &operator<<(std::ostream &out,
+                                    const CommandProcessor &cp);
 };
 
 class FileCommandProcessorAdapter : public CommandProcessor {
-private:
+  private:
     std::string filename;
+    std::string filepath;
     std::ifstream fileStream;
     Command* readCommand() override;
 
-public:
-    explicit FileCommandProcessorAdapter(const std::string& filename);
+  public:
+    explicit FileCommandProcessorAdapter(const std::string &filename);
     ~FileCommandProcessorAdapter() override;
+
+    std::string getFileName() const { return filename; }
 };

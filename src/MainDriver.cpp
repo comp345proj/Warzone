@@ -70,7 +70,7 @@ int main(int argc, char* argv[]) {
 	std::cout << SEPARATOR_LINE << std::endl;
 	
 	std::cout << "Command Processing Tests\n" << std::endl;
-	testCommandProcessor(argc, argv);
+	testCommandProcessor();
 	
 	// std::cout << SEPARATOR_LINE << std::endl;
 	// std::cout << "Logging Observer Tests\n" << std::endl;

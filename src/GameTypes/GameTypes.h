@@ -37,6 +37,8 @@ enum class CardType {
 
 extern std::map<StateType, std::vector<CommandType>> validCommands;
 
+extern std::map<CommandType, std::string> commandEffect;
+
 // Helper functions for string conversion
 std::string stateTypeToString(StateType state);
 StateType stringToStateType(const std::string &stateStr);
@@ -45,7 +47,8 @@ CommandType stringToCommandType(const std::string &commandStr);
 std::string cardTypeToString(CardType type);
 CardType stringToCardType(const std::string &cardStr);
 
-std::string getCommandArgs(CommandType command);
+std::string getCommandArgsStr(CommandType command);
+int getCommandArgsCount(CommandType command);
 
 }
 
