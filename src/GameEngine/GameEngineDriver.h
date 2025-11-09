@@ -1,3 +1,5 @@
 #pragma once
 
-void testGameStates(int argc, char* argv[]);
+void testGame(int argc, char* argv[]); // Game without tests
+void testStartupPhase();
+void testMainGameLoop();

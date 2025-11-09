@@ -62,16 +62,16 @@ class GameEngine : public ILoggable, public Subject {
     ~GameEngine();
 
     // Command methods
-    void startupPhase();
+    void startupPhase(bool runMainLoop = true);
     void loadMap(const std::string &filename);
     void validateMap();
     void addPlayer(const std::string &playerName);
     void distributeInitialArmies();
     void drawInitialCards();
-    void gameStart();
+    void gameStart(bool runMainLoop = true);
 
     // Main phases
-    void mainGameLoop();
+    void mainGameLoop(bool runExecuteOrdersPhase = true);
     void reinforcementPhase();
     void issueOrdersPhase();
     void executeOrdersPhase();

@@ -83,7 +83,7 @@ GameEngine::~GameEngine() {
     currentPlayer = nullptr;
 }
 
-void GameEngine::startupPhase() {
+void GameEngine::startupPhase(bool runMainLoop) {
     std::cout << "\nStarting Warzone Game" << std::endl;
     std::cout << "===================" << std::endl;
 
@@ -155,7 +155,7 @@ void GameEngine::startupPhase() {
                 }
 
                 case CommandType::gamestart:
-                    gameStart();
+                    gameStart(runMainLoop);
                     cmd->saveEffect("Game start processed");
                     break;
 
@@ -260,7 +260,7 @@ void GameEngine::drawInitialCards() {
     std::cout << "Each player has drawn 2 initial cards" << std::endl;
 }
 
-void GameEngine::gameStart() {
+void GameEngine::gameStart(bool runMainLoop) {
     if (state->getStateType() != StateType::playeradded) {
         std::cout << "Cannot start game in current state" << std::endl;
         return;
@@ -329,10 +329,16 @@ void GameEngine::gameStart() {
     std::cout << "\nGame has started! Moving to reinforcement phase."
               << std::endl;
     Notify(this);
-    mainGameLoop();
+
+    // Only call mainGameLoop if runMainLoop is true
+    if (runMainLoop) {
+        mainGameLoop();
+    } else {
+		state->setStateType(StateType::win);
+	}
 }
 
-void GameEngine::mainGameLoop() {
+void GameEngine::mainGameLoop(bool runExecuteOrdersPhase) {
     while (!checkWinCondition()) {
         // Remove any defeated players before starting the next round
         removeDefeatedPlayers();
@@ -344,7 +350,11 @@ void GameEngine::mainGameLoop() {
         // Execute each phase in order
         reinforcementPhase();
         issueOrdersPhase();
-        executeOrdersPhase();
+        if (runExecuteOrdersPhase) {
+            executeOrdersPhase();
+        } else {
+            break;
+        }
     }
 
     // Announce winner
