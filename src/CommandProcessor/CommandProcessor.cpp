@@ -1,6 +1,7 @@
 #include "CommandProcessor.h"
 #include <iostream>
 #include <map>
+#include <algorithm>
 
 //---------------------------Command-------------------------------
 Command::Command() = default;
