@@ -52,7 +52,7 @@ class Order : public ILoggable, public Subject {
     friend std::ostream &operator<<(std::ostream &os, const Order &order);
 };
 
-// Class to manage a list of orders
+// A list of orders
 class OrdersList : public ILoggable, public Subject {
   private:
     std::list<Order*> orders;
@@ -78,7 +78,7 @@ class OrdersList : public ILoggable, public Subject {
                                     const OrdersList &ordersList);
 };
 
-// Concrete Order classes (sub-classes of Order)
+// Deploy concrete order
 class Deploy : public Order {
   private:
     Territory* target;
@@ -91,6 +91,7 @@ class Deploy : public Order {
     std::string stringToLog() override;
 };
 
+// Advance concrete order
 class Advance : public Order {
   private:
     Territory* source;
@@ -113,6 +114,7 @@ class Advance : public Order {
     static void clearNegotiatedPairs();
 };
 
+// Bomb concrete order
 class Bomb : public Order {
   private:
     Territory* target;
@@ -124,6 +126,7 @@ class Bomb : public Order {
     std::string stringToLog() override;
 };
 
+// Blockade concrete order
 class Blockade : public Order {
   private:
     Territory* target;
@@ -139,6 +142,7 @@ class Blockade : public Order {
     static Player* getNeutralPlayer();
 };
 
+// Airlift concrete order
 class Airlift : public Order {
   private:
     Territory* source;
@@ -155,6 +159,7 @@ class Airlift : public Order {
     std::string stringToLog() override;
 };
 
+// Negotiate concrete order
 class Negotiate : public Order {
   private:
     Player* targetPlayer;

@@ -13,7 +13,7 @@ class Card;
 class Hand;
 class Deck;
 
-// Card class
+// Represents a playing card
 class Card {
   private:
     CardType cardType;
@@ -32,7 +32,7 @@ class Card {
     friend std::ostream &operator<<(std::ostream &os, const Card &card);
 };
 
-// Hand class to manage a player's cards
+// A player's hand of cards
 class Hand {
   private:
     std::vector<Card*> cards;
@@ -52,7 +52,7 @@ class Hand {
     friend std::ostream &operator<<(std::ostream &os, const Hand &hand);
 };
 
-// Deck class to manage all cards
+// Game's deck to manage all cards
 class Deck {
   private:
     std::vector<Card*> cards;

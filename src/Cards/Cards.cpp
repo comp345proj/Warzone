@@ -15,7 +15,7 @@ bool Card::play(Player* player, Deck* deck) {
         return false;
     }
 
-    // Get territory lists from player (computed fresh to ensure current state)
+    // Get territory lists from player
     auto defendList = player->toDefend();
     auto attackList = player->toAttack();
 
@@ -31,8 +31,7 @@ bool Card::play(Player* player, Deck* deck) {
                       << std::endl;
             std::cout << "  New total: " << player->getReinforcementPool()
                       << " armies" << std::endl;
-            std::cout << "  (You can deploy these on your next turn or "
-                         "continue with other orders)"
+            std::cout << "  (You can deploy these on your next turn)"
                       << std::endl;
 
             // Remove card from hand and return to deck
@@ -44,7 +43,7 @@ bool Card::play(Player* player, Deck* deck) {
             if (attackList.empty()) {
                 std::cout << "✗ No enemy territories available to bomb."
                           << std::endl;
-                std::cout << "✗ Bomb order NOT created." << std::endl;
+                std::cout << "✗ Bomb order was NOT issued." << std::endl;
                 return false;
             }
 
@@ -74,7 +73,7 @@ bool Card::play(Player* player, Deck* deck) {
             if (defendList.empty()) {
                 std::cout << "✗ No territories available to blockade."
                           << std::endl;
-                std::cout << "✗ Blockade order NOT created." << std::endl;
+                std::cout << "✗ Blockade order was NOT issued." << std::endl;
                 return false;
             }
 
@@ -102,9 +101,9 @@ bool Card::play(Player* player, Deck* deck) {
         }
         case CardType::AIRLIFT: {
             if (defendList.size() < 2) {
-                std::cout << "✗ Need at least 2 territories for Airlift."
+                std::cout << "✗ Need at least 2 owned territories for Airlift."
                           << std::endl;
-                std::cout << "✗ Airlift order NOT created." << std::endl;
+                std::cout << "✗ Airlift order was NOT issued." << std::endl;
                 return false;
             }
 
@@ -155,7 +154,7 @@ bool Card::play(Player* player, Deck* deck) {
             if (destChoice == sourceChoice) {
                 std::cout << "✗ Source and destination cannot be the same."
                           << std::endl;
-                std::cout << "✗ Airlift order NOT created." << std::endl;
+                std::cout << "✗ Airlift order was NOT issued." << std::endl;
                 return false;
             }
 
@@ -186,7 +185,7 @@ bool Card::play(Player* player, Deck* deck) {
             if (enemyPlayers.empty()) {
                 std::cout << "✗ No enemy players available to negotiate with."
                           << std::endl;
-                std::cout << "✗ Negotiate order NOT created." << std::endl;
+                std::cout << "✗ Negotiate order was NOT issued." << std::endl;
                 return false;
             }
 
@@ -227,7 +226,7 @@ bool Card::play(Player* player, Deck* deck) {
         player->removeCard(this);
         deck->returnCard(this);
         std::cout << "✓ " << cardTypeToString(cardType)
-                  << " order SUCCESSFULLY created and added to orders list!"
+                  << " order SUCCESSFULLY issued and added to orders list!"
                   << std::endl;
         std::cout << "  Card returned to deck." << std::endl;
         std::cout << "  (Order will be validated during execution phase)"

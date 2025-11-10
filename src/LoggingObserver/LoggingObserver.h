@@ -5,7 +5,7 @@
 // Forward declarations
 class Observer;
 
-// ILoggable interface - must be inherited by all loggable classes
+// ILoggable interface - inherited by all loggable classes
 class ILoggable {
   public:
     virtual std::string stringToLog() = 0;
@@ -19,7 +19,7 @@ class Observer {
     virtual void Update(ILoggable* loggable) = 0;
 };
 
-// Subject class - manages observers
+// A subject (game engine) that manages observers
 class Subject {
   public:
     virtual void Attach(Observer* o);

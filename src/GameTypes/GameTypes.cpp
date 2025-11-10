@@ -2,6 +2,7 @@
 
 namespace GameTypes {
 
+//---------------------------StateType-------------------------------
 std::string stateTypeToString(StateType state) {
     if (state == StateType::start)
         return "start";
@@ -42,6 +43,36 @@ StateType stringToStateType(const std::string &stateStr) {
     return StateType::invalid;
 }
 
+//---------------------------CardType--------------------------------
+std::string cardTypeToString(CardType type) {
+    if (type == CardType::REINFORCEMENT)
+        return "Reinforcement";
+    if (type == CardType::BOMB)
+        return "Bomb";
+    if (type == CardType::BLOCKADE)
+        return "Blockade";
+    if (type == CardType::AIRLIFT)
+        return "Airlift";
+    if (type == CardType::DIPLOMACY)
+        return "Diplomacy";
+    return "Unknown";
+}
+
+CardType stringToCardType(const std::string &cardStr) {
+    if (cardStr == "Reinforcement")
+        return CardType::REINFORCEMENT;
+    if (cardStr == "Blockade")
+        return CardType::BLOCKADE;
+    if (cardStr == "Bomb")
+        return CardType::BOMB;
+    if (cardStr == "Airlift")
+        return CardType::AIRLIFT;
+    if (cardStr == "Diplomacy")
+        return CardType::DIPLOMACY;
+    return CardType::UNKNOWN;
+}
+
+//---------------------------CommandType-----------------------------
 std::string commandTypeToString(CommandType command) {
     if (command == CommandType::loadmap)
         return "loadmap";
@@ -74,7 +105,7 @@ CommandType stringToCommandType(const std::string &commandStr) {
     return CommandType::invalid;
 }
 
-std::string getCommandArgsStr(CommandType command) {
+std::string getCommandArgsString(CommandType command) {
     if (command == CommandType::loadmap)
         return "filename";
     if (command == CommandType::validatemap)
@@ -104,34 +135,6 @@ int getCommandArgsCount(CommandType command) {
     if (command == CommandType::quit)
         return 0;
     return -1;
-}
-
-std::string cardTypeToString(CardType type) {
-    if (type == CardType::REINFORCEMENT)
-        return "Reinforcement";
-    if (type == CardType::BOMB)
-        return "Bomb";
-    if (type == CardType::BLOCKADE)
-        return "Blockade";
-    if (type == CardType::AIRLIFT)
-        return "Airlift";
-    if (type == CardType::DIPLOMACY)
-        return "Diplomacy";
-    return "Unknown";
-}
-
-CardType stringToCardType(const std::string &cardStr) {
-    if (cardStr == "Reinforcement")
-        return CardType::REINFORCEMENT;
-    if (cardStr == "Blockade")
-        return CardType::BLOCKADE;
-    if (cardStr == "Bomb")
-        return CardType::BOMB;
-    if (cardStr == "Airlift")
-        return CardType::AIRLIFT;
-    if (cardStr == "Diplomacy")
-        return CardType::DIPLOMACY;
-    return CardType::UNKNOWN;
 }
 
 std::map<StateType, std::vector<CommandType>> validCommands = {

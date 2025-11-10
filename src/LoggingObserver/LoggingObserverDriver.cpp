@@ -66,8 +66,8 @@ void testLoggingObserver() {
     ordersList.Attach(logger);
     Player alice("Alice");
     Territory* aliceTerritory = new Territory("AliceTerritory", 1, 1);
-	alice.addTerritory(aliceTerritory);
-	aliceTerritory->setPlayer(&alice);
+    alice.addTerritory(aliceTerritory);
+    aliceTerritory->setPlayer(&alice);
     // create a deploy order with parameters, set player and add to orders list
     Deploy* d = new Deploy(&alice, aliceTerritory, 5);
     ordersList.addOrder(d);
@@ -78,8 +78,8 @@ void testLoggingObserver() {
     Territory* bobTerritory = new Territory("BobTerritory", 2, 2);
     bob.addTerritory(bobTerritory);
     bobTerritory->setPlayer(&bob);
-	bob.setReinforcementPool(10);
-	bob.resetAvailableReinforcementPool();
+    bob.setReinforcementPool(10);
+    bob.resetAvailableReinforcementPool();
 
     OrdersList* bobOrders = bob.getOrdersList();
     bobOrders->Attach(logger);

@@ -3,6 +3,7 @@
 #include <iostream>
 #include <utility> // for std::move
 
+//---------------------------Player-------------------------------
 Player::Player(const std::string &name, Hand* hand)
     : name(new std::string(name)),
       hand(hand ? std::make_unique<Hand>(*hand) : std::make_unique<Hand>()),

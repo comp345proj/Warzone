@@ -12,6 +12,7 @@ class Hand;
 class Deck;
 class OrdersList;
 
+// A player in the game
 class Player {
   private:
     std::string* name;

@@ -17,6 +17,15 @@ enum class StateType {
     invalid
 };
 
+enum class CardType {
+    REINFORCEMENT,
+    BOMB,
+    AIRLIFT,
+    BLOCKADE,
+    DIPLOMACY,
+    UNKNOWN
+};
+
 enum class CommandType {
     loadmap,
     validatemap,
@@ -27,29 +36,18 @@ enum class CommandType {
     invalid
 };
 
-enum class CardType {
-    REINFORCEMENT,
-    BOMB,
-    AIRLIFT,
-    BLOCKADE,
-    DIPLOMACY,
-    UNKNOWN
-};
-
-extern std::map<StateType, std::vector<CommandType>> validCommands;
-
-extern std::map<CommandType, std::string> commandEffect;
-
-// Helper functions for string conversion
 std::string stateTypeToString(StateType state);
 StateType stringToStateType(const std::string &stateStr);
-std::string commandTypeToString(CommandType command);
-CommandType stringToCommandType(const std::string &commandStr);
+
 std::string cardTypeToString(CardType type);
 CardType stringToCardType(const std::string &cardStr);
 
-std::string getCommandArgsStr(CommandType command);
+std::string commandTypeToString(CommandType command);
+CommandType stringToCommandType(const std::string &commandStr);
+std::string getCommandArgsString(CommandType command);
 int getCommandArgsCount(CommandType command);
+extern std::map<StateType, std::vector<CommandType>> validCommands;
+extern std::map<CommandType, std::string> commandEffect;
 
 } // namespace GameTypes
 

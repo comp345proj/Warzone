@@ -2,11 +2,11 @@
 #include <fstream>
 #include <iostream>
 
-// Observer implementation
+//---------------------------Observer-------------------------------
 Observer::Observer() = default;
 Observer::~Observer() = default;
 
-// Subject implementation
+//---------------------------Subject--------------------------------
 Subject::Subject() {
     _observers = new std::list<Observer*>();
 }
@@ -30,7 +30,7 @@ void Subject::Notify(ILoggable* loggable) {
     }
 }
 
-// LogObserver implementation
+//---------------------------LogObserver----------------------------
 bool LogObserver::fileCleared = false;
 
 LogObserver::LogObserver() {

@@ -4,7 +4,7 @@
 #include <algorithm>
 #include <sstream>
 
-//---------------------------Base class-------------------------------
+//---------------------------Order (Base class)-------------------------------
 Order::Order()
     : executed(false), issuingPlayer(nullptr), cardType(CardType::UNKNOWN) {}
 Order::~Order() = default;
@@ -639,7 +639,8 @@ std::string OrdersList::stringToLog() {
     std::string typeName = type.name();
     size_t pos = typeName.find_first_not_of("0123456789");
     std::string className = typeName.substr(pos);
-    return "Order Issued: " + std::string(className);
+    return "Order Issued: " + std::string(className) + " from "
+        + lastOrder->getPlayer()->getName() + "'s orders list;";
 }
 
 std::string Deploy::stringToLog() {

@@ -15,13 +15,9 @@
 class State;
 class GameEngine;
 
-// Function to demonstrate the main game loop
-void testMainGameLoop();
-
 void printInvalidCommandError();
 
-//----------------------------State-------------------------------
-
+// Represents a game's state
 class State {
   private:
     StateType stateType;
@@ -35,25 +31,24 @@ class State {
 
     StateType getStateType() const;
     void setStateType(StateType newType);
-    // void update(Command& command);
 
     std::string getCurrentPlayerTurn() const;
     void setCurrentPlayerTurn(const std::string &playerName);
     friend std::ostream &operator<<(std::ostream &out, const State &state);
 };
 
-//----------------------------GameEngine-------------------------------
+// Represents the whole game engine
 class GameEngine : public ILoggable, public Subject {
   private:
     State* state;
-    std::vector<Player*> players;
-    Player* currentPlayer;
-    Map* currentMap;
     MapLoader* mapLoader;
     std::string* currentMapPath;
-    CommandProcessor* commandProcessor;
+    Map* currentMap;
+    Player* currentPlayer;
     Deck* deck;
+    CommandProcessor* commandProcessor;
     LogObserver* logObserver;
+    std::vector<Player*> players;
 
   public:
     explicit GameEngine(CommandProcessor* cmdProcessor);
@@ -66,8 +61,6 @@ class GameEngine : public ILoggable, public Subject {
     void loadMap(const std::string &filename);
     void validateMap();
     void addPlayer(const std::string &playerName);
-    void distributeInitialArmies();
-    void drawInitialCards();
     void gameStart(bool runMainLoop = true);
 
     // Main phases
@@ -78,6 +71,8 @@ class GameEngine : public ILoggable, public Subject {
 
     // Helper methods
     int calculateReinforcement(Player* player);
+    void distributeInitialArmies();
+    void drawInitialCards();
     bool checkWinCondition();
     void removeDefeatedPlayers();
     bool isGameOver() const;

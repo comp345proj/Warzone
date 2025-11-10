@@ -1,8 +1,8 @@
 #include "CommandProcessor.h"
 #include <algorithm>
+#include <filesystem>
 #include <iostream>
 #include <map>
-#include <filesystem>
 
 //---------------------------Command-------------------------------
 Command::Command() = default;
@@ -19,9 +19,14 @@ Command::Command(const std::string &cmd) {
         trimmedCmd.replace(pos, 2, " ");
     }
 
+    // Stores full command text (including args)
     commandText = new std::string(trimmedCmd);
+
+    // Command type is the first fragment before a space
     commandType =
         stringToCommandType(commandText->substr(0, commandText->find(' ')));
+
+    // Assumed effect (if command is valid)
     effectText = new std::string(commandEffect[commandType]);
 }
 
@@ -75,34 +80,34 @@ std::ostream &operator<<(std::ostream &out, const Command &command) {
 
 //---------------------------CommandProcessor----------------------
 CommandProcessor::CommandProcessor() {
-    _commandsList = std::vector<Command*>();
+    commandsList = std::vector<Command*>();
 };
 
 CommandProcessor::CommandProcessor(const CommandProcessor &commandProcessor) {
-    _commandsList = std::vector<Command*>();
-    for (const auto &cmd : commandProcessor._commandsList) {
-        _commandsList.push_back(new Command(*cmd));
+    commandsList = std::vector<Command*>();
+    for (const auto &cmd : commandProcessor.commandsList) {
+        commandsList.push_back(new Command(*cmd));
     }
 }
 
 CommandProcessor &CommandProcessor::operator=(const CommandProcessor &rhs) {
     if (this != &rhs) {
-        for (auto &cmd : _commandsList) {
+        for (auto &cmd : commandsList) {
             delete cmd;
         }
-        _commandsList.clear();
-        for (const auto &cmd : rhs._commandsList) {
-            _commandsList.push_back(new Command(*cmd));
+        commandsList.clear();
+        for (const auto &cmd : rhs.commandsList) {
+            commandsList.push_back(new Command(*cmd));
         }
     }
     return *this;
 }
 
 CommandProcessor::~CommandProcessor() {
-    for (auto &cmd : _commandsList) {
+    for (auto &cmd : commandsList) {
         delete cmd;
     }
-    _commandsList.clear();
+    commandsList.clear();
 }
 
 Command* CommandProcessor::getCommand() {
@@ -110,15 +115,16 @@ Command* CommandProcessor::getCommand() {
 }
 
 std::vector<Command*>* CommandProcessor::getCommandsList() {
-    return &_commandsList;
+    return &commandsList;
 }
 
 std::string CommandProcessor::stringToLog() {
     return "Latest Command: "
-        + (_commandsList.empty() ? "No commands processed yet."
-                                 : _commandsList.back()->stringToLog());
+        + (commandsList.empty() ? "No commands processed yet."
+                                : commandsList.back()->stringToLog());
 }
 
+// Prompts user to enter command (console mode)
 Command* CommandProcessor::readCommand() {
     std::string input;
     std::cout << "\nEnter command: ";
@@ -133,6 +139,7 @@ Command* CommandProcessor::readCommand() {
 
 bool CommandProcessor::validate(Command* command, StateType state, bool print) {
 
+    // 1- Check if command syntax is valid (first fragment)
     bool isValidSyntax = command->getCommandType() != CommandType::invalid;
 
     size_t expectedArgsCount = getCommandArgsCount(command->getCommandType());
@@ -152,8 +159,10 @@ bool CommandProcessor::validate(Command* command, StateType state, bool print) {
         }
     }
 
+    // 2- Check if command has valid number of arguments
     bool isValidArgs = (actualArgsCount == expectedArgsCount);
 
+    // 3- Check if command is valid in current game state
     bool isValidInState = validCommands[state].end()
         != std::find(validCommands[state].begin(),
                      validCommands[state].end(),
@@ -184,14 +193,14 @@ bool CommandProcessor::validate(Command* command, StateType state, bool print) {
 }
 
 void CommandProcessor::saveCommand(Command* command) {
-    _commandsList.push_back(command);
+    commandsList.push_back(command);
     Notify(this);
 }
 
 std::ostream &operator<<(std::ostream &os,
                          const CommandProcessor &commandProcessor) {
     os << "Commands in the the command processor: \n" << std::endl;
-    for (Command* command : commandProcessor._commandsList) {
+    for (Command* command : commandProcessor.commandsList) {
         os << "\t" << *command << std::endl;
     }
     return os << "\n";
@@ -214,6 +223,7 @@ FileCommandProcessorAdapter::~FileCommandProcessorAdapter() {
     }
 }
 
+// Reads command from file (file mode)
 Command* FileCommandProcessorAdapter::readCommand() {
     std::string input;
     if (std::getline(fileStream, input)) {

@@ -11,19 +11,16 @@ void testLoadMaps() {
     std::filesystem::path currentPath = std::filesystem::current_path();
     std::filesystem::path worldMap = currentPath / "res" / "World.map";
     std::filesystem::path invalidMap = currentPath / "res" / "invalid.map";
+    std::filesystem::path disconnectedGraph =
+        currentPath / "res" / "disconnected_graph.map";
+    std::filesystem::path disconnectedContinent =
+        currentPath / "res" / "disconnected_continent.map";
 
     std::vector<std::string> mapFiles = {
         worldMap.string(),
         invalidMap.string(),
-        (currentPath / "res" / "disconnected_graph.map").string(),
-        (currentPath / "res" / "disconnected_continent.map").string(),
-        // "maps/Europe.map",
-        // "maps/Canada.map",
-        // "maps/InvalidAdjacency.map", // Invalid adjacency
-        // "maps/InvalidContinentBonus.map", // Invalid continent bonus
-        // "maps/InvalidTerritoryContinent.map", // Territory with non-existent
-        // continent "maps/InvalidTerritoryAdjacency.map", // Territory with
-        // non-existent adjacency "maps/InvalidFormat.map" // Invalid format
+        disconnectedGraph.string(),
+        disconnectedContinent.string(),
     };
 
     std::vector<Map*> loadedValidMaps;

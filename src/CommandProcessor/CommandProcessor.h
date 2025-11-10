@@ -10,6 +10,7 @@
 // Forward declaration
 class CommandProcessor;
 
+// Represent a command issued by the user (file or console)
 class Command : public Subject, public ILoggable {
   private:
     std::string* commandText; // Full command text (including args)
@@ -41,11 +42,12 @@ class ICommandProcessor {
     virtual void saveCommand(Command* command) = 0;
 };
 
+// Processes commands (console)
 class CommandProcessor : public Subject,
                          public ILoggable,
                          public ICommandProcessor {
   protected:
-    std::vector<Command*> _commandsList;
+    std::vector<Command*> commandsList;
 
   private:
     virtual Command* readCommand();
@@ -66,6 +68,7 @@ class CommandProcessor : public Subject,
                                     const CommandProcessor &cp);
 };
 
+// Adapts to process commands from a file
 class FileCommandProcessorAdapter : public CommandProcessor {
   private:
     std::string filename;

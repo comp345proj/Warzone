@@ -8,7 +8,7 @@ void testCommandProcessor() {
     std::cout << "\nTesting Command Processor" << std::endl;
     std::cout << "=======================" << std::endl;
 
-    // Create a test command file
+    // Create a test command file in root folder
     std::string filename = "code-generated-commands.txt";
     std::ofstream testFile(filename);
     testFile << "loadmap testmap.map\n";
@@ -63,18 +63,18 @@ void testCommandProcessor() {
         // Create a processor to test validation
         CommandProcessor consoleProcessor;
 
-        // Test Case 1: Correct syntax, correct args, correct state
+        // Test Case 3.1: Correct syntax, correct args, correct state
         StateType currentState = StateType::start;
         Command* cmd1 = new Command("loadmap test.map");
         consoleProcessor.validate(cmd1, currentState);
         std::cout << "----------------" << std::endl;
 
-        // Test Case 2: Correct syntax, correct args, incorrect state
+        // Test Case 3.2: Correct syntax, correct args, incorrect state
         Command* cmd2 = new Command("addplayer Player1");
         consoleProcessor.validate(cmd2, currentState);
         std::cout << "----------------" << std::endl;
 
-        // Test Case 3: Correct syntax, incorrect args, correct state
+        // Test Case 3.3: Correct syntax, incorrect args, correct state
         currentState = StateType::mapvalidated;
         Command* cmd3 = new Command("addplayer");
         consoleProcessor.validate(cmd3, currentState);

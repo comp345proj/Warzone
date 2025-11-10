@@ -41,20 +41,21 @@ void State::setCurrentPlayerTurn(const std::string &playerName) {
     *currentPlayerTurn = playerName;
 }
 
-//---------------------------GameEngine-------------------------------
+//---------------------------GameEngine--------------------------
 GameEngine::GameEngine(CommandProcessor* cmdProcessor)
-    : state(new State(StateType::start)), currentMap(nullptr),
-      mapLoader(nullptr), currentMapPath(new std::string()),
+    : state(new State(StateType::start)), mapLoader(nullptr),
+      currentMapPath(new std::string()), currentMap(nullptr),
       currentPlayer(nullptr), deck(new Deck()), commandProcessor(cmdProcessor),
       logObserver(new LogObserver()) {}
 
 GameEngine::GameEngine(const GameEngine &other)
-    : state(new State(*other.state)), players(other.players),
-      currentPlayer(other.currentPlayer),
+    : state(new State(*other.state)),
+      mapLoader(new MapLoader(*other.mapLoader)),
+      currentMapPath(new std::string(*other.currentMapPath)),
       currentMap(new Map(*other.currentMap)),
-      mapLoader(new MapLoader(*other.mapLoader)), deck(new Deck(*other.deck)),
+      currentPlayer(other.currentPlayer), deck(new Deck(*other.deck)),
       commandProcessor(new CommandProcessor(*other.commandProcessor)),
-      logObserver(new LogObserver()) {}
+      logObserver(new LogObserver()), players(other.players) {}
 
 GameEngine &GameEngine::operator=(const GameEngine &other) {
     if (this != &other) {
@@ -98,7 +99,7 @@ void GameEngine::startupPhase(bool runMainLoop) {
         std::cout << "Available commands:" << std::endl;
         for (const auto &cmd : validCommands[currentState]) {
             std::cout << "  - " << commandTypeToString(cmd) << " "
-                      << getCommandArgsStr(cmd) << std::endl;
+                      << getCommandArgsString(cmd) << std::endl;
         }
 
         Command* cmd = commandProcessor->getCommand();
@@ -202,6 +203,21 @@ void GameEngine::loadMap(const std::string &filename) {
     }
 }
 
+void GameEngine::validateMap() {
+    if (state->getStateType() != StateType::maploaded) {
+        std::cout << "Must load a map before validating" << std::endl;
+        return;
+    }
+
+    if (currentMap != nullptr && currentMap->validate()) {
+        state->setStateType(StateType::mapvalidated);
+        std::cout << "Map validated successfully" << std::endl;
+        Notify(this);
+    } else {
+        std::cout << "Map validation failed" << std::endl;
+    }
+}
+
 void GameEngine::addPlayer(const std::string &playerName) {
     // Check if we already have 6 players
     if (players.size() >= 6) {
@@ -220,21 +236,6 @@ void GameEngine::addPlayer(const std::string &playerName) {
     // Move to playeradded state if we have at least 2 players
     if (players.size() >= 2) {
         state->setStateType(StateType::playeradded);
-    }
-}
-
-void GameEngine::validateMap() {
-    if (state->getStateType() != StateType::maploaded) {
-        std::cout << "Must load a map before validating" << std::endl;
-        return;
-    }
-
-    if (currentMap != nullptr && currentMap->validate()) {
-        state->setStateType(StateType::mapvalidated);
-        std::cout << "Map validated successfully" << std::endl;
-        Notify(this);
-    } else {
-        std::cout << "Map validation failed" << std::endl;
     }
 }
 
@@ -334,8 +335,8 @@ void GameEngine::gameStart(bool runMainLoop) {
     if (runMainLoop) {
         mainGameLoop();
     } else {
-		state->setStateType(StateType::win);
-	}
+        state->setStateType(StateType::win);
+    }
 }
 
 void GameEngine::mainGameLoop(bool runExecuteOrdersPhase) {
@@ -520,21 +521,27 @@ bool GameEngine::checkWinCondition() {
     return false;
 }
 
+// clang-format off
 void GameEngine::removeDefeatedPlayers() {
-    players.erase(std::remove_if(players.begin(),
-                                 players.end(),
-                                 [](Player* player) {
-                                     if (player->getTerritories().empty()) {
-                                         std::cout << "Player "
-                                                   << player->getName()
-                                                   << " has been eliminated!"
-                                                   << std::endl;
-                                         return true;
-                                     }
-                                     return false;
-                                 }),
-                  players.end());
+    players.erase(
+		std::remove_if(
+			players.begin(),
+            players.end(),
+            [](Player* player) {
+                if (player->getTerritories().empty()) {
+                    std::cout << "Player "
+                    << player->getName()
+                    << " has been eliminated!"
+                    << std::endl;
+                    return true;
+                }
+                return false;
+            }
+		),
+        players.end()
+	);
 }
+// clang-format on
 
 bool GameEngine::isGameOver() const {
     return state->getStateType() == StateType::win;

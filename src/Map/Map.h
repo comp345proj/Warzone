@@ -14,6 +14,7 @@ class Territory;
 class Continent;
 class Map;
 
+// Representation of a territory on the map
 class Territory {
   private:
     Player* player;
@@ -59,6 +60,7 @@ class Territory {
     void setPlayer(Player*);
 };
 
+// Representation of a continent (has territories) on the map
 class Continent {
   private:
     std::string* name;
@@ -80,6 +82,7 @@ class Continent {
     std::string getName() const;
 };
 
+// Representation of the entire map (has continents)
 class Map {
   private:
     bool* wrap;

@@ -5,9 +5,6 @@
 #include <vector>
 
 //---------------------------Territory-------------------------------
-
-// Constructor with parameters for name and coordinates.
-// Initializes number of armies to 0
 Territory::Territory(const std::string &name, int posX, int posY)
     : name(new std::string(name)), x(new int(posX)), y(new int(posY)),
       armies(new int(0)), player(nullptr) {}
@@ -111,7 +108,6 @@ std::ostream &operator<<(std::ostream &out, const Territory &territory) {
 }
 
 //-------------------------------Continent-----------------------------
-// Constructor with parameters for name and reinforcement bonus.
 Continent::Continent(const std::string &name, int reinforcementBonus)
     : name(new std::string(name)),
       reinforcementBonus(new int(reinforcementBonus)) {}
@@ -170,7 +166,6 @@ std::ostream &operator<<(std::ostream &out, const Continent &continent) {
 }
 
 //---------------------------------Map----------------------------------
-// Constructor with parameters for map properties.
 Map::Map(bool wrap,
          bool warn,
          const std::string &author,
@@ -282,7 +277,7 @@ std::ostream &operator<<(std::ostream &out, const Map &map) {
     return out;
 }
 
-//----------------------- Map Validation Methods -----------------------
+// Map Validation Methods:
 // Depth-first search to visit territories and build the visited set.
 void Map::depthFirstSearch(Territory* start,
                            std::unordered_set<Territory*> &visited) const {
