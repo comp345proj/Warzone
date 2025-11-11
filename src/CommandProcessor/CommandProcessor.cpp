@@ -64,7 +64,7 @@ CommandType Command::getCommandType() const {
 }
 
 std::string Command::stringToLog() {
-    return "Command: " + getCommandText() + " | Effect: " + getEffectText();
+    return "'" + getCommandText() + "'" + " | Effect: " + getEffectText();
 }
 
 void Command::saveEffect(const std::string &effect) {
@@ -119,7 +119,7 @@ std::vector<Command*>* CommandProcessor::getCommandsList() {
 }
 
 std::string CommandProcessor::stringToLog() {
-    return "Latest Command: "
+    return "Latest command: "
         + (commandsList.empty() ? "No commands processed yet."
                                 : commandsList.back()->stringToLog());
 }

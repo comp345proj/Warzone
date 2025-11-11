@@ -5,15 +5,14 @@
 #include <sstream>
 
 //---------------------------Order (Base class)-------------------------------
-Order::Order()
-    : executed(false), issuingPlayer(nullptr), cardType(CardType::UNKNOWN) {}
+Order::Order() : issuingPlayer(nullptr), cardType(CardType::UNKNOWN) {}
 Order::~Order() = default;
 
 const std::string &Order::getEffect() const {
     return effect;
 }
 
-// Set the effect of the order after execution (for logging purposes)
+// Set the effect of the order throughout the game (for logging purposes)
 void Order::setEffect(const std::string &effect) {
     this->effect = effect;
 }
@@ -31,7 +30,7 @@ CardType Order::getCardType() const {
 }
 
 std::string Order::stringToLog() {
-    return "Order executed: " + getEffect();
+    return getEffect();
 }
 
 const std::string &Order::getDescription() const {
@@ -52,13 +51,13 @@ bool hasCardOfType(const Player* player, CardType type) {
 // Operator to print a single order
 std::ostream &operator<<(std::ostream &os, const Order &order) {
     os << "Order: " << order.description;
-    if (order.executed && !order.effect.empty()) {
+    if (!order.effect.empty()) {
         os << "\nEffect: " << order.effect;
     }
     return os;
 }
 
-// OrdersList implementation
+//---------------------------OrdersList-------------------------------
 OrdersList::OrdersList() = default;
 
 OrdersList::OrdersList(const OrdersList &other) {
@@ -165,46 +164,41 @@ Deploy::Deploy(Player* player, Territory* target, int numArmies)
     issuingPlayer = player;
 }
 
-bool Deploy::validate() const {
+bool Deploy::validate() {
     // Basic parameter validation
     if (!issuingPlayer || !target) {
+        setEffect("✗ Deploy: Could not execute order."
+                  " Missing issuing player or target territory.");
         return false;
     }
+
     // Check territory ownership
     if (target->getPlayer() != issuingPlayer) {
+        setEffect("✗ Deploy: Could not execute order."
+                  " Target territory not owned by issuing player.");
         return false;
     }
+
     // Check valid army count and reinforcement pool
     if (numArmies <= 0 || numArmies > issuingPlayer->getReinforcementPool()) {
+        setEffect("✗ Deploy: Could not execute order."
+                  " Invalid number of armies to deploy.");
         return false;
     }
     return true;
 }
 
 void Deploy::execute() {
-    if (!validate()) {
-        if (!issuingPlayer || !target) {
-            setEffect("Invalid order parameters");
-        } else if (target->getPlayer() != issuingPlayer) {
-            setEffect("Cannot deploy to " + target->getName()
-                      + " - not owned by " + issuingPlayer->getName());
-        } else {
-            setEffect("Cannot deploy " + std::to_string(numArmies)
-                      + " armies - only "
-                      + std::to_string(issuingPlayer->getReinforcementPool())
-                      + " available in reinforcement pool");
-        }
-    } else {
+    if (validate()) {
         // Deduct from reinforcement pool and add to territory
         issuingPlayer->setReinforcementPool(
             issuingPlayer->getReinforcementPool() - numArmies);
         target->addArmies(numArmies);
-        setEffect("Deployed " + std::to_string(numArmies) + " armies to "
-                  + target->getName() + " (now has "
-                  + std::to_string(target->getArmies()) + " armies). "
+        setEffect("✓ Deploy: Sent " + std::to_string(numArmies) + " armies to "
+                  + target->getName() + " (territory now has "
+                  + std::to_string(target->getArmies()) + " total armies). "
                   + std::to_string(issuingPlayer->getReinforcementPool())
                   + " armies remaining in reinforcement pool");
-        executed = true;
     }
     Notify(this);
 }
@@ -238,44 +232,58 @@ Advance::Advance(Player* player,
     issuingPlayer = player;
 }
 
-bool Advance::validate() const {
+bool Advance::validate() {
     // Basic parameter validation
     if (!issuingPlayer || !source || !target || numArmies <= 0) {
+        setEffect(
+            "✗ Advance: Could not execute order."
+            " Missing issuing player, source, target, or invalid army count.");
         return false;
     }
+
     // Source territory must have an owner
     if (!source->getPlayer()) {
+        setEffect("✗ Advance: Could not execute order."
+                  " Source territory has no owner.");
         return false;
     }
+
     // Source territory ownership
     if (source->getPlayer() != issuingPlayer) {
+        setEffect("✗ Advance: Could not execute order."
+                  " Source territory not owned by issuing player.");
         return false;
     }
+
     // Territory adjacency
     auto neighbors = source->getNeighbors();
     if (std::find(neighbors.begin(), neighbors.end(), target)
         == neighbors.end()) {
+        setEffect("✗ Advance: Could not execute order."
+                  " Target territory not adjacent to source territory.");
         return false;
     }
+
     // Army count
     if (source->getArmies() < numArmies) {
+        setEffect("✗ Advance: Could not execute order."
+                  " Not enough armies in source territory.");
         return false;
     }
+
     // Negotiation check (only if target has an owner)
     if (target->getPlayer() && target->getPlayer() != issuingPlayer
         && !canAttack(issuingPlayer, target->getPlayer())) {
+        setEffect("✗ Advance: Could not execute order."
+                  " Attack not allowed due to negotiation.");
         return false;
     }
     return true;
 }
 
 void Advance::execute() {
+    if (validate()) {
     std::stringstream effectStream;
-
-    if (!validate()) {
-        Notify(this);
-        return;
-    }
 
     // Move armies from source
     source->removeArmies(numArmies);
@@ -283,16 +291,18 @@ void Advance::execute() {
     // If target belongs to issuing player, simply move armies
     if (target->getPlayer() && target->getPlayer() == issuingPlayer) {
         target->addArmies(numArmies);
-        setEffect("Moved " + std::to_string(numArmies) + " armies from "
-                  + source->getName() + " to " + target->getName());
+            setEffect("✓ Advance: Moved " + std::to_string(numArmies)
+                      + " armies from " + source->getName() + " to "
+                      + target->getName());
     }
     // If target has no owner, claim it without battle
     else if (!target->getPlayer()) {
         target->setPlayer(issuingPlayer);
         target->setArmies(numArmies);
         issuingPlayer->addTerritory(target);
-        setEffect("Claimed unoccupied territory " + target->getName() + " with "
-                  + std::to_string(numArmies) + " armies");
+            setEffect("✓ Advance: Claimed unoccupied territory "
+                      + target->getName() + " with " + std::to_string(numArmies)
+                      + " armies");
 
         // Award card for first conquest
         if (!issuingPlayer->hasConqueredTerritoryThisTurn()) {
@@ -337,7 +347,7 @@ void Advance::execute() {
             // Territory captured
             target->setPlayer(issuingPlayer);
             target->setArmies(survivingAttackers);
-            setEffect("Captured " + target->getName() + " with "
+                setEffect("✓ Advance: Captured " + target->getName() + " with "
                       + std::to_string(survivingAttackers)
                       + " surviving attackers");
 
@@ -360,12 +370,13 @@ void Advance::execute() {
             }
         } else {
             target->setArmies(survivingDefenders);
-            setEffect("Attack on " + target->getName() + " failed. "
+                setEffect("✓ Advance: Attack on " + target->getName()
+                          + " was executed, but it failed. "
                       + std::to_string(survivingDefenders)
                       + " defenders remaining");
+            }
         }
     }
-    executed = true;
     Notify(this);
 }
 
@@ -376,19 +387,28 @@ Bomb::Bomb(Player* player, Territory* target) : target(target) {
     issuingPlayer = player;
 }
 
-bool Bomb::validate() const {
+bool Bomb::validate() {
     // Basic parameter validation
     if (!issuingPlayer || !target) {
+        setEffect("✗ Bomb: Could not execute order."
+                  " Missing issuing player or target.");
         return false;
     }
+
     // Target must have an owner
     if (!target->getPlayer()) {
+        setEffect("✗ Bomb: Could not execute order."
+                  " Target territory has no owner.");
         return false;
     }
+
     // Can't bomb own territory
     if (target->getPlayer() == issuingPlayer) {
+        setEffect("✗ Bomb: Could not execute order."
+                  " Cannot bomb own territory.");
         return false;
     }
+
     // Target must be adjacent to a player's territory
     bool isAdjacent = false;
     for (Territory* territory : issuingPlayer->getTerritories()) {
@@ -399,43 +419,24 @@ bool Bomb::validate() const {
             break;
         }
     }
+    if (!isAdjacent) {
+        setEffect("✗ Bomb: Could not execute order."
+                  " Target territory not adjacent to any owned territory.");
+    }
     return isAdjacent;
 }
 
 void Bomb::execute() {
-    if (!validate()) {
-        // Return card to player if order is invalid (only if player exists)
-        if (issuingPlayer) {
-            Card* bombCard = new Card(CardType::BOMB);
-            issuingPlayer->addCard(bombCard);
-        }
-
-        if (!issuingPlayer || !target) {
-            setEffect(
-                "Invalid order parameters. BOMB card returned to player.");
-        } else if (!target->getPlayer()) {
-            setEffect(
-                "Cannot bomb " + target->getName()
-                + " - territory has no owner. BOMB card returned to player.");
-        } else if (target->getPlayer() == issuingPlayer) {
-            setEffect("Cannot bomb own territory: " + target->getName()
-                      + ". BOMB card returned to player.");
-        } else {
-            setEffect("Cannot bomb " + target->getName()
-                      + " - not adjacent to any owned territory. BOMB card "
-                        "returned to player.");
-        }
-        Notify(this);
-        return;
-    }
+    if (validate()) {
     int currentArmies = target->getArmies();
     int removedArmies = currentArmies / 2;
     target->removeArmies(removedArmies);
-    setEffect("Bombed " + target->getName() + " (owned by "
-              + target->getPlayer()->getName() + "), destroying "
-              + std::to_string(removedArmies) + " armies. "
-              + std::to_string(target->getArmies()) + " armies remaining.");
-    executed = true;
+        setEffect("✓ Bomb: Sent explosives to " + target->getName()
+                  + " (owned by " + target->getPlayer()->getName()
+                  + "), destroying " + std::to_string(removedArmies)
+                  + " armies. " + std::to_string(target->getArmies())
+                  + " armies remaining.");
+    }
     Notify(this);
 }
 
@@ -455,41 +456,32 @@ Blockade::Blockade(Player* player, Territory* target) : target(target) {
     issuingPlayer = player;
 }
 
-bool Blockade::validate() const {
+bool Blockade::validate() {
     // Basic parameter validation
     if (!issuingPlayer || !target) {
+        setEffect("✗ Blockade: Could not execute order."
+                  " Missing issuing player or target.");
         return false;
     }
+
     // Target must have an owner
     if (!target->getPlayer()) {
+        setEffect("✗ Blockade: Could not execute order."
+                  " Target territory has no owner.");
         return false;
     }
+
     // Must be player's own territory
     if (target->getPlayer() != issuingPlayer) {
+        setEffect("✗ Blockade: Could not execute order."
+                  " Target territory not owned by issuing player.");
         return false;
     }
     return true;
 }
 
 void Blockade::execute() {
-    if (!validate()) {
-        // Return card to player if order is invalid (only if player exists)
-        if (issuingPlayer) {
-            Card* blockadeCard = new Card(CardType::BLOCKADE);
-            issuingPlayer->addCard(blockadeCard);
-        }
-
-        if (!issuingPlayer || !target) {
-            setEffect(
-                "Invalid order parameters. BLOCKADE card returned to player.");
-        } else {
-            setEffect("Cannot blockade " + target->getName()
-                      + " - not owned by " + issuingPlayer->getName()
-                      + ". BLOCKADE card returned to player.");
-        }
-        Notify(this);
-        return;
-    }
+    if (validate()) {
     // Double armies and transfer to neutral
     int currentArmies = target->getArmies();
     int newArmies = currentArmies * 2;
@@ -501,11 +493,12 @@ void Blockade::execute() {
     previousOwner->removeTerritory(target);
     getNeutralPlayer()->addTerritory(target);
 
-    setEffect("Blockaded " + target->getName() + ": Armies doubled from "
-              + std::to_string(currentArmies) + " to "
-              + std::to_string(newArmies) + ". Territory transferred from "
-              + previousOwner->getName() + " to Neutral player.");
-    executed = true;
+        setEffect("✓ Blockade: Applied on " + target->getName()
+                  + ": Armies doubled from " + std::to_string(currentArmies)
+                  + " to " + std::to_string(newArmies)
+                  + ". Territory transferred from " + previousOwner->getName()
+                  + " to Neutral player.");
+    }
     Notify(this);
 }
 
@@ -521,67 +514,56 @@ Airlift::Airlift(Player* player,
     issuingPlayer = player;
 }
 
-bool Airlift::validate() const {
+bool Airlift::validate() {
     // Basic parameter validation
     if (!issuingPlayer || !source || !target || numArmies <= 0) {
+        setEffect("✗ Airlift: Could not execute order."
+                  " Missing issuing player, source, target, or invalid number "
+                  "of armies.");
         return false;
     }
+
     // Territories must have owners
     if (!source->getPlayer() || !target->getPlayer()) {
+        setEffect("✗ Airlift: Could not execute order."
+                  " Source or target territory has no owner.");
         return false;
     }
+
     // Source territory ownership
     if (source->getPlayer() != issuingPlayer) {
+        setEffect("✗ Airlift: Could not execute order."
+                  " Source territory not owned by issuing player.");
         return false;
     }
+
     // Target territory ownership
     if (target->getPlayer() != issuingPlayer) {
+        setEffect("✗ Airlift: Could not execute order."
+                  " Target territory not owned by issuing player.");
         return false;
     }
+
     // Army count check
     if (source->getArmies() < numArmies) {
+        setEffect("✗ Airlift: Could not execute order."
+                  " Not enough armies in source territory.");
         return false;
     }
     return true;
 }
 
 void Airlift::execute() {
-    if (!validate()) {
-        // Return card to player if order is invalid (only if player exists)
-        if (issuingPlayer) {
-            Card* airliftCard = new Card(CardType::AIRLIFT);
-            issuingPlayer->addCard(airliftCard);
-        }
-
-        if (!issuingPlayer || !source || !target || numArmies <= 0) {
-            setEffect(
-                "Invalid order parameters. AIRLIFT card returned to player.");
-        } else if (source->getPlayer() != issuingPlayer) {
-            setEffect("Cannot airlift from " + source->getName()
-                      + " - not owned by " + issuingPlayer->getName()
-                      + ". AIRLIFT card returned to player.");
-        } else if (target->getPlayer() != issuingPlayer) {
-            setEffect("Cannot airlift to " + target->getName()
-                      + " - not owned by " + issuingPlayer->getName()
-                      + ". AIRLIFT card returned to player.");
-        } else {
-            setEffect("Not enough armies in " + source->getName() + " ("
-                      + std::to_string(source->getArmies()) + " available, "
-                      + std::to_string(numArmies)
-                      + " requested). AIRLIFT card returned to player.");
-        }
-        Notify(this);
-        return;
-    }
+    if (validate()) {
     // Move armies between territories (no adjacency required)
     source->removeArmies(numArmies);
     target->addArmies(numArmies);
-    setEffect("Airlifted " + std::to_string(numArmies) + " armies from "
-              + source->getName() + " (now has "
+        setEffect("✓ Airlift: Sent " + std::to_string(numArmies)
+                  + " armies from " + source->getName() + " (now has "
               + std::to_string(source->getArmies()) + ") to "
               + target->getName() + " (now has "
               + std::to_string(target->getArmies()) + ")");
-    executed = true;
+    }
     Notify(this);
 }
 
@@ -593,43 +575,34 @@ Negotiate::Negotiate(Player* player, Player* targetPlayer)
     issuingPlayer = player;
 }
 
-bool Negotiate::validate() const {
+bool Negotiate::validate() {
     // Basic parameter validation
     if (!issuingPlayer || !targetPlayer) {
+        setEffect(
+            "✗ Negotiate: Could not execute order. Missing issuing player "
+            "or target player.");
         return false;
     }
+
     // Can't negotiate with self
     if (issuingPlayer == targetPlayer) {
+        setEffect("✗ Negotiate: Could not execute order."
+                  " Cannot negotiate with oneself.");
         return false;
     }
     return true;
 }
 
 void Negotiate::execute() {
-    if (!validate()) {
-        // Return card to player if order is invalid (only if player exists)
-        if (issuingPlayer) {
-            Card* diplomacyCard = new Card(CardType::DIPLOMACY);
-            issuingPlayer->addCard(diplomacyCard);
-        }
-
-        if (!issuingPlayer || !targetPlayer) {
-            setEffect(
-                "Invalid order parameters. DIPLOMACY card returned to player.");
-        } else {
-            setEffect("Cannot negotiate with yourself. DIPLOMACY card returned "
-                      "to player.");
-        }
-        Notify(this);
-        return;
-    }
+    if (validate()) {
     // Establish peace between players for this turn
     Advance::addNegotiatedPair(issuingPlayer, targetPlayer);
-    setEffect("Peace treaty established between " + issuingPlayer->getName()
-              + " and " + targetPlayer->getName()
+        setEffect(
+            "✓ Negotiate: Peace treaty established between "
+            + issuingPlayer->getName() + " and " + targetPlayer->getName()
               + ". These players cannot attack each other for the remainder of "
                 "this turn.");
-    executed = true;
+    }
     Notify(this);
 }
 
@@ -639,48 +612,30 @@ std::string OrdersList::stringToLog() {
     std::string typeName = type.name();
     size_t pos = typeName.find_first_not_of("0123456789");
     std::string className = typeName.substr(pos);
-    return "Order Issued: " + std::string(className) + " from "
+    return "Order issued: " + std::string(className) + " from "
         + lastOrder->getPlayer()->getName() + "'s orders list;";
 }
 
 std::string Deploy::stringToLog() {
-    if (executed) {
-        return "Order Execution: " + getEffect();
-    }
-    return "Order Issued: Deploy by " + issuingPlayer->getName();
+    return getEffect();
 }
 
 std::string Advance::stringToLog() {
-    if (executed) {
-        return "Order Execution: " + getEffect();
-    }
-    return "Order Issued: Advance by " + issuingPlayer->getName();
+    return getEffect();
 }
 
 std::string Bomb::stringToLog() {
-    if (executed) {
-        return "Order Execution: " + getEffect();
-    }
-    return "Order Issued: Bomb by " + issuingPlayer->getName();
+    return getEffect();
 }
 
 std::string Blockade::stringToLog() {
-    if (executed) {
-        return "Order Execution: " + getEffect();
-    }
-    return "Order Issued: Blockade by " + issuingPlayer->getName();
+    return getEffect();
 }
 
 std::string Airlift::stringToLog() {
-    if (executed) {
-        return "Order Execution: " + getEffect();
-    }
-    return "Order Issued: Airlift by " + issuingPlayer->getName();
+    return getEffect();
 }
 
 std::string Negotiate::stringToLog() {
-    if (executed) {
-        return "Order Execution: " + getEffect();
-    }
-    return "Order Issued: Negotiate by " + issuingPlayer->getName();
+    return getEffect();
 }

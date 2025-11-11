@@ -28,7 +28,7 @@ class Order : public ILoggable, public Subject {
     CardType getCardType() const;
 
     // Pure virtual methods that must be implemented by derived classes
-    virtual bool validate() const = 0;
+    virtual bool validate() = 0;
     virtual void execute() = 0;
 
     // Logging method
@@ -41,13 +41,15 @@ class Order : public ILoggable, public Subject {
     // Get the order description and effect
     const std::string &getDescription() const;
     const std::string &getEffect() const;
+    const std::string &getCurrentState() const;
 
     // Set the effect after execution
     void setEffect(const std::string &effect);
+    void setCurrentState(const std::string &currentState);
 
-    std::string description; // Description of the order
-    std::string effect;      // Effect of the order after execution
-    bool executed;           // Flag to track if order was executed
+    std::string description;  // Description of the order
+    std::string effect;       // Effect of the order after execution
+    std::string currentState; // Current state of the order
 
     friend std::ostream &operator<<(std::ostream &os, const Order &order);
 };
@@ -86,7 +88,7 @@ class Deploy : public Order {
 
   public:
     Deploy(Player* player, Territory* target, int numArmies);
-    bool validate() const override;
+    bool validate() override;
     void execute() override;
     std::string stringToLog() override;
 };
@@ -105,7 +107,7 @@ class Advance : public Order {
             Territory* source,
             Territory* target,
             int numArmies);
-    bool validate() const override;
+    bool validate() override;
     void execute() override;
     std::string stringToLog() override;
 
@@ -121,7 +123,7 @@ class Bomb : public Order {
 
   public:
     Bomb(Player* player, Territory* target);
-    bool validate() const override;
+    bool validate() override;
     void execute() override;
     std::string stringToLog() override;
 };
@@ -134,7 +136,7 @@ class Blockade : public Order {
 
   public:
     Blockade(Player* player, Territory* target);
-    bool validate() const override;
+    bool validate() override;
     void execute() override;
     std::string stringToLog() override;
 
@@ -154,7 +156,7 @@ class Airlift : public Order {
             Territory* source,
             Territory* target,
             int numArmies);
-    bool validate() const override;
+    bool validate() override;
     void execute() override;
     std::string stringToLog() override;
 };
@@ -166,7 +168,7 @@ class Negotiate : public Order {
 
   public:
     Negotiate(Player* player, Player* targetPlayer);
-    bool validate() const override;
+    bool validate() override;
     void execute() override;
     std::string stringToLog() override;
 };

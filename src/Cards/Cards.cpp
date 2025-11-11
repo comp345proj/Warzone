@@ -26,7 +26,7 @@ bool Card::play(Player* player, Deck* deck) {
         case CardType::REINFORCEMENT: {
             // REINFORCEMENT card is executed immediately
             player->setReinforcementPool(player->getReinforcementPool() + 5);
-            std::cout << "✓ REINFORCEMENT card played!" << std::endl;
+            std::cout << "\n✓ REINFORCEMENT card played!" << std::endl;
             std::cout << "  Added 5 armies to your reinforcement pool."
                       << std::endl;
             std::cout << "  New total: " << player->getReinforcementPool()

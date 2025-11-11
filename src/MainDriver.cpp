@@ -3,9 +3,9 @@
 #include "CommandProcessor/CommandProcessorDriver.h"
 #include "GameEngine/GameEngine.h"
 #include "GameEngine/GameEngineDriver.h"
+#include "LoggingObserver/LoggingObserverDriver.h"
 #include "Map/Map.h"
 #include "Map/MapDriver.h"
-#include "LoggingObserver/LoggingObserverDriver.h"
 #include "Orders/Orders.h"
 #include "Orders/OrdersDriver.h"
 #include "Player/Player.h"
@@ -25,11 +25,11 @@ int main(int argc, char* argv[]) {
     // std::cout << SEPARATOR_LINE << std::endl << "Cards Tests\n" << std::endl;
     // testCards();
 
-    // std::cout << SEPARATOR_LINE << std::endl << "Orders Tests\n" << std::endl;
-    // testOrdersList();
+    // std::cout << SEPARATOR_LINE << std::endl << "Orders Tests\n" <<
+    // std::endl; testOrdersList();
 
-    // std::cout << SEPARATOR_LINE << std::endl << "Player Tests\n" << std::endl;
-    // testPlayers();
+    // std::cout << SEPARATOR_LINE << std::endl << "Player Tests\n" <<
+    // std::endl; testPlayers();
 
     std::cout << SEPARATOR_LINE << std::endl;
     std::cout << "ASSIGNMENT 2" << std::endl;
@@ -40,23 +40,23 @@ int main(int argc, char* argv[]) {
     testCommandProcessor();
 
     std::cout << SEPARATOR_LINE << std::endl;
-	std::cout << "Startup Phase Tests\n" << std::endl;
-	testStartupPhase();
+    std::cout << "Startup Phase Tests\n" << std::endl;
+    testStartupPhase();
 
-	std::cout << SEPARATOR_LINE << std::endl;
-	std::cout << "Main Game Loop Tests\n" << std::endl;
-	testMainGameLoop();
+    std::cout << SEPARATOR_LINE << std::endl;
+    std::cout << "Main Game Loop Tests\n" << std::endl;
+    testMainGameLoop();
 
-	std::cout << SEPARATOR_LINE << std::endl;
-	std::cout << "Order Execution Tests\n" << std::endl;
-	testOrderExecution();
+    std::cout << SEPARATOR_LINE << std::endl;
+    std::cout << "Order Execution Tests\n" << std::endl;
+    testOrderExecution();
 
     std::cout << SEPARATOR_LINE << std::endl;
     std::cout << "Logging Observer Tests\n" << std::endl;
     testLoggingObserver();
 
-	// To run an actual game without tests, uncomment below
-	//
+    // To run an actual game without tests, uncomment below
+    //
     // std::cout << SEPARATOR_LINE << std::endl
     //           << "Actual Game Test\n"
     //           << std::endl;

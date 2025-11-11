@@ -421,7 +421,7 @@ void GameEngine::executeOrdersPhase() {
         OrdersList* ordersList = player->getOrdersList();
 
         // Phase 1: Execute all Deploy orders for this player
-        std::cout << "Executing Deploy orders for " << player->getName()
+        std::cout << "1. Executing Deploy orders for " << player->getName()
                   << "..." << std::endl;
         auto orders = ordersList->getOrders(); // Get copy of list
         for (auto it = orders.begin(); it != orders.end();) {
@@ -438,8 +438,8 @@ void GameEngine::executeOrdersPhase() {
         }
 
         // Phase 2: Execute all other orders for this player
-        std::cout << "Executing other orders for " << player->getName() << "..."
-                  << std::endl;
+        std::cout << "\n2. Executing other orders for " << player->getName()
+                  << "..." << std::endl;
         orders = ordersList->getOrders(); // Refresh list
         while (!orders.empty()) {
             Order* order = orders.front();
