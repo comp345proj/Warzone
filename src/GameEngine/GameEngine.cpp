@@ -41,6 +41,13 @@ void State::setCurrentPlayerTurn(const std::string &playerName) {
     *currentPlayerTurn = playerName;
 }
 
+std::ostream &operator<<(std::ostream &os, const State &state) {
+	os << "State Type: " << stateTypeToString(state.stateType) << "\n";
+	os << "Current Player Turn: "
+	   << (state.currentPlayerTurn ? *state.currentPlayerTurn : "None") << "\n";
+	return os;
+}
+
 //---------------------------GameEngine--------------------------
 GameEngine::GameEngine(CommandProcessor* cmdProcessor)
     : state(new State(StateType::start)), mapLoader(nullptr),
@@ -582,4 +589,15 @@ StateType GameEngine::getState() {
 void GameEngine::setState(StateType newState) {
     state->setStateType(newState);
     Notify(this);
+}
+
+std::ostream &operator<<(std::ostream &os, const GameEngine &gameEngine) {
+	os << "GameEngine State:\n";
+	os << *(gameEngine.state);
+	os << "Number of Players: " << gameEngine.players.size() << "\n";
+	os << "Current Map: "
+	   << (gameEngine.currentMap ? gameEngine.currentMap->getName()
+								 : "No map loaded")
+	   << "\n";
+	return os;
 }

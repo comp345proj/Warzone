@@ -172,7 +172,3 @@ class Negotiate : public Order {
     void execute() override;
     std::string stringToLog() override;
 };
-
-// Stream insertion operators declarations
-std::ostream &operator<<(std::ostream &os, const Order &order);
-std::ostream &operator<<(std::ostream &os, const OrdersList &ordersList);

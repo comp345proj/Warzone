@@ -100,11 +100,11 @@ Territory &Territory::operator=(const Territory &territory2) {
 
 // Stream insertion Operator
 // Custom << operator to print the territory's details.
-std::ostream &operator<<(std::ostream &out, const Territory &territory) {
-    out << "Territory Name: " << territory.getName()
+std::ostream &operator<<(std::ostream &os, const Territory &territory) {
+    os << "Territory Name: " << territory.getName()
         << ", X: " << territory.getX() << ", Y: " << territory.getY()
         << ", Number of armies: " << territory.getArmies();
-    return out;
+    return os;
 }
 
 //-------------------------------Continent-----------------------------
@@ -158,11 +158,11 @@ Continent &Continent::operator=(const Continent &continent2) {
 }
 
 // Stream insertion Operator for printing continent details.
-std::ostream &operator<<(std::ostream &out, const Continent &continent) {
-    out << "Continent Name: " << continent.getName()
+std::ostream &operator<<(std::ostream &os, const Continent &continent) {
+    os << "Continent Name: " << continent.getName()
         << ", Territories: " << continent.getTerritories().size()
         << ", Bonus: " << continent.getReinforcementBonus();
-    return out;
+    return os;
 }
 
 //---------------------------------Map----------------------------------
@@ -271,12 +271,6 @@ Map &Map::operator=(const Map &map2) {
     return *this;
 }
 
-// Stream insertion Operator
-std::ostream &operator<<(std::ostream &out, const Map &map) {
-    out << "Map Name: " << map.getName() << ", Author: " << map.getAuthor();
-    return out;
-}
-
 // Map Validation Methods:
 // Depth-first search to visit territories and build the visited set.
 void Map::depthFirstSearch(Territory* start,
@@ -363,4 +357,10 @@ bool Map::validate() const {
               << (isTerritoryInOneContinent() ? "true" : "false") << "\n";
     return isConnectedGraph() && areContinentsConnected()
         && isTerritoryInOneContinent();
+}
+
+// Stream insertion Operator
+std::ostream &operator<<(std::ostream &os, const Map &map) {
+    os << "Map Name: " << map.getName() << ", Author: " << map.getAuthor();
+    return os;
 }

@@ -5,12 +5,13 @@
 #include <string>
 #include <vector>
 
-// Forward declaration
+// Forward declarations
 class Territory;
 class Card;
 class Hand;
 class Deck;
 class OrdersList;
+class PlayerStrategy;
 
 // A player in the game
 class Player {
@@ -22,6 +23,8 @@ class Player {
     int* reinforcementPool; // Actual pool, modified only during execution
     int availableReinforcementPool; // Available pool for issuing orders
     bool hasReceivedCardThisTurn = false;
+    PlayerStrategy* strategy;        // Strategy for behavior
+    bool hasCheatedThisTurn = false; // For Cheater strategy
 
   public:
     bool hasConqueredTerritoryThisTurn() const {
@@ -30,7 +33,9 @@ class Player {
     void setConqueredTerritoryThisTurn(bool value) {
         hasReceivedCardThisTurn = value;
     }
-    Player(const std::string &name, Hand* hand = nullptr);
+    Player(const std::string &name,
+           PlayerStrategy* strategy = new HumanPlayerStrategy(),
+           Hand* hand = nullptr);
     Player(const Player &other);
     Player &operator=(const Player &other);
     ~Player();
@@ -52,15 +57,21 @@ class Player {
     // Order management
     void addOrder(Order* order);
 
-    // Strategy methods
+    // Strategy methods (delegated)
     std::vector<Territory*>
     toDefend(); // Returns territories to be defended in priority
     std::vector<Territory*>
     toAttack(); // Returns neighboring territories to be attacked in priority
 
-    // Order issuing
+    // Order issuing (delegated)
     void issueOrder(Deck* deck);
     void issueAdvanceOrder(Territory* from, Territory* to, int numArmies);
+
+    // Strategy management
+    void setStrategy(PlayerStrategy* strat) { strategy = strat; }
+    PlayerStrategy* getStrategy() const { return strategy; }
+    bool getHasCheatedThisTurn() const { return hasCheatedThisTurn; }
+    void setHasCheatedThisTurn(bool value) { hasCheatedThisTurn = value; }
 
     // Getters
     const std::string &getName() const;
@@ -71,7 +82,7 @@ class Player {
     // Setters
     void setReinforcementPool(int amount);
     void
-    resetAvailableReinforcementPool(); // Call at start of issue orders phase
+    resetAvailableReinforcementPool();
 
     friend std::ostream &operator<<(std::ostream &os, const Player &player);
 };

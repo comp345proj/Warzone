@@ -10,6 +10,7 @@
 #include "Orders/OrdersDriver.h"
 #include "Player/Player.h"
 #include "Player/PlayerDriver.h"
+#include "PlayerStrategies/PlayerStrategiesDriver.h"
 #include "Utils/Utils.h"
 #include <iostream>
 
@@ -31,29 +32,37 @@ int main(int argc, char* argv[]) {
     // std::cout << SEPARATOR_LINE << std::endl << "Player Tests\n" <<
     // std::endl; testPlayers();
 
+    // std::cout << SEPARATOR_LINE << std::endl;
+    // std::cout << "ASSIGNMENT 2" << std::endl;
+    // std::cout << SEPARATOR_LINE << std::endl;
+
+    // std::cout << SEPARATOR_LINE << std::endl;
+    // std::cout << "Command Processing Tests\n" << std::endl;
+    // testCommandProcessor();
+
+    // std::cout << SEPARATOR_LINE << std::endl;
+    // std::cout << "Startup Phase Tests\n" << std::endl;
+    // testStartupPhase();
+
+    // std::cout << SEPARATOR_LINE << std::endl;
+    // std::cout << "Main Game Loop Tests\n" << std::endl;
+    // testMainGameLoop();
+
+    // std::cout << SEPARATOR_LINE << std::endl;
+    // std::cout << "Order Execution Tests\n" << std::endl;
+    // testOrderExecution();
+
+    // std::cout << SEPARATOR_LINE << std::endl;
+    // std::cout << "Logging Observer Tests\n" << std::endl;
+    // testLoggingObserver();
+
     std::cout << SEPARATOR_LINE << std::endl;
-    std::cout << "ASSIGNMENT 2" << std::endl;
+    std::cout << "ASSIGNMENT 3" << std::endl;
     std::cout << SEPARATOR_LINE << std::endl;
 
     std::cout << SEPARATOR_LINE << std::endl;
-    std::cout << "Command Processing Tests\n" << std::endl;
-    testCommandProcessor();
-
-    std::cout << SEPARATOR_LINE << std::endl;
-    std::cout << "Startup Phase Tests\n" << std::endl;
-    testStartupPhase();
-
-    std::cout << SEPARATOR_LINE << std::endl;
-    std::cout << "Main Game Loop Tests\n" << std::endl;
-    testMainGameLoop();
-
-    std::cout << SEPARATOR_LINE << std::endl;
-    std::cout << "Order Execution Tests\n" << std::endl;
-    testOrderExecution();
-
-    std::cout << SEPARATOR_LINE << std::endl;
-    std::cout << "Logging Observer Tests\n" << std::endl;
-    testLoggingObserver();
+    std::cout << "Player Strategies Tests\n" << std::endl;
+    testPlayerStrategies();
 
     // To run an actual game without tests, uncomment below
     //

@@ -29,7 +29,7 @@ class Subject {
     ~Subject();
 
   private:
-    std::list<Observer*>* _observers;
+    std::list<Observer*>* observers;
 };
 
 // LogObserver - concrete observer that logs to gamelog.txt

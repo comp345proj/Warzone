@@ -58,6 +58,9 @@ class Territory {
     void addAdjacentTerritory(Territory* t);
 
     void setPlayer(Player*);
+
+    friend std::ostream &operator<<(std::ostream &os,
+                                    const Territory &territory);
 };
 
 // Representation of a continent (has territories) on the map
@@ -80,6 +83,9 @@ class Continent {
     int getReinforcementBonus() const;
     int getBonus() const { return *reinforcementBonus; }
     std::string getName() const;
+
+    friend std::ostream &operator<<(std::ostream &os,
+                                    const Continent &continent);
 };
 
 // Representation of the entire map (has continents)
@@ -124,4 +130,6 @@ class Map {
     void addContinent(Continent* continent);
 
     bool validate() const;
+
+    friend std::ostream &operator<<(std::ostream &os, const Map &map);
 };

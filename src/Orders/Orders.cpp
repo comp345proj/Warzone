@@ -1,6 +1,7 @@
 #include "Orders.h"
 #include "Cards/Cards.h"
 #include "Player/Player.h"
+#include "PlayerStrategies/PlayerStrategies.h"
 #include <algorithm>
 #include <sstream>
 
@@ -283,74 +284,28 @@ bool Advance::validate() {
 
 void Advance::execute() {
     if (validate()) {
-    std::stringstream effectStream;
+        std::stringstream effectStream;
 
-    // Move armies from source
-    source->removeArmies(numArmies);
+        // Move armies from source
+        source->removeArmies(numArmies);
 
-    // If target belongs to issuing player, simply move armies
-    if (target->getPlayer() && target->getPlayer() == issuingPlayer) {
-        target->addArmies(numArmies);
+        // If target belongs to issuing player, simply move armies
+        if (target->getPlayer() && target->getPlayer() == issuingPlayer) {
+            target->addArmies(numArmies);
             setEffect("✓ Advance: Moved " + std::to_string(numArmies)
                       + " armies from " + source->getName() + " to "
                       + target->getName());
-    }
-    // If target has no owner, claim it without battle
-    else if (!target->getPlayer()) {
-        target->setPlayer(issuingPlayer);
-        target->setArmies(numArmies);
-        issuingPlayer->addTerritory(target);
+        }
+        // If target has no owner, claim it without battle
+        else if (!target->getPlayer()) {
+            target->setPlayer(issuingPlayer);
+            target->setArmies(numArmies);
+            issuingPlayer->addTerritory(target);
             setEffect("✓ Advance: Claimed unoccupied territory "
                       + target->getName() + " with " + std::to_string(numArmies)
                       + " armies");
 
-        // Award card for first conquest
-        if (!issuingPlayer->hasConqueredTerritoryThisTurn()) {
-            CardType cardTypes[] = {CardType::REINFORCEMENT,
-                                    CardType::BOMB,
-                                    CardType::AIRLIFT,
-                                    CardType::BLOCKADE,
-                                    CardType::DIPLOMACY};
-            int randomIndex = rand() % 5;
-            Card* rewardCard = new Card(cardTypes[randomIndex]);
-            issuingPlayer->addCard(rewardCard);
-            issuingPlayer->setConqueredTerritoryThisTurn(true);
-            effectStream << ". Awarded "
-                         << cardTypeToString(cardTypes[randomIndex])
-                         << " card for conquest";
-            setEffect(getEffect() + effectStream.str());
-        }
-    }
-    // Otherwise, initiate battle
-    else {
-        int attackersKilled = 0;
-        int defendersKilled = 0;
-        int attackers = numArmies;
-        int defenders = target->getArmies();
-
-        // Battle simulation
-        for (int i = 0; i < attackers; i++) {
-            if (rand() % 100 < 60) // 60% chance to kill defender
-                defendersKilled++;
-        }
-        for (int i = 0; i < defenders; i++) {
-            if (rand() % 100 < 70) // 70% chance to kill attacker
-                attackersKilled++;
-        }
-
-        // Apply casualties
-        int survivingAttackers = std::max(0, attackers - attackersKilled);
-        int survivingDefenders = std::max(0, defenders - defendersKilled);
-
-        // Determine battle outcome
-        if (survivingDefenders == 0 && survivingAttackers > 0) {
-            // Territory captured
-            target->setPlayer(issuingPlayer);
-            target->setArmies(survivingAttackers);
-                setEffect("✓ Advance: Captured " + target->getName() + " with "
-                      + std::to_string(survivingAttackers)
-                      + " surviving attackers");
-
+            // Award card for first conquest
             if (!issuingPlayer->hasConqueredTerritoryThisTurn()) {
                 CardType cardTypes[] = {CardType::REINFORCEMENT,
                                         CardType::BOMB,
@@ -359,21 +314,81 @@ void Advance::execute() {
                                         CardType::DIPLOMACY};
                 int randomIndex = rand() % 5;
                 Card* rewardCard = new Card(cardTypes[randomIndex]);
-
                 issuingPlayer->addCard(rewardCard);
                 issuingPlayer->setConqueredTerritoryThisTurn(true);
-
                 effectStream << ". Awarded "
                              << cardTypeToString(cardTypes[randomIndex])
                              << " card for conquest";
                 setEffect(getEffect() + effectStream.str());
             }
-        } else {
-            target->setArmies(survivingDefenders);
+        }
+        // Otherwise, initiate battle
+        else {
+            int attackersKilled = 0;
+            int defendersKilled = 0;
+            int attackers = numArmies;
+            int defenders = target->getArmies();
+
+            // Battle simulation
+            for (int i = 0; i < attackers; i++) {
+                if (rand() % 100 < 60) // 60% chance to kill defender
+                    defendersKilled++;
+            }
+            for (int i = 0; i < defenders; i++) {
+                if (rand() % 100 < 70) // 70% chance to kill attacker
+                    attackersKilled++;
+            }
+
+            // Apply casualties
+            int survivingAttackers = std::max(0, attackers - attackersKilled);
+            int survivingDefenders = std::max(0, defenders - defendersKilled);
+
+            // Determine battle outcome
+            if (survivingDefenders == 0 && survivingAttackers > 0) {
+                // Territory captured
+                Player* previousOwner = target->getPlayer();
+                target->setPlayer(issuingPlayer);
+                target->setArmies(survivingAttackers);
+                setEffect("✓ Advance: Captured " + target->getName() + " with "
+                          + std::to_string(survivingAttackers)
+                          + " surviving attackers");
+
+                // Check if defender was Neutral and change strategy
+                if (previousOwner && previousOwner->getStrategy()) {
+                    if (dynamic_cast<NeutralPlayerStrategy*>(
+                            previousOwner->getStrategy())) {
+                        previousOwner->setStrategy(
+                            new AggressivePlayerStrategy());
+                        std::cout << "Neutral player "
+                                  << previousOwner->getName()
+                                  << " was attacked and became Aggressive!"
+                                  << std::endl;
+                    }
+                }
+
+                if (!issuingPlayer->hasConqueredTerritoryThisTurn()) {
+                    CardType cardTypes[] = {CardType::REINFORCEMENT,
+                                            CardType::BOMB,
+                                            CardType::AIRLIFT,
+                                            CardType::BLOCKADE,
+                                            CardType::DIPLOMACY};
+                    int randomIndex = rand() % 5;
+                    Card* rewardCard = new Card(cardTypes[randomIndex]);
+
+                    issuingPlayer->addCard(rewardCard);
+                    issuingPlayer->setConqueredTerritoryThisTurn(true);
+
+                    effectStream << ". Awarded "
+                                 << cardTypeToString(cardTypes[randomIndex])
+                                 << " card for conquest";
+                    setEffect(getEffect() + effectStream.str());
+                }
+            } else {
+                target->setArmies(survivingDefenders);
                 setEffect("✓ Advance: Attack on " + target->getName()
                           + " was executed, but it failed. "
-                      + std::to_string(survivingDefenders)
-                      + " defenders remaining");
+                          + std::to_string(survivingDefenders)
+                          + " defenders remaining");
             }
         }
     }
@@ -428,9 +443,9 @@ bool Bomb::validate() {
 
 void Bomb::execute() {
     if (validate()) {
-    int currentArmies = target->getArmies();
-    int removedArmies = currentArmies / 2;
-    target->removeArmies(removedArmies);
+        int currentArmies = target->getArmies();
+        int removedArmies = currentArmies / 2;
+        target->removeArmies(removedArmies);
         setEffect("✓ Bomb: Sent explosives to " + target->getName()
                   + " (owned by " + target->getPlayer()->getName()
                   + "), destroying " + std::to_string(removedArmies)
@@ -482,16 +497,16 @@ bool Blockade::validate() {
 
 void Blockade::execute() {
     if (validate()) {
-    // Double armies and transfer to neutral
-    int currentArmies = target->getArmies();
-    int newArmies = currentArmies * 2;
-    target->setArmies(newArmies);
-    Player* previousOwner = target->getPlayer();
-    target->setPlayer(getNeutralPlayer());
+        // Double armies and transfer to neutral
+        int currentArmies = target->getArmies();
+        int newArmies = currentArmies * 2;
+        target->setArmies(newArmies);
+        Player* previousOwner = target->getPlayer();
+        target->setPlayer(getNeutralPlayer());
 
-    // Remove territory from previous owner and add to neutral
-    previousOwner->removeTerritory(target);
-    getNeutralPlayer()->addTerritory(target);
+        // Remove territory from previous owner and add to neutral
+        previousOwner->removeTerritory(target);
+        getNeutralPlayer()->addTerritory(target);
 
         setEffect("✓ Blockade: Applied on " + target->getName()
                   + ": Armies doubled from " + std::to_string(currentArmies)
@@ -555,14 +570,14 @@ bool Airlift::validate() {
 
 void Airlift::execute() {
     if (validate()) {
-    // Move armies between territories (no adjacency required)
-    source->removeArmies(numArmies);
-    target->addArmies(numArmies);
+        // Move armies between territories (no adjacency required)
+        source->removeArmies(numArmies);
+        target->addArmies(numArmies);
         setEffect("✓ Airlift: Sent " + std::to_string(numArmies)
                   + " armies from " + source->getName() + " (now has "
-              + std::to_string(source->getArmies()) + ") to "
-              + target->getName() + " (now has "
-              + std::to_string(target->getArmies()) + ")");
+                  + std::to_string(source->getArmies()) + ") to "
+                  + target->getName() + " (now has "
+                  + std::to_string(target->getArmies()) + ")");
     }
     Notify(this);
 }
@@ -595,13 +610,13 @@ bool Negotiate::validate() {
 
 void Negotiate::execute() {
     if (validate()) {
-    // Establish peace between players for this turn
-    Advance::addNegotiatedPair(issuingPlayer, targetPlayer);
+        // Establish peace between players for this turn
+        Advance::addNegotiatedPair(issuingPlayer, targetPlayer);
         setEffect(
             "✓ Negotiate: Peace treaty established between "
             + issuingPlayer->getName() + " and " + targetPlayer->getName()
-              + ". These players cannot attack each other for the remainder of "
-                "this turn.");
+            + ". These players cannot attack each other for the remainder of "
+              "this turn.");
     }
     Notify(this);
 }

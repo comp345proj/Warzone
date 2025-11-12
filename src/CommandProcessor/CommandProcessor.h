@@ -28,7 +28,7 @@ class Command : public Subject, public ILoggable {
     CommandType getCommandType() const;
     std::string stringToLog() override;
     void saveEffect(const std::string &effect);
-    friend std::ostream &operator<<(std::ostream &out, const Command &command);
+    friend std::ostream &operator<<(std::ostream &os, const Command &command);
     virtual ~Command();
 };
 
@@ -64,7 +64,7 @@ class CommandProcessor : public Subject,
     validate(Command* command, StateType stateType, bool print = true) override;
     void saveCommand(Command* command) override;
     std::string stringToLog() override;
-    friend std::ostream &operator<<(std::ostream &out,
+    friend std::ostream &operator<<(std::ostream &os,
                                     const CommandProcessor &cp);
 };
 
@@ -81,4 +81,6 @@ class FileCommandProcessorAdapter : public CommandProcessor {
     ~FileCommandProcessorAdapter() override;
 
     std::string getFileName() const { return filename; }
+	friend std::ostream &operator<<(std::ostream &os,
+									const FileCommandProcessorAdapter &fcpa);
 };

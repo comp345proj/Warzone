@@ -79,8 +79,3 @@ class Deck {
     // Stream insertion operator
     friend std::ostream &operator<<(std::ostream &os, const Deck &deck);
 };
-
-// Stream insertion operators declarations
-std::ostream &operator<<(std::ostream &os, const Card &card);
-std::ostream &operator<<(std::ostream &os, const Hand &hand);
-std::ostream &operator<<(std::ostream &os, const Deck &deck);

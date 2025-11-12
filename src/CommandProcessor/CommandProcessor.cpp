@@ -72,10 +72,10 @@ void Command::saveEffect(const std::string &effect) {
     Notify(this);
 }
 
-std::ostream &operator<<(std::ostream &out, const Command &command) {
-    out << "Command: " << *(command.commandText)
-        << "\nEffect: " << *(command.effectText);
-    return out;
+std::ostream &operator<<(std::ostream &os, const Command &command) {
+    os << "Command: " << *(command.commandText)
+       << "\nEffect: " << *(command.effectText);
+    return os;
 }
 
 //---------------------------CommandProcessor----------------------
@@ -238,4 +238,15 @@ Command* FileCommandProcessorAdapter::readCommand() {
         return cmd;
     }
     return nullptr;
+}
+
+std::ostream &operator<<(std::ostream &os,
+                         const FileCommandProcessorAdapter &fcpa) {
+    os << "FileCommandProcessorAdapter reading from file: "
+       << fcpa.getFileName();
+    os << "Commands in the the command processor: \n" << std::endl;
+    for (Command* command : fcpa.commandsList) {
+        os << "\t" << *command << std::endl;
+    }
+    return os;
 }

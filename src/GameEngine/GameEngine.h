@@ -34,7 +34,7 @@ class State {
 
     std::string getCurrentPlayerTurn() const;
     void setCurrentPlayerTurn(const std::string &playerName);
-    friend std::ostream &operator<<(std::ostream &out, const State &state);
+    friend std::ostream &operator<<(std::ostream &os, const State &state);
 };
 
 // Represents the whole game engine
@@ -93,6 +93,6 @@ class GameEngine : public ILoggable, public Subject {
     static const std::vector<CommandType> &
     getValidCommandsForState(StateType state);
 
-    friend std::ostream &operator<<(std::ostream &output,
+    friend std::ostream &operator<<(std::ostream &os,
                                     const GameEngine &gameEngine);
 };
