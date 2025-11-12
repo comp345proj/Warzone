@@ -12,6 +12,7 @@ class Hand;
 class Deck;
 class OrdersList;
 class PlayerStrategy;
+class HumanPlayerStrategy;
 
 // A player in the game
 class Player {
@@ -34,7 +35,7 @@ class Player {
         hasReceivedCardThisTurn = value;
     }
     Player(const std::string &name,
-           PlayerStrategy* strategy = new HumanPlayerStrategy(),
+           PlayerStrategy* strategy = nullptr,
            Hand* hand = nullptr);
     Player(const Player &other);
     Player &operator=(const Player &other);
@@ -81,8 +82,8 @@ class Player {
 
     // Setters
     void setReinforcementPool(int amount);
-    void
-    resetAvailableReinforcementPool();
+    void resetAvailableReinforcementPool();
+    void decrementAvailableReinforcementPool(int amount);
 
     friend std::ostream &operator<<(std::ostream &os, const Player &player);
 };

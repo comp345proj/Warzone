@@ -8,9 +8,13 @@
 Player::Player(const std::string &name, PlayerStrategy* strategy, Hand* hand)
     : name(new std::string(name)),
       hand(hand ? std::make_unique<Hand>(*hand) : std::make_unique<Hand>()),
-      reinforcementPool(new int(0)), availableReinforcementPool(0),
-      strategy(strategy), hasCheatedThisTurn(false),
-      ordersList(new OrdersList()) {}
+      ordersList(new OrdersList()), reinforcementPool(new int(0)),
+      availableReinforcementPool(0), strategy(strategy),
+      hasCheatedThisTurn(false) {
+    if (!strategy) {
+        this->strategy = new HumanPlayerStrategy();
+    }
+}
 
 Player::Player(const Player &copiedPlayer)
     : name(new std::string(*copiedPlayer.name)),
@@ -156,6 +160,10 @@ void Player::setReinforcementPool(int amount) {
 
 void Player::resetAvailableReinforcementPool() {
     availableReinforcementPool = *reinforcementPool;
+}
+
+void Player::decrementAvailableReinforcementPool(int amount) {
+    availableReinforcementPool -= amount;
 }
 
 std::ostream &operator<<(std::ostream &os, const Player &player) {

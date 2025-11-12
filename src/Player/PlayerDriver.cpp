@@ -5,8 +5,7 @@
 #include <iostream>
 
 void testPlayers() {
-    std::cout << "Testing Player Functionality" << std::endl;
-    std::cout << "=========================" << std::endl;
+    std::cout << "\n=== Testing Players ===\n" << std::endl;
 
     try {
         // Create a player

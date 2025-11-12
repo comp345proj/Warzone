@@ -2,8 +2,7 @@
 #include <iostream>
 
 void testCards() {
-    std::cout << "Testing Cards functionality" << std::endl;
-    std::cout << "=========================" << std::endl;
+    std::cout << "\n=== Testing Cards ===\n" << std::endl;
 
     // Create a deck with all types of cards
     std::cout << "\nCreating and initializing deck with all card types:"

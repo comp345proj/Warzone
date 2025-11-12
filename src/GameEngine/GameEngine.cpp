@@ -42,10 +42,10 @@ void State::setCurrentPlayerTurn(const std::string &playerName) {
 }
 
 std::ostream &operator<<(std::ostream &os, const State &state) {
-	os << "State Type: " << stateTypeToString(state.stateType) << "\n";
-	os << "Current Player Turn: "
-	   << (state.currentPlayerTurn ? *state.currentPlayerTurn : "None") << "\n";
-	return os;
+    os << "State Type: " << stateTypeToString(state.stateType) << "\n";
+    os << "Current Player Turn: "
+       << (state.currentPlayerTurn ? *state.currentPlayerTurn : "None") << "\n";
+    return os;
 }
 
 //---------------------------GameEngine--------------------------
@@ -99,7 +99,8 @@ void GameEngine::startupPhase(bool runMainLoop) {
     this->Attach(logObserver);
     commandProcessor->Attach(logObserver);
 
-    while (state->getStateType() != StateType::win) {
+    bool shouldExit = false;
+    while (!shouldExit) {
         StateType currentState = state->getStateType();
         std::cout << "\nCurrent state: " << stateTypeToString(currentState)
                   << std::endl;
@@ -113,7 +114,7 @@ void GameEngine::startupPhase(bool runMainLoop) {
         if (cmd == nullptr) {
             std::cout << "\nEnd of command file reached. Exiting game."
                       << std::endl;
-            state->setStateType(StateType::win);
+            shouldExit = true;
             break;
         }
 
@@ -168,8 +169,13 @@ void GameEngine::startupPhase(bool runMainLoop) {
                     break;
 
                 case CommandType::quit:
-                    state->setStateType(StateType::win);
-                    cmd->saveEffect("Game ended");
+                    shouldExit = true;
+                    cmd->saveEffect("Exiting the game");
+                    break;
+
+                case CommandType::replay:
+                    replay();
+                    cmd->saveEffect("Game replay initiated");
                     break;
 
                 default:
@@ -182,7 +188,7 @@ void GameEngine::startupPhase(bool runMainLoop) {
         }
     }
 
-    std::cout << "\nGame ended." << std::endl;
+    std::cout << "\nGame ended" << std::endl;
 }
 
 void GameEngine::loadMap(const std::string &filename) {
@@ -292,8 +298,8 @@ void GameEngine::gameStart(bool runMainLoop) {
     std::vector<Territory*> allTerritories;
     for (Continent* continent : currentMap->getContinents()) {
         auto territories = continent->getTerritories();
-        allTerritories.insert(
-            allTerritories.end(), territories.begin(), territories.end());
+        allTerritories.insert(allTerritories.end(), territories.begin(),
+                              territories.end());
     }
 
     // Shuffle territories for random distribution
@@ -591,13 +597,44 @@ void GameEngine::setState(StateType newState) {
     Notify(this);
 }
 
+void GameEngine::replay() {
+    std::cout << "\n=== Restarting Game ===" << std::endl;
+
+    // Reset game state
+    state->setStateType(StateType::start);
+
+    // Clear all players
+    for (Player* player : players) {
+        delete player;
+    }
+    players.clear();
+
+    // Reset deck
+    if (deck) {
+        delete deck;
+        deck = new Deck();
+    }
+
+    // Clear current player
+    currentPlayer = nullptr;
+
+    // Reset map
+    if (currentMap) {
+        delete currentMap;
+        currentMap = nullptr;
+    }
+
+    std::cout << "Game state reset. You can now load a new map and add players."
+              << std::endl;
+}
+
 std::ostream &operator<<(std::ostream &os, const GameEngine &gameEngine) {
-	os << "GameEngine State:\n";
-	os << *(gameEngine.state);
-	os << "Number of Players: " << gameEngine.players.size() << "\n";
-	os << "Current Map: "
-	   << (gameEngine.currentMap ? gameEngine.currentMap->getName()
-								 : "No map loaded")
-	   << "\n";
-	return os;
+    os << "GameEngine State:\n";
+    os << *(gameEngine.state);
+    os << "Number of Players: " << gameEngine.players.size() << "\n";
+    os << "Current Map: "
+       << (gameEngine.currentMap ? gameEngine.currentMap->getName()
+                                 : "No map loaded")
+       << "\n";
+    return os;
 }

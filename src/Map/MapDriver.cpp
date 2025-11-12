@@ -7,6 +7,8 @@
 #include <vector>
 
 void testLoadMaps() {
+    std::cout << "\n=== Testing Map Loading and Validation ===\n" << std::endl;
+
     // Get the current working directory and construct paths
     std::filesystem::path currentPath = std::filesystem::current_path();
     std::filesystem::path worldMap = currentPath / "res" / "World.map";

@@ -7,7 +7,7 @@
 
 // Helper function to check if two territories are adjacent
 bool areAdjacent(Territory* t1, Territory* t2) {
-    const auto &neighbors = t1->getNeighbors();
+    const auto &neighbors = t1->getAdjacentTerritories();
     return std::find(neighbors.begin(), neighbors.end(), t2) != neighbors.end();
 }
 
@@ -17,7 +17,7 @@ std::vector<Territory*> getAdjacentEnemyTerritories(Player* player) {
     std::set<Territory*> uniqueEnemies;
 
     for (Territory* territory : player->getTerritories()) {
-        for (Territory* neighbor : territory->getNeighbors()) {
+        for (Territory* neighbor : territory->getAdjacentTerritories()) {
             if (neighbor->getPlayer() != player) {
                 uniqueEnemies.insert(neighbor);
             }
@@ -48,10 +48,7 @@ void HumanPlayerStrategy::issueOrder(Player* player, Deck* deck) {
 
         std::cout << "\nAvailable territories to deploy armies:" << std::endl;
         for (size_t i = 0; i < territoriesToDefend.size(); ++i) {
-            std::cout << i + 1 << ". " << territoriesToDefend[i]->getName()
-                      << " (Current armies: "
-                      << territoriesToDefend[i]->getArmies() << ")"
-                      << std::endl;
+            std::cout << i + 1 << ". " << *territoriesToDefend[i] << std::endl;
         }
 
         std::cout << "\nChoose territory number to deploy (1-"
@@ -85,13 +82,15 @@ void HumanPlayerStrategy::issueOrder(Player* player, Deck* deck) {
 
         Deploy* deployOrder = new Deploy(player, target, armies);
         player->addOrder(deployOrder);
-        player->setReinforcementPool(player->getReinforcementPool()
-                                     - armies); // Deduct from available
+        // Deduct from available reinforcement pool (temporary working pool for
+        // UI only)
+        player->decrementAvailableReinforcementPool(armies);
         std::cout << "✓ Deploy order created: " << armies << " armies to "
                   << target->getName() << std::endl;
 
         if (player->getAvailableReinforcementPool() > 0) {
-            std::cout << "\nYou still have " << player->getReinforcementPool()
+            std::cout << "\nYou still have "
+                      << player->getAvailableReinforcementPool()
                       << " armies to deploy." << std::endl;
         } else {
             std::cout << "\n✓ All reinforcement armies have been deployed!"
@@ -159,9 +158,8 @@ void HumanPlayerStrategy::issueOrder(Player* player, Deck* deck) {
 
                     std::cout << "\nYour territories (to defend):" << std::endl;
                     for (size_t i = 0; i < defendList.size(); ++i) {
-                        std::cout << i + 1 << ". " << defendList[i]->getName()
-                                  << " (Armies: " << defendList[i]->getArmies()
-                                  << ")" << std::endl;
+                        std::cout << i + 1 << ". " << *defendList[i]
+                                  << std::endl;
                     }
 
                     std::cout << "\nChoose source territory (1-"
@@ -257,17 +255,8 @@ void HumanPlayerStrategy::issueOrder(Player* player, Deck* deck) {
 
                     std::cout << "\nYour territories:" << std::endl;
                     for (size_t i = 0; i < defendList.size(); ++i) {
-                        std::cout << i + 1 << ". " << defendList[i]->getName()
-                                  << " (Armies: " << defendList[i]->getArmies()
-                                  << ")" << std::endl;
-                    }
-
-                    std::cout << "\nEnemy territories (to attack):"
-                              << std::endl;
-                    for (size_t i = 0; i < attackList.size(); ++i) {
-                        std::cout << i + 1 << ". " << attackList[i]->getName()
-                                  << " (Armies: " << attackList[i]->getArmies()
-                                  << ")" << std::endl;
+                        std::cout << i + 1 << ". " << *defendList[i]
+                                  << std::endl;
                     }
 
                     std::cout << "\nChoose your territory to attack from (1-"
@@ -288,6 +277,13 @@ void HumanPlayerStrategy::issueOrder(Player* player, Deck* deck) {
                     }
 
                     Territory* source = defendList[sourceChoice - 1];
+
+                    std::cout << "\nEnemy territories (to attack):"
+                              << std::endl;
+                    for (size_t i = 0; i < attackList.size(); ++i) {
+                        std::cout << i + 1 << ". " << *attackList[i]
+                                  << std::endl;
+                    }
 
                     std::cout << "Choose territory to attack (1-"
                               << attackList.size() << "): ";
@@ -351,8 +347,7 @@ void HumanPlayerStrategy::issueOrder(Player* player, Deck* deck) {
                 std::cout << "Your cards:" << std::endl;
                 const auto &cards = player->getCards();
                 for (size_t i = 0; i < cards.size(); ++i) {
-                    std::cout << i + 1 << ". " << cards[i]
-                              << std::endl;
+                    std::cout << i + 1 << ". " << *cards[i] << std::endl;
                 }
 
                 std::cout << "\nChoose card to play (1-" << cards.size()
@@ -400,8 +395,7 @@ std::vector<Territory*> HumanPlayerStrategy::toDefend(Player* player) {
 
     // Sort territories by priority (in this case, by number of armies)
     std::sort(
-        toDefendList.begin(),
-        toDefendList.end(),
+        toDefendList.begin(), toDefendList.end(),
         [](Territory* a, Territory* b) {
             return a->getArmies()
                 < b->getArmies(); // Prioritize territories with fewer armies
@@ -473,8 +467,7 @@ std::vector<Territory*> AggressivePlayerStrategy::toDefend(Player* player) {
     std::vector<Territory*> toDefendList = player->getTerritories();
 
     // Sort by number of armies (strongest first)
-    std::sort(toDefendList.begin(),
-              toDefendList.end(),
+    std::sort(toDefendList.begin(), toDefendList.end(),
               [](Territory* a, Territory* b) {
                   return a->getArmies() > b->getArmies();
               });
@@ -486,8 +479,7 @@ std::vector<Territory*> AggressivePlayerStrategy::toAttack(Player* player) {
     auto enemyTerritories = getAdjacentEnemyTerritories(player);
 
     // Sort by number of armies (weakest first)
-    std::sort(enemyTerritories.begin(),
-              enemyTerritories.end(),
+    std::sort(enemyTerritories.begin(), enemyTerritories.end(),
               [](Territory* a, Territory* b) {
                   return a->getArmies() < b->getArmies();
               });
@@ -553,8 +545,7 @@ std::vector<Territory*> BenevolentPlayerStrategy::toDefend(Player* player) {
     std::vector<Territory*> toDefendList = player->getTerritories();
 
     // Sort by number of armies (weakest first)
-    std::sort(toDefendList.begin(),
-              toDefendList.end(),
+    std::sort(toDefendList.begin(), toDefendList.end(),
               [](Territory* a, Territory* b) {
                   return a->getArmies() < b->getArmies();
               });
@@ -562,13 +553,15 @@ std::vector<Territory*> BenevolentPlayerStrategy::toDefend(Player* player) {
     return toDefendList;
 }
 
-std::vector<Territory*> BenevolentPlayerStrategy::toAttack(Player* player) {
+std::vector<Territory*>
+BenevolentPlayerStrategy::toAttack([[maybe_unused]] Player* player) {
     // Benevolent players never attack
     return std::vector<Territory*>();
 }
 
 //---------------------------NeutralStrategy-----------------------------
-void NeutralPlayerStrategy::issueOrder(Player* player, Deck* deck) {
+void NeutralPlayerStrategy::issueOrder(Player* player,
+                                       [[maybe_unused]] Deck* deck) {
     std::cout << "\n[Neutral Player " << player->getName()
               << " issuing orders - does nothing]" << std::endl;
     // Neutral players issue no orders and play no cards
@@ -578,12 +571,14 @@ std::vector<Territory*> NeutralPlayerStrategy::toDefend(Player* player) {
     return player->getTerritories();
 }
 
-std::vector<Territory*> NeutralPlayerStrategy::toAttack(Player* player) {
+std::vector<Territory*>
+NeutralPlayerStrategy::toAttack([[maybe_unused]] Player* player) {
     return std::vector<Territory*>();
 }
 
 //---------------------------CheaterStrategy-----------------------------
-void CheaterPlayerStrategy::issueOrder(Player* player, Deck* deck) {
+void CheaterPlayerStrategy::issueOrder(Player* player,
+                                       [[maybe_unused]] Deck* deck) {
     std::cout << "\n[Cheater Player " << player->getName() << " issuing orders]"
               << std::endl;
 

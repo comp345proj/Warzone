@@ -1,10 +1,12 @@
 #include "MapLoader.h"
-#include "Utils/Utils.h"
+
 #include <algorithm>
 #include <fstream>
 #include <iostream>
 #include <sstream>
 #include <unordered_map>
+
+#include "Utils/Utils.h"
 
 // ---------- trim helpers -----------------
 namespace {
@@ -16,8 +18,7 @@ std::string ltrim(std::string s) {
 }
 
 std::string rtrim(std::string s) {
-    s.erase(std::find_if(s.rbegin(),
-                         s.rend(),
+    s.erase(std::find_if(s.rbegin(), s.rend(),
                          [](unsigned char ch) { return !std::isspace(ch); })
                 .base(),
             s.end());

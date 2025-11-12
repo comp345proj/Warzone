@@ -17,11 +17,11 @@ class Map;
 // Representation of a territory on the map
 class Territory {
   private:
-    Player* player;
     std::string* name;
     IntPtr x, y; // Coordinates on the map
     IntPtr armies;
     std::vector<Territory*> adjacentTerritories;
+    Player* player;
 
   public:
     Territory(const std::string &name, int x, int y);
@@ -39,12 +39,9 @@ class Territory {
     int getArmies() const { return *armies; }
     void addArmies(int amount) { *armies += amount; }
     void removeArmies(int amount) { *armies = std::max(0, *armies - amount); }
-    const std::vector<Territory*> &getNeighbors() const {
-        return adjacentTerritories;
-    }
 
     const std::vector<Territory*> &getAdjacentTerritories() const;
-    Player* getPlayer();
+    Player* getPlayer() const;
 
     // Setters
     void setName(const std::string &newName);
@@ -58,6 +55,9 @@ class Territory {
     void addAdjacentTerritory(Territory* t);
 
     void setPlayer(Player*);
+
+    // Print territory with adjacent territories labeled by ownership
+    void printWithAdjacencies(std::ostream &os) const;
 
     friend std::ostream &operator<<(std::ostream &os,
                                     const Territory &territory);

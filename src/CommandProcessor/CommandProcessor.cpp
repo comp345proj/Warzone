@@ -153,8 +153,7 @@ bool CommandProcessor::validate(Command* command, StateType state, bool print) {
 
         if (!argsStr.empty()) {
             actualArgsCount = 1;
-            actualArgsCount += std::count_if(argsStr.begin(),
-                                             argsStr.end(),
+            actualArgsCount += std::count_if(argsStr.begin(), argsStr.end(),
                                              [](char c) { return c == ' '; });
         }
     }
@@ -164,8 +163,7 @@ bool CommandProcessor::validate(Command* command, StateType state, bool print) {
 
     // 3- Check if command is valid in current game state
     bool isValidInState = validCommands[state].end()
-        != std::find(validCommands[state].begin(),
-                     validCommands[state].end(),
+        != std::find(validCommands[state].begin(), validCommands[state].end(),
                      command->getCommandType());
 
     bool isValidOverall = isValidSyntax && isValidArgs && isValidInState;

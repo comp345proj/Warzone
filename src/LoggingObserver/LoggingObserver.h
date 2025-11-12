@@ -15,7 +15,7 @@ class ILoggable {
 class Observer {
   public:
     Observer();
-    ~Observer();
+    virtual ~Observer();
     virtual void Update(ILoggable* loggable) = 0;
 };
 
@@ -26,7 +26,7 @@ class Subject {
     virtual void Detach(Observer* o);
     virtual void Notify(ILoggable* loggable);
     Subject();
-    ~Subject();
+    virtual ~Subject();
 
   private:
     std::list<Observer*>* observers;
@@ -39,5 +39,6 @@ class LogObserver : public Observer {
 
   public:
     LogObserver();
+    virtual ~LogObserver();
     void Update(ILoggable* loggable) override;
 };

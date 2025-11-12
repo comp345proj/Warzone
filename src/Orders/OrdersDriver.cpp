@@ -6,7 +6,7 @@
 
 // Main function to test order execution implementation
 void testOrderExecution() {
-    std::cout << "\n=== Testing Order Execution ===" << std::endl;
+    std::cout << "\n=== Testing Order Execution ===\n" << std::endl;
 
     // Create a simple test map
     Map* map = new Map(false, false, "Test", "", "Test Map", "");
@@ -143,8 +143,7 @@ void testOrderExecution() {
 }
 
 void testOrdersList() {
-    std::cout << "Testing Orders and OrdersList functionality" << std::endl;
-    std::cout << "==========================================" << std::endl;
+    std::cout << "\n=== Testing Orders and OrdersList ===\n" << std::endl;
 
     // Create an orders list
     OrdersList ordersList;

@@ -81,6 +81,6 @@ class FileCommandProcessorAdapter : public CommandProcessor {
     ~FileCommandProcessorAdapter() override;
 
     std::string getFileName() const { return filename; }
-	friend std::ostream &operator<<(std::ostream &os,
-									const FileCommandProcessorAdapter &fcpa);
+    friend std::ostream &operator<<(std::ostream &os,
+                                    const FileCommandProcessorAdapter &fcpa);
 };

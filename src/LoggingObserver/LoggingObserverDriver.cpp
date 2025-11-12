@@ -12,6 +12,8 @@
 
 // Free function required by the assignment
 void testLoggingObserver() {
+    std::cout << "\n=== Testing Logging Observer ===\n" << std::endl;
+
     // Clear previous log
     std::remove("gamelog.txt");
 

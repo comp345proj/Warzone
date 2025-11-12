@@ -53,7 +53,7 @@ const std::vector<Territory*> &Territory::getAdjacentTerritories() const {
     return adjacentTerritories;
 }
 
-Player* Territory::getPlayer() {
+Player* Territory::getPlayer() const {
     return player;
 }
 
@@ -101,10 +101,54 @@ Territory &Territory::operator=(const Territory &territory2) {
 // Stream insertion Operator
 // Custom << operator to print the territory's details.
 std::ostream &operator<<(std::ostream &os, const Territory &territory) {
-    os << "Territory Name: " << territory.getName()
-        << ", X: " << territory.getX() << ", Y: " << territory.getY()
-        << ", Number of armies: " << territory.getArmies();
+    os << territory.getName() << " (" << territory.getArmies();
+    if (territory.getArmies() == 1)
+        os << " army";
+    else
+        os << " armies";
+    os << ")";
+
+    // Add neighboring territories with ownership labels
+    const auto &neighbors = territory.getAdjacentTerritories();
+    if (!neighbors.empty()) {
+        os << " [\n";
+        for (const auto &neighbor : neighbors) {
+            os << "    " << neighbor->getName();
+            if (neighbor->getPlayer() == territory.getPlayer())
+                os << " - defend";
+            else
+                os << " - attack";
+            os << "\n";
+        }
+        os << "]";
+    }
+
     return os;
+}
+
+// Print territory with adjacent territories labeled by ownership
+void Territory::printWithAdjacencies(std::ostream &os) const {
+    os << name << " (" << *armies;
+    if (*armies == 1)
+        os << " army";
+    else
+        os << " armies";
+    os << ")";
+
+    // Add neighboring territories with ownership labels
+    const auto &neighbors = getAdjacentTerritories();
+    if (!neighbors.empty()) {
+        os << " [\n";
+        for (const auto &neighbor : neighbors) {
+            os << "    " << neighbor->getName();
+            if (neighbor->getPlayer() == player)
+                os << " - defend";
+            else
+                os << " - attack";
+            os << "\n";
+        }
+        os << "]";
+    }
 }
 
 //-------------------------------Continent-----------------------------
@@ -160,8 +204,8 @@ Continent &Continent::operator=(const Continent &continent2) {
 // Stream insertion Operator for printing continent details.
 std::ostream &operator<<(std::ostream &os, const Continent &continent) {
     os << "Continent Name: " << continent.getName()
-        << ", Territories: " << continent.getTerritories().size()
-        << ", Bonus: " << continent.getReinforcementBonus();
+       << ", Territories: " << continent.getTerritories().size()
+       << ", Bonus: " << continent.getReinforcementBonus();
     return os;
 }
 

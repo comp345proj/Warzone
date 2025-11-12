@@ -14,60 +14,60 @@
 #include "Utils/Utils.h"
 #include <iostream>
 
-int main(int argc, char* argv[]) {
+int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
 
-    // std::cout << SEPARATOR_LINE << std::endl;
+    // std::cout << "\n" << SEPARATOR_LINE << std::endl;
     // std::cout << "ASSIGNMENT 1" << std::endl;
-    // std::cout << SEPARATOR_LINE << std::endl;
+    // std::cout << SEPARATOR_LINE << "\n" << std::endl;
 
-    // std::cout << "Map Tests\n" << std::endl;
     // testLoadMaps();
+    // std::cout << SEPARATOR_LINE << std::endl;
 
-    // std::cout << SEPARATOR_LINE << std::endl << "Cards Tests\n" << std::endl;
     // testCards();
-
-    // std::cout << SEPARATOR_LINE << std::endl << "Orders Tests\n" <<
-    // std::endl; testOrdersList();
-
-    // std::cout << SEPARATOR_LINE << std::endl << "Player Tests\n" <<
-    // std::endl; testPlayers();
-
     // std::cout << SEPARATOR_LINE << std::endl;
+    
+	// testOrdersList();
+    // std::cout << SEPARATOR_LINE << std::endl;
+
+    // testPlayers();
+    // std::cout << SEPARATOR_LINE << std::endl;
+
+	// -----------------------------------------------
+
+    // std::cout << "\n" << SEPARATOR_LINE << std::endl;
     // std::cout << "ASSIGNMENT 2" << std::endl;
-    // std::cout << SEPARATOR_LINE << std::endl;
+    // std::cout << SEPARATOR_LINE << "\n" << std::endl;
 
-    // std::cout << SEPARATOR_LINE << std::endl;
-    // std::cout << "Command Processing Tests\n" << std::endl;
     // testCommandProcessor();
-
     // std::cout << SEPARATOR_LINE << std::endl;
-    // std::cout << "Startup Phase Tests\n" << std::endl;
-    // testStartupPhase();
-
+    
+	// testStartupPhase();
     // std::cout << SEPARATOR_LINE << std::endl;
-    // std::cout << "Main Game Loop Tests\n" << std::endl;
+
     // testMainGameLoop();
-
     // std::cout << SEPARATOR_LINE << std::endl;
-    // std::cout << "Order Execution Tests\n" << std::endl;
+	
     // testOrderExecution();
-
     // std::cout << SEPARATOR_LINE << std::endl;
-    // std::cout << "Logging Observer Tests\n" << std::endl;
-    // testLoggingObserver();
+    
+	// testLoggingObserver();
+    // std::cout << SEPARATOR_LINE << std::endl;
 
-    std::cout << SEPARATOR_LINE << std::endl;
+    // -----------------------------------------------
+
+    std::cout << "\n" << SEPARATOR_LINE << std::endl;
     std::cout << "ASSIGNMENT 3" << std::endl;
-    std::cout << SEPARATOR_LINE << std::endl;
+    std::cout << SEPARATOR_LINE << "\n" << std::endl;
 
-    std::cout << SEPARATOR_LINE << std::endl;
-    std::cout << "Player Strategies Tests\n" << std::endl;
     testPlayerStrategies();
+    std::cout << SEPARATOR_LINE << std::endl;
 
-    // To run an actual game without tests, uncomment below
-    //
+    // -----------------------------------------------
+
+    // Run game without tests:
+
     // std::cout << SEPARATOR_LINE << std::endl
-    //           << "Actual Game Test\n"
+    //           << "\nGame without tests\n"
     //           << std::endl;
     // testGame(argc, argv);
 

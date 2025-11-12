@@ -49,9 +49,7 @@ bool Card::play(Player* player, Deck* deck) {
 
             std::cout << "\nChoose territory to bomb:" << std::endl;
             for (size_t i = 0; i < attackList.size(); ++i) {
-                std::cout << i + 1 << ". " << attackList[i]->getName()
-                          << " (Armies: " << attackList[i]->getArmies() << ")"
-                          << std::endl;
+                std::cout << i + 1 << ". " << *attackList[i] << std::endl;
             }
 
             int choice;
@@ -78,10 +76,8 @@ bool Card::play(Player* player, Deck* deck) {
             }
 
             std::cout << "\nChoose territory to blockade:" << std::endl;
-            for (size_t i = 0; i < defendList.size(); ++i) {
-                std::cout << i + 1 << ". " << defendList[i]->getName()
-                          << " (Armies: " << defendList[i]->getArmies() << ")"
-                          << std::endl;
+            for (size_t i = 0; i < defendList.size(); i++) {
+                std::cout << i + 1 << ". " << *defendList[i] << std::endl;
             }
 
             int choice;
@@ -108,10 +104,8 @@ bool Card::play(Player* player, Deck* deck) {
             }
 
             std::cout << "\nChoose source territory:" << std::endl;
-            for (size_t i = 0; i < defendList.size(); ++i) {
-                std::cout << i + 1 << ". " << defendList[i]->getName()
-                          << " (Armies: " << defendList[i]->getArmies() << ")"
-                          << std::endl;
+            for (size_t i = 0; i < defendList.size(); i++) {
+                std::cout << i + 1 << ". " << *defendList[i] << std::endl;
             }
 
             int sourceChoice;
@@ -132,9 +126,7 @@ bool Card::play(Player* player, Deck* deck) {
             std::cout << "\nChoose destination territory:" << std::endl;
             for (size_t i = 0; i < defendList.size(); ++i) {
                 if (static_cast<int>(i) != sourceChoice - 1) {
-                    std::cout << i + 1 << ". " << defendList[i]->getName()
-                              << " (Armies: " << defendList[i]->getArmies()
-                              << ")" << std::endl;
+                    std::cout << i + 1 << ". " << *defendList[i] << std::endl;
                 }
             }
 

@@ -5,8 +5,7 @@
 #include <iostream>
 
 void testCommandProcessor() {
-    std::cout << "\nTesting Command Processor" << std::endl;
-    std::cout << "=======================" << std::endl;
+    std::cout << "\n=== Testing Command Processor ===\n" << std::endl;
 
     // Create a test command file in root folder
     std::string filename = "code-generated-commands.txt";

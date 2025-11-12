@@ -62,7 +62,7 @@ class OrdersList : public ILoggable, public Subject {
   public:
     OrdersList();
     OrdersList(const OrdersList &other);
-    ~OrdersList();
+    virtual ~OrdersList();
 
     // List management methods
     void addOrder(Order* order);

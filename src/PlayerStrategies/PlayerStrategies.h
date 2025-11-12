@@ -6,6 +6,7 @@
 
 // Forward declaration
 class PlayerStrategy;
+class Deck;
 
 // Abstract base class for player strategies
 class PlayerStrategy {

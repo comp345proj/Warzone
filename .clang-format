@@ -18,7 +18,7 @@ SpacesInSquareBrackets: false
 BreakBeforeTernaryOperators: true
 BreakAfterTernaryOperators: false
 AlignOperands: false
-BinPackArguments: false
+BinPackArguments: true
 BinPackParameters: false
 AllowShortFunctionsOnASingleLine: Inline
 AllowShortConditionalStatementsOnASingleLine: true

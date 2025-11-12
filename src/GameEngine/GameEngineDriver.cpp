@@ -3,7 +3,7 @@
 
 /**
  * Driver function to test the startup phase
- * 
+ *
  * Demonstrates:
  * (1) map loading and validation
  * (2) player creation
@@ -13,13 +13,14 @@
  * (6) turn order determination
  */
 void testStartupPhase() {
-    std::cout << "\n=== Testing Startup Phase ===" << std::endl;
-    
+    std::cout << "\n=== Testing Startup Phase ===\n" << std::endl;
+
     // Create command processor with file input for automated testing
-    CommandProcessor* cmdProcessor = new FileCommandProcessorAdapter("commands.txt");
-    
+    CommandProcessor* cmdProcessor =
+        new FileCommandProcessorAdapter("commands.txt");
+
     GameEngine* gameEngine = new GameEngine(cmdProcessor);
-    
+
     std::cout << "\nStarting startup phase..." << std::endl;
     std::cout << "This will demonstrate:" << std::endl;
     std::cout << "1. Loading and validating a map" << std::endl;
@@ -28,19 +29,19 @@ void testStartupPhase() {
     std::cout << "4. Allocating initial armies (50 per player)" << std::endl;
     std::cout << "5. Drawing initial cards (2 per player)" << std::endl;
     std::cout << "6. Randomizing turn order" << std::endl;
-    
+
     // Execute startup phase
     gameEngine->startupPhase(false);
-    
+
     std::cout << "\n=== Startup Phase Complete ===" << std::endl;
-    
+
     delete gameEngine;
     delete cmdProcessor;
 }
 
 /**
  * Driver function to test the main game loop
- * 
+ *
  * Demonstrates:
  * (1) correct reinforcement calculation
  * (2) deploy orders mandatory
@@ -50,33 +51,40 @@ void testStartupPhase() {
  * (6) win condition
  */
 void testMainGameLoop() {
-    std::cout << "\n=== Testing Main Game Loop ===" << std::endl;
-    
+    std::cout << "\n=== Testing Main Game Loop ===\n" << std::endl;
+
     // Create command processor with file input for automated testing
-    CommandProcessor* cmdProcessor = new FileCommandProcessorAdapter("commands.txt");
-    
+    CommandProcessor* cmdProcessor =
+        new FileCommandProcessorAdapter("commands.txt");
+
     GameEngine* gameEngine = new GameEngine(cmdProcessor);
-    
+
     std::cout << "\nThis test demonstrates:" << std::endl;
-    std::cout << "1. Reinforcement calculation based on territories and continents" << std::endl;
-    std::cout << "2. Players MUST issue deploy orders before other orders" << std::endl;
-    std::cout << "3. Players can issue advance orders to attack/defend" << std::endl;
-    std::cout << "4. Players can play cards to issue special orders" << std::endl;
+    std::cout
+        << "1. Reinforcement calculation based on territories and continents"
+        << std::endl;
+    std::cout << "2. Players MUST issue deploy orders before other orders"
+              << std::endl;
+    std::cout << "3. Players can issue advance orders to attack/defend"
+              << std::endl;
+    std::cout << "4. Players can play cards to issue special orders"
+              << std::endl;
     std::cout << "5. Players without territories are eliminated" << std::endl;
-    std::cout << "6. Game ends when one player controls all territories" << std::endl;
-    
+    std::cout << "6. Game ends when one player controls all territories"
+              << std::endl;
+
     // Execute startup phase first
     gameEngine->loadMap("World.map");
-	gameEngine->validateMap();
-	gameEngine->addPlayer("Alice");
-	gameEngine->addPlayer("Bob");
-	gameEngine->gameStart(false);
+    gameEngine->validateMap();
+    gameEngine->addPlayer("Alice");
+    gameEngine->addPlayer("Bob");
+    gameEngine->gameStart(false);
 
-	std::cout << "\nStarting main game loop..." << std::endl;
+    std::cout << "\nStarting main game loop..." << std::endl;
     gameEngine->mainGameLoop(false);
-    
+
     std::cout << "\n=== Main Game Loop Complete ===" << std::endl;
-    
+
     delete gameEngine;
     delete cmdProcessor;
 }

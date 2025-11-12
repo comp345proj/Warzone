@@ -132,7 +132,8 @@ void OrdersList::remove(Order* order) {
 // Move order within the list to new position
 bool OrdersList::move(Order* order, int newPosition) {
     auto it = std::find(orders.begin(), orders.end(), order);
-    if (it == orders.end() || newPosition < 0 || newPosition >= orders.size()) {
+    if (it == orders.end() || newPosition < 0
+        || static_cast<size_t>(newPosition) >= orders.size()) {
         return false;
     }
 
@@ -257,7 +258,7 @@ bool Advance::validate() {
     }
 
     // Territory adjacency
-    auto neighbors = source->getNeighbors();
+    auto neighbors = source->getAdjacentTerritories();
     if (std::find(neighbors.begin(), neighbors.end(), target)
         == neighbors.end()) {
         setEffect("✗ Advance: Could not execute order."
@@ -307,10 +308,8 @@ void Advance::execute() {
 
             // Award card for first conquest
             if (!issuingPlayer->hasConqueredTerritoryThisTurn()) {
-                CardType cardTypes[] = {CardType::REINFORCEMENT,
-                                        CardType::BOMB,
-                                        CardType::AIRLIFT,
-                                        CardType::BLOCKADE,
+                CardType cardTypes[] = {CardType::REINFORCEMENT, CardType::BOMB,
+                                        CardType::AIRLIFT, CardType::BLOCKADE,
                                         CardType::DIPLOMACY};
                 int randomIndex = rand() % 5;
                 Card* rewardCard = new Card(cardTypes[randomIndex]);
@@ -349,6 +348,10 @@ void Advance::execute() {
                 Player* previousOwner = target->getPlayer();
                 target->setPlayer(issuingPlayer);
                 target->setArmies(survivingAttackers);
+                issuingPlayer->addTerritory(target);
+                if (previousOwner) {
+                    previousOwner->removeTerritory(target);
+                }
                 setEffect("✓ Advance: Captured " + target->getName() + " with "
                           + std::to_string(survivingAttackers)
                           + " surviving attackers");
@@ -368,8 +371,7 @@ void Advance::execute() {
 
                 if (!issuingPlayer->hasConqueredTerritoryThisTurn()) {
                     CardType cardTypes[] = {CardType::REINFORCEMENT,
-                                            CardType::BOMB,
-                                            CardType::AIRLIFT,
+                                            CardType::BOMB, CardType::AIRLIFT,
                                             CardType::BLOCKADE,
                                             CardType::DIPLOMACY};
                     int randomIndex = rand() % 5;
@@ -427,7 +429,7 @@ bool Bomb::validate() {
     // Target must be adjacent to a player's territory
     bool isAdjacent = false;
     for (Territory* territory : issuingPlayer->getTerritories()) {
-        auto neighbors = territory->getNeighbors();
+        auto neighbors = territory->getAdjacentTerritories();
         if (std::find(neighbors.begin(), neighbors.end(), target)
             != neighbors.end()) {
             isAdjacent = true;

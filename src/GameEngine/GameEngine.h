@@ -54,7 +54,7 @@ class GameEngine : public ILoggable, public Subject {
     explicit GameEngine(CommandProcessor* cmdProcessor);
     GameEngine(const GameEngine &other);
     GameEngine &operator=(const GameEngine &other);
-    ~GameEngine();
+    virtual ~GameEngine();
 
     // Command methods
     void startupPhase(bool runMainLoop = true);
@@ -62,6 +62,7 @@ class GameEngine : public ILoggable, public Subject {
     void validateMap();
     void addPlayer(const std::string &playerName);
     void gameStart(bool runMainLoop = true);
+    void replay();
 
     // Main phases
     void mainGameLoop(bool runExecuteOrdersPhase = true);

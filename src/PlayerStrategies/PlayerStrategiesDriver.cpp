@@ -7,16 +7,13 @@
 
 // Free function to test player strategies
 void testPlayerStrategies() {
-    std::cout << "=== Testing Player Strategies ===" << std::endl;
+    std::cout << "=== Testing Player Strategies ===\n" << std::endl;
 
     // Create some territories for testing
-    Territory* t1 = new Territory("Territory1", 0, 0);
-    Territory* t2 = new Territory("Territory2", 1, 1);
-    Territory* t3 = new Territory("Territory3", 2, 2);
-    Territory* t4 = new Territory("Territory4", 3, 3);
-
-    std::cout << "Created territories: " << t1 << ", " << t2 << ", " << t3
-              << ", " << t4 << std::endl;
+    Territory* t1 = new Territory("T1", 0, 0);
+    Territory* t2 = new Territory("T2", 1, 1);
+    Territory* t3 = new Territory("T3", 2, 2);
+    Territory* t4 = new Territory("T4", 3, 3);
 
     // Make territories adjacent
     // t1 <-> t2 <-> t3 <-> t4
@@ -58,7 +55,7 @@ void testPlayerStrategies() {
     t4->setArmies(2);
 
     // Give cheater player a territory adjacent to others
-    Territory* t5 = new Territory("Territory5", 4, 4);
+    Territory* t5 = new Territory("T5", 4, 4);
     t4->addAdjacentTerritory(t5);
     t5->addAdjacentTerritory(t4);
     cheaterPlayer->addTerritory(t5);
@@ -84,83 +81,91 @@ void testPlayerStrategies() {
     Deck* deck = new Deck();
     deck->initialize();
 
+    std::cout << "Created territories:\n"
+              << *t1 << "\n"
+              << *t2 << "\n"
+              << *t3 << "\n"
+              << *t4 << std::endl;
+
     std::cout << "\n--- Demonstration 1: Different strategies lead to "
-                 "different behavior ---"
+                 "different behavior ---\n"
               << std::endl;
 
     // Test toDefend() - different prioritization
-    std::cout << "Human player defends: ";
-    auto humanDefend = humanPlayer->toDefend();
-    for (auto t : humanDefend)
-        std::cout << t->getName() << "(" << t->getArmies() << ") ";
+    std::cout << "Human player defends:\n";
+    for (auto t : humanPlayer->toDefend())
+        std::cout << *t << "\n";
     std::cout << std::endl;
 
-    std::cout << "Aggressive player defends: ";
-    auto aggressiveDefend = aggressivePlayer->toDefend();
-    for (auto t : aggressiveDefend)
-        std::cout << t->getName() << "(" << t->getArmies() << ") ";
+    std::cout << "Human player attacks:\n";
+    for (auto t : humanPlayer->toAttack())
+        std::cout << *t << "\n";
     std::cout << std::endl;
 
-    std::cout << "Benevolent player defends: ";
-    auto benevolentDefend = benevolentPlayer->toDefend();
-    for (auto t : benevolentDefend)
-        std::cout << t->getName() << "(" << t->getArmies() << ") ";
+    std::cout << "\nAggressive player defends:\n";
+    for (auto t : aggressivePlayer->toDefend())
+        std::cout << *t << "\n";
     std::cout << std::endl;
 
-    // Test toAttack() - different targeting
-    std::cout << "Aggressive player attacks: ";
-    auto aggressiveAttack = aggressivePlayer->toAttack();
-    for (auto t : aggressiveAttack)
-        std::cout << t->getName() << "(" << t->getArmies() << ") ";
+    std::cout << "\nAggressive player attacks:\n";
+    for (auto t : aggressivePlayer->toAttack())
+        std::cout << *t << "\n";
     std::cout << std::endl;
 
-    std::cout << "Benevolent player attacks: ";
-    auto benevolentAttack = benevolentPlayer->toAttack();
-    std::cout << (benevolentAttack.empty() ? "None (benevolent never attacks)"
-                                           : "Some targets")
+    std::cout << "\nBenevolent player defends:\n";
+    for (auto t : benevolentPlayer->toDefend())
+        std::cout << *t << "\n";
+    std::cout << std::endl;
+
+    std::cout << "\nBenevolent player attacks:\n";
+    for (auto t : benevolentPlayer->toAttack())
+        std::cout << *t << "\n";
+    std::cout << std::endl;
+
+    std::cout << "\nNeutral player defends:\n";
+    for (auto t : neutralPlayer->toDefend())
+        std::cout << *t << "\n";
+    std::cout << std::endl;
+
+    std::cout << "\nNeutral player attacks:\n";
+    for (auto t : neutralPlayer->toAttack())
+        std::cout << *t << "\n";
+    std::cout << std::endl;
+
+    std::cout << "\n--- Demonstration 2: Dynamic strategy changes ---\n"
               << std::endl;
 
-    std::cout << "Neutral player attacks: ";
-    auto neutralAttack = neutralPlayer->toAttack();
-    std::cout << (neutralAttack.empty() ? "None (neutral never attacks)"
-                                        : "Some targets")
-              << std::endl;
+    PlayerStrategy* currentStrategy = neutralPlayer->getStrategy();
+    std::cout << "Neutral player strategy before change: "
+              << typeid(*currentStrategy).name() << std::endl;
 
-    std::cout << "\n--- Demonstration 2: Dynamic strategy changes ---"
-              << std::endl;
+    std::cout << "\nNeutral player attacks:\n";
+    for (auto t : neutralPlayer->toAttack())
+        std::cout << *t << "\n";
+    std::cout << std::endl;
 
-    std::cout << "Neutral player strategy: NeutralPlayerStrategy" << std::endl;
-    std::cout << "Neutral player attacks before change: ";
-    auto oldNeutralAttack = neutralPlayer->toAttack();
-    std::cout << (oldNeutralAttack.empty() ? "None (neutral never attacks)"
-                                           : "Some targets")
-              << std::endl;
-
-    // Simulate an attack on neutral player (this would normally happen in
-    // Advance::execute)
+    // Simulate an attack on neutral player
     neutralPlayer->setStrategy(new AggressivePlayerStrategy());
+    currentStrategy = neutralPlayer->getStrategy();
     std::cout << "After being attacked, neutral player strategy changed to: "
-                 "AggressivePlayerStrategy"
-              << std::endl;
+              << typeid(*currentStrategy).name() << std::endl;
 
-    std::cout << "New attack targets: ";
-    auto newNeutralAttack = neutralPlayer->toAttack();
-    for (auto t : newNeutralAttack)
-        std::cout << t->getName() << "(" << t->getArmies() << ") ";
+    std::cout << "\nNeutral player attacks:\n";
+    for (auto t : neutralPlayer->toAttack())
+        std::cout << *t << "\n";
     std::cout << std::endl;
 
-    std::cout << "\n--- Demonstration 3: Human vs Computer behavior ---"
+    std::cout << "\n--- Demonstration 3: Human vs Computer behavior ---\n"
               << std::endl;
 
-    std::cout << "Human player issueOrder() requires user interaction "
-                 "(interactive mode)"
-              << std::endl;
-    std::cout << "Computer players issueOrder() automatically:" << std::endl;
+    std::cout << "Human player issueOrder()" << std::endl;
+    std::cout << "Calling Human player issueOrder():\n" << std::endl;
+    humanPlayer->issueOrder(deck);
 
-    std::cout << "Aggressive player issuing orders:" << std::endl;
+    std::cout << "\nComputer players issueOrder() automatically:" << std::endl;
+
     aggressivePlayer->issueOrder(deck);
 
-    std::cout << "Benevolent player issuing orders:" << std::endl;
     benevolentPlayer->issueOrder(deck);
 
     std::cout << "Neutral player issuing orders:" << std::endl;
