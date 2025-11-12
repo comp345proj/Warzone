@@ -62,6 +62,9 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
     testPlayerStrategies();
     std::cout << SEPARATOR_LINE << std::endl;
 
+	testTournament();
+	std::cout << SEPARATOR_LINE << std::endl;
+
     // -----------------------------------------------
 
     // Run game without tests:

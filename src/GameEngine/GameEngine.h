@@ -63,9 +63,10 @@ class GameEngine : public ILoggable, public Subject {
     void addPlayer(const std::string &playerName);
     void gameStart(bool runMainLoop = true);
     void replay();
+    void runTournament(const Tournament &tournament);
 
     // Main phases
-    void mainGameLoop(bool runExecuteOrdersPhase = true);
+    void mainGameLoop(bool runExecuteOrdersPhase = true, int maxTurns = -1);
     void reinforcementPhase();
     void issueOrdersPhase();
     void executeOrdersPhase();
@@ -97,3 +98,6 @@ class GameEngine : public ILoggable, public Subject {
     friend std::ostream &operator<<(std::ostream &os,
                                     const GameEngine &gameEngine);
 };
+
+// Tournament test driver
+void testTournament();

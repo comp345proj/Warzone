@@ -630,7 +630,7 @@ std::string OrdersList::stringToLog() {
     size_t pos = typeName.find_first_not_of("0123456789");
     std::string className = typeName.substr(pos);
     return "Order issued: " + std::string(className) + " from "
-        + lastOrder->getPlayer()->getName() + "'s orders list;";
+        + lastOrder->getPlayer()->getName() + "'s orders list.";
 }
 
 std::string Deploy::stringToLog() {

@@ -413,47 +413,72 @@ void AggressivePlayerStrategy::issueOrder(Player* player, Deck* deck) {
     std::cout << "\n[Aggressive Player " << player->getName()
               << " issuing orders]" << std::endl;
 
+    // Get territory lists once
+    auto defendList = toDefend(player);
+    auto attackList = toAttack(player);
+
     // Deploy all reinforcements to strongest territory
+    int deployedArmies = 0; // Track how many we deploy
     if (player->getAvailableReinforcementPool() > 0) {
-        auto defendList = toDefend(player);
         if (!defendList.empty()) {
             Territory* strongest =
                 defendList.back(); // Last in sorted list (most armies)
-            Deploy* deployOrder = new Deploy(
-                player, strongest, player->getAvailableReinforcementPool());
+            int armiesToDeploy = player->getAvailableReinforcementPool();
+            deployedArmies = armiesToDeploy; // Remember this amount
+            Deploy* deployOrder = new Deploy(player, strongest, armiesToDeploy);
             player->addOrder(deployOrder);
-            player->setReinforcementPool(
-                player->getReinforcementPool()
-                - player->getAvailableReinforcementPool());
-            std::cout << "✓ Deployed "
-                      << player->getAvailableReinforcementPool()
-                      << " armies to " << strongest->getName() << std::endl;
+            player->decrementAvailableReinforcementPool(armiesToDeploy);
+            std::cout << "✓ Deployed " << armiesToDeploy << " armies to "
+                      << strongest->getName() << std::endl;
         }
     }
 
-    // Play aggressive cards (Bomb, Airlift, Blockade)
+    // Play aggressive cards (Bomb, Airlift)
     for (Card* card : player->getCards()) {
         CardType type = card->getCardType();
-        if (type == CardType::BOMB || type == CardType::AIRLIFT
-            || type == CardType::BLOCKADE) {
-            if (card->play(player, deck)) {
-                std::cout << "✓ Played " << cardTypeToString(type) << " card"
-                          << std::endl;
-            } else {
-                std::cout << "✗ Failed to play " << cardTypeToString(type)
-                          << " card" << std::endl;
+        Order* cardOrder = nullptr;
+
+        if (type == CardType::BOMB && !attackList.empty()) {
+            // Bomb the weakest enemy territory
+            cardOrder = new Bomb(player, attackList.front());
+            std::cout << "✓ Playing BOMB card on "
+                      << attackList.front()->getName() << std::endl;
+        } else if (type == CardType::AIRLIFT && defendList.size() >= 2
+                   && !attackList.empty()) {
+            // Airlift armies to strongest territory adjacent to enemies
+            Territory* source = defendList.front(); // Weakest
+            Territory* dest = defendList.back();    // Strongest
+            int armies = source->getArmies() / 2;   // Move half
+            if (armies > 0) {
+                cardOrder = new Airlift(player, source, dest, armies);
+                std::cout << "✓ Playing AIRLIFT card: " << armies
+                          << " armies from " << source->getName() << " to "
+                          << dest->getName() << std::endl;
             }
+        }
+
+        if (cardOrder) {
+            player->addOrder(cardOrder);
+            player->removeCard(card);
+            deck->returnCard(card);
             break; // Play only one card per turn
         }
     }
 
     // Issue advance orders to attack
-    auto attackList = toAttack(player);
-    auto defendList = toDefend(player);
+    // Aggressive player always advances to enemy territories
+    // Use all armies from strongest territory (after deployment)
     if (!attackList.empty() && !defendList.empty()) {
-        Territory* source = defendList.back();  // Strongest territory
+        Territory* source =
+            defendList.back(); // Strongest territory (where we deployed)
         Territory* target = attackList.front(); // Weakest enemy
-        int armies = source->getArmies() - 1;   // Leave 1 army behind
+
+        // Use the armies that will be on the territory after deployment executes
+        int currentArmies = source->getArmies();
+        int totalArmies = currentArmies + deployedArmies; // Use the tracked deployment
+        int armies = totalArmies > 1 ? totalArmies - 1
+                                     : totalArmies; // Leave at least 1
+
         if (armies > 0) {
             player->issueAdvanceOrder(source, target, armies);
             std::cout << "✓ Issued advance order to attack "
@@ -498,29 +523,57 @@ void BenevolentPlayerStrategy::issueOrder(Player* player, Deck* deck) {
         if (!defendList.empty()) {
             Territory* weakest =
                 defendList.front(); // First in sorted list (fewest armies)
-            Deploy* deployOrder = new Deploy(
-                player, weakest, player->getAvailableReinforcementPool());
+            int armiesToDeploy = player->getAvailableReinforcementPool();
+            Deploy* deployOrder = new Deploy(player, weakest, armiesToDeploy);
             player->addOrder(deployOrder);
-            player->setReinforcementPool(
-                player->getReinforcementPool()
-                - player->getAvailableReinforcementPool());
-            std::cout << "✓ Deployed "
-                      << player->getAvailableReinforcementPool()
-                      << " armies to " << weakest->getName() << std::endl;
+            player->decrementAvailableReinforcementPool(armiesToDeploy);
+            std::cout << "✓ Deployed " << armiesToDeploy << " armies to "
+                      << weakest->getName() << std::endl;
         }
     }
 
-    // Play non-harmful cards (Reinforcement, Negotiate)
+    // Play non-harmful cards (Reinforcement, Diplomacy) - make decisions
+    // automatically
+    auto attackList = toAttack(player);
+
     for (Card* card : player->getCards()) {
         CardType type = card->getCardType();
-        if (type == CardType::REINFORCEMENT || type == CardType::DIPLOMACY) {
-            if (card->play(player, deck)) {
-                std::cout << "✓ Played " << cardTypeToString(type) << " card"
-                          << std::endl;
-            } else {
-                std::cout << "✗ Failed to play " << cardTypeToString(type)
-                          << " card" << std::endl;
+        Order* cardOrder = nullptr;
+
+        if (type == CardType::REINFORCEMENT) {
+            // Reinforcement card is executed immediately (adds to pool)
+            player->setReinforcementPool(player->getReinforcementPool() + 5);
+            player->removeCard(card);
+            deck->returnCard(card);
+            std::cout << "✓ Played REINFORCEMENT card: +5 armies to pool (now "
+                      << player->getReinforcementPool() << ")" << std::endl;
+            break;
+        } else if (type == CardType::DIPLOMACY && !attackList.empty()) {
+            // Negotiate with the strongest enemy player
+            std::set<Player*> enemyPlayers;
+            for (Territory* t : attackList) {
+                if (t->getPlayer() != player) {
+                    enemyPlayers.insert(t->getPlayer());
+                }
             }
+            if (!enemyPlayers.empty()) {
+                // Pick the player with the most territories (strongest threat)
+                Player* targetPlayer =
+                    *std::max_element(enemyPlayers.begin(), enemyPlayers.end(),
+                                      [](Player* a, Player* b) {
+                                          return a->getTerritories().size()
+                                              < b->getTerritories().size();
+                                      });
+                cardOrder = new Negotiate(player, targetPlayer);
+                std::cout << "✓ Playing DIPLOMACY card with "
+                          << targetPlayer->getName() << std::endl;
+            }
+        }
+
+        if (cardOrder) {
+            player->addOrder(cardOrder);
+            player->removeCard(card);
+            deck->returnCard(card);
             break; // Play only one card per turn
         }
     }

@@ -10,6 +10,14 @@
 // Forward declaration
 class CommandProcessor;
 
+// Tournament structure
+struct Tournament {
+    std::vector<std::string> maps;
+    std::vector<std::string> strategies; // Strategy names
+    int numGames;
+    int maxTurns;
+};
+
 // Represent a command issued by the user (file or console)
 class Command : public Subject, public ILoggable {
   private:
@@ -51,6 +59,7 @@ class CommandProcessor : public Subject,
 
   private:
     virtual Command* readCommand();
+    bool validateTournament(Command* command, bool print = true);
 
   public:
     CommandProcessor();
@@ -64,6 +73,7 @@ class CommandProcessor : public Subject,
     validate(Command* command, StateType stateType, bool print = true) override;
     void saveCommand(Command* command) override;
     std::string stringToLog() override;
+    Tournament prepareTournament(const std::string &cmdText);
     friend std::ostream &operator<<(std::ostream &os,
                                     const CommandProcessor &cp);
 };

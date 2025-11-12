@@ -1,0 +1,31 @@
+[Map]
+author=Warzone Game
+image=moon.bmp
+wrap=no
+scroll=horizontal
+warn=yes
+
+[Continents]
+Mare Tranquillitatis=4
+Mare Serenitatis=3
+Oceanus Procellarum=3
+Terra Highlands=3
+
+[Territories]
+Tycho,100,150,Mare Tranquillitatis,Copernicus,Kepler,South Pole
+Copernicus,150,180,Mare Tranquillitatis,Tycho,Kepler,Aristarchus
+Kepler,180,140,Mare Tranquillitatis,Tycho,Copernicus,Aristarchus,Oceanus Procellarum
+Aristarchus,200,100,Mare Tranquillitatis,Copernicus,Kepler,Plato
+
+Plato,250,70,Mare Serenitatis,Aristarchus,Pythagoras,Montes Alpes
+Pythagoras,280,120,Mare Serenitatis,Plato,Aristarchus,Montes Alpes
+Cassini,220,160,Mare Serenitatis,Plato,Pythagoras,Oceanus Procellarum
+
+Oceanus Procellarum,150,220,Oceanus Procellarum,Kepler,Plato,Cassini,Gassendi
+Montes Alpes,200,240,Oceanus Procellarum,Plato,Pythagoras,Cassini,Gassendi
+Gassendi,250,280,Oceanus Procellarum,Oceanus Procellarum,Montes Alpes,South Pole
+
+Clavius,280,330,Terra Highlands,Gassendi,South Pole,Moretus
+South Pole,200,350,Terra Highlands,Tycho,Gassendi,Clavius,Moretus
+Moretus,330,320,Terra Highlands,Clavius,South Pole,Leibnitz
+Leibnitz,360,280,Terra Highlands,Moretus,Clavius,Tycho

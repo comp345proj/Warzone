@@ -1,6 +1,9 @@
 #include "GameEngine.h"
 #include "Map/Map.h"
+#include "PlayerStrategies/PlayerStrategies.h"
+#include "Utils/Utils.h"
 #include <algorithm>
+#include <sstream>
 using std::cin;
 
 void printInvalidCommandError() {
@@ -118,8 +121,6 @@ void GameEngine::startupPhase(bool runMainLoop) {
             break;
         }
 
-        std::string cmdText = cmd->getCommandText();
-
         // Validate command for current state
         if (!commandProcessor->validate(cmd, currentState, false)) {
             printInvalidCommandError();
@@ -128,8 +129,10 @@ void GameEngine::startupPhase(bool runMainLoop) {
 
         // Process valid command
         try {
+            std::string cmdText = cmd->getCommandText();
             std::string cmdPart = cmdText.substr(0, cmdText.find(' '));
             CommandType cmdType = stringToCommandType(cmdPart);
+
             switch (cmdType) {
                 case CommandType::loadmap: {
                     size_t spacePos = cmdText.find(" ");
@@ -177,6 +180,15 @@ void GameEngine::startupPhase(bool runMainLoop) {
                     replay();
                     cmd->saveEffect("Game replay initiated");
                     break;
+
+                case CommandType::tournament: {
+                    Tournament tournament =
+                        commandProcessor->prepareTournament(cmdText);
+
+                    runTournament(tournament);
+                    cmd->saveEffect("Tournament completed");
+                    break;
+                }
 
                 default:
                     cmd->saveEffect("Command not implemented");
@@ -352,8 +364,21 @@ void GameEngine::gameStart(bool runMainLoop) {
     }
 }
 
-void GameEngine::mainGameLoop(bool runExecuteOrdersPhase) {
+void GameEngine::mainGameLoop(bool runExecuteOrdersPhase, int maxTurns) {
+    int turnCount = 0;
+
     while (!checkWinCondition()) {
+        // Check turn limit for tournament mode
+        if (maxTurns > 0 && turnCount >= maxTurns) {
+            std::cout << "\n=== Maximum turns (" << maxTurns
+                      << ") reached. Game ends in a draw. ===" << std::endl;
+            state->setStateType(StateType::win);
+            return; // Exit without announcing a winner
+        }
+
+        turnCount++;
+        std::cout << "\n=== Turn " << turnCount << " ===" << std::endl;
+
         // Remove any defeated players before starting the next round
         removeDefeatedPlayers();
 
@@ -371,7 +396,7 @@ void GameEngine::mainGameLoop(bool runExecuteOrdersPhase) {
         }
     }
 
-    // Announce winner
+    // Announce winner (only if someone actually won by conquering all)
     for (Player* player : players) {
         if (!player->getTerritories().empty()) {
             std::cout << "Player " << player->getName() << " has won the game!"
@@ -626,6 +651,147 @@ void GameEngine::replay() {
 
     std::cout << "Game state reset. You can now load a new map and add players."
               << std::endl;
+}
+
+void GameEngine::runTournament(const Tournament &tournament) {
+    std::cout << "\n=== TOURNAMENT MODE ===" << std::endl;
+    std::cout << "Maps: ";
+    for (size_t i = 0; i < tournament.maps.size(); ++i) {
+        std::cout << tournament.maps[i];
+        if (i < tournament.maps.size() - 1)
+            std::cout << ", ";
+    }
+    std::cout << std::endl;
+
+    std::cout << "Strategies: ";
+    for (size_t i = 0; i < tournament.strategies.size(); ++i) {
+        std::cout << tournament.strategies[i];
+        if (i < tournament.strategies.size() - 1)
+            std::cout << ", ";
+    }
+    std::cout << std::endl;
+    std::cout << "Games per map: " << tournament.numGames << std::endl;
+    std::cout << "Max turns per game: " << tournament.maxTurns << std::endl;
+    std::cout << std::endl;
+
+    // Store tournament results: results[mapIndex][gameIndex] = winner
+    std::vector<std::vector<std::string>> results;
+    results.resize(tournament.maps.size());
+    for (auto &mapResult : results) {
+        mapResult.resize(tournament.numGames);
+    }
+
+    // Run tournament
+    for (size_t mapIdx = 0; mapIdx < tournament.maps.size(); ++mapIdx) {
+        const std::string &mapFile = tournament.maps[mapIdx];
+        std::cout << "Playing on map: " << mapFile << std::endl;
+
+        for (int gameIdx = 0; gameIdx < tournament.numGames; ++gameIdx) {
+            std::cout << "  Game " << (gameIdx + 1) << "/"
+                      << tournament.numGames << "... ";
+
+            // Reset game state for new game
+            replay();
+            state->setStateType(StateType::start);
+
+            // Load map
+            loadMap(mapFile);
+
+            // Validate map
+            validateMap();
+
+            // Add players with tournament strategies
+            for (const std::string &strategyName : tournament.strategies) {
+                PlayerStrategy* strategy = nullptr;
+
+                if (strategyName == "Aggressive") {
+                    strategy = new AggressivePlayerStrategy();
+                } else if (strategyName == "Benevolent") {
+                    strategy = new BenevolentPlayerStrategy();
+                } else if (strategyName == "Neutral") {
+                    strategy = new NeutralPlayerStrategy();
+                } else if (strategyName == "Cheater") {
+                    strategy = new CheaterPlayerStrategy();
+                } else {
+                    strategy = new HumanPlayerStrategy();
+                }
+
+                Player* newPlayer = new Player(strategyName, strategy);
+                players.push_back(newPlayer);
+                newPlayer->getOrdersList()->Attach(logObserver);
+                std::cout << "Player added: " << strategyName << std::endl;
+            }
+
+            // Set state to playeradded if we have enough players
+            if (players.size() >= 2) {
+                state->setStateType(StateType::playeradded);
+            }
+
+            // Start the game (distribute territories, armies, cards)
+            gameStart(false);
+
+            // Run game with turn limit
+            mainGameLoop(true, tournament.maxTurns);
+
+            // Find winner (player with all territories)
+            std::string winner = "Draw";
+            for (Player* player : players) {
+                if (!player->getTerritories().empty()) {
+                    size_t totalTerritories = 0;
+                    for (Continent* continent : currentMap->getContinents()) {
+                        totalTerritories += continent->getTerritories().size();
+                    }
+                    if (player->getTerritories().size() == totalTerritories) {
+                        winner = player->getName();
+                        break;
+                    }
+                }
+            }
+
+            results[mapIdx][gameIdx] = winner;
+            std::cout << "Winner: " << winner << std::endl;
+        }
+    }
+
+    // Output tournament results
+    std::cout << "\n=== TOURNAMENT RESULTS ===" << std::endl;
+    std::cout << "Maps: ";
+    for (size_t i = 0; i < tournament.maps.size(); ++i) {
+        std::cout << tournament.maps[i];
+        if (i < tournament.maps.size() - 1)
+            std::cout << ", ";
+    }
+    std::cout << std::endl;
+
+    std::cout << "Strategies: ";
+    for (size_t i = 0; i < tournament.strategies.size(); ++i) {
+        std::cout << tournament.strategies[i];
+        if (i < tournament.strategies.size() - 1)
+            std::cout << ", ";
+    }
+    std::cout << std::endl;
+
+    std::cout << "Games per map: " << tournament.numGames << std::endl;
+    std::cout << "Max turns: " << tournament.maxTurns << std::endl;
+    std::cout << std::endl;
+
+    // Print results table
+    std::cout << "Results:" << std::endl;
+    std::cout << "Map \\ Game";
+    for (int g = 1; g <= tournament.numGames; ++g) {
+        std::cout << "\t Game " << g;
+    }
+    std::cout << std::endl;
+
+    for (size_t mapIdx = 0; mapIdx < tournament.maps.size(); ++mapIdx) {
+        std::cout << tournament.maps[mapIdx];
+        for (int gameIdx = 0; gameIdx < tournament.numGames; ++gameIdx) {
+            std::cout << "\t" << results[mapIdx][gameIdx];
+        }
+        std::cout << std::endl;
+    }
+
+    state->setStateType(StateType::win);
 }
 
 std::ostream &operator<<(std::ostream &os, const GameEngine &gameEngine) {

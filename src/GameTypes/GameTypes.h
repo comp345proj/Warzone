@@ -33,6 +33,7 @@ enum class CommandType {
     gamestart,
     replay,
     quit,
+    tournament,
     invalid
 };
 

@@ -86,6 +86,8 @@ std::string commandTypeToString(CommandType command) {
         return "replay";
     if (command == CommandType::quit)
         return "quit";
+    if (command == CommandType::tournament)
+        return "tournament";
     return "invalid";
 }
 
@@ -102,6 +104,8 @@ CommandType stringToCommandType(const std::string &commandStr) {
         return CommandType::replay;
     if (commandStr == "quit")
         return CommandType::quit;
+    if (commandStr == "tournament")
+        return CommandType::tournament;
     return CommandType::invalid;
 }
 
@@ -118,6 +122,8 @@ std::string getCommandArgsString(CommandType command) {
         return "";
     if (command == CommandType::quit)
         return "";
+    if (command == CommandType::tournament)
+        return "-M maplist -P strategylist -G numgames -D maxturn";
     return "invalid";
 }
 
@@ -134,11 +140,13 @@ int getCommandArgsCount(CommandType command) {
         return 0;
     if (command == CommandType::quit)
         return 0;
+    if (command == CommandType::tournament)
+        return 8;
     return -1;
 }
 
 std::map<StateType, std::vector<CommandType>> validCommands = {
-    {StateType::start, {CommandType::loadmap}},
+    {StateType::start, {CommandType::loadmap, CommandType::tournament}},
 
     {StateType::maploaded, {CommandType::loadmap, CommandType::validatemap}},
 
@@ -155,6 +163,7 @@ std::map<CommandType, std::string> commandEffect = {
     {CommandType::gamestart, "Starts the game."},
     {CommandType::replay, "Replays the game."},
     {CommandType::quit, "Exits the game."},
+    {CommandType::tournament, "Starts tournament mode."},
     {CommandType::invalid, "Invalid command."}};
 
 } // namespace GameTypes

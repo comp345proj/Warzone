@@ -1,0 +1,30 @@
+[Map]
+author=Warzone Game
+image=venus.bmp
+wrap=no
+scroll=horizontal
+warn=yes
+
+[Continents]
+Maxwell Montes=3
+Aphrodite Terra=3
+Ishtar Terra=3
+Lada Terra=4
+
+[Territories]
+Maxwell,80,120,Maxwell Montes,Lakshmi,Danu Montes,Akna
+Lakshmi,140,100,Maxwell Montes,Maxwell,Danu Montes,Ishtar Region
+Danu Montes,150,160,Maxwell Montes,Maxwell,Lakshmi,Akna
+
+Maat Mons,200,200,Aphrodite Terra,Akna,Danu Montes,Ovda Regio
+Ovda Regio,260,230,Aphrodite Terra,Maat Mons,Thetis Regio,Lada Region
+Thetis Regio,300,180,Aphrodite Terra,Ovda Regio,Maat Mons,Fortuna Tessera
+
+Akna,180,80,Ishtar Terra,Maxwell,Danu Montes,Maat Mons
+Ishtar Region,140,120,Ishtar Terra,Lakshmi,Akna,Fortuna Tessera
+Fortuna Tessera,220,110,Ishtar Terra,Ishtar Region,Akna,Maat Mons,Thetis Regio
+
+Lada Region,320,280,Lada Terra,Ovda Regio,Thetis Regio,Galindo
+Galindo,360,320,Lada Terra,Lada Region,Ovda Regio,Helen
+Helen,280,350,Lada Terra,Galindo,Lada Region,Artemis
+Artemis,200,330,Lada Terra,Helen,Lada Region,Ovda Regio
