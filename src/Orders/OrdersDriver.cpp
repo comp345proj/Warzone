@@ -49,53 +49,77 @@ void testOrderExecution() {
     p2->addTerritory(t4);
 
     // Set initial armies
-    t1->setArmies(10);
+    t1->setArmies(30);
     t2->setArmies(5);
     t3->setArmies(8);
     t4->setArmies(6);
 
+    // Set reinforcement pools for players
+    p1->setReinforcementPool(20);
+    p2->setReinforcementPool(20);
+
     std::cout << "\n1. Testing Deploy Order Validation" << std::endl;
     Deploy* validDeploy = new Deploy(p1, t1, 5);
-    Deploy* invalidDeploy = new Deploy(p1, t3, 5); // Invalid: enemy territory
+    std::cout << "\nPlayer " << p1->getName() << " deploying to "
+              << t1->getName() << " (their own territory)" << std::endl;
 
-    std::cout << "Valid deploy order validation: "
-              << (validDeploy->validate() ? "passed" : "failed") << std::endl;
-    std::cout << "Invalid deploy order validation: "
-              << (!invalidDeploy->validate() ? "passed" : "failed")
+    std::cout << "Deploy order to own territory validation: "
+              << (validDeploy->validate() ? "passed\n" : "failed\n")
               << std::endl;
 
     validDeploy->execute();
+    std::cout << validDeploy->getEffect() << std::endl;
+
+    Deploy* invalidDeploy = new Deploy(p1, t3, 5);
+    std::cout << "\nPlayer " << p1->getName() << " deploying to "
+              << t3->getName() << " (enemy territory)" << std::endl;
+
+    std::cout << "Deploy order to enemy territory validation: "
+              << (!invalidDeploy->validate() ? "passed\n" : "failed\n")
+              << std::endl;
+
     invalidDeploy->execute();
+    std::cout << invalidDeploy->getEffect() << std::endl;
 
     std::cout << "\n2. Testing Advance Order and Territory Conquest"
               << std::endl;
-    Advance* attack = new Advance(p1, t1, t3, 8);
+    Advance* attack = new Advance(p1, t1, t3, t1->getArmies() - 1);
     std::cout << "Initial armies in T1: " << t1->getArmies() << std::endl;
     std::cout << "Initial armies in T3: " << t3->getArmies() << std::endl;
 
-    attack->execute();
+    std::cout << "\nCards before conquest: " << p1->getCards().size()
+              << std::endl;
+    std::cout << "\nPlayer " << p1->getName() << " attacking " << t3->getName()
+              << " from " << t1->getName() << std::endl;
 
-    std::cout << "After attack:" << std::endl;
+    attack->execute();
+    std::cout << attack->getEffect() << std::endl;
+
+    std::cout << "\nAfter attack:" << std::endl;
     std::cout << "T3 owner: "
               << (t3->getPlayer() == p1 ? "Player 1 (Conquered)" : "Player 2")
               << std::endl;
     std::cout << "Remaining armies in T3: " << t3->getArmies() << std::endl;
 
     std::cout << "\n3. Testing Card Award for Conquest" << std::endl;
-    int initialCards = p1->getCards().size();
-    // The card should have been awarded in the previous advance execution if
-    // conquest was successful
-    std::cout << "Cards before conquest: " << initialCards << std::endl;
     std::cout << "Cards after conquest: " << p1->getCards().size() << std::endl;
 
-    std::cout << "\n4. Testing Negotiate Order" << std::endl;
+    std::cout << "\n4. Testing Negotiate Order between " << p1->getName()
+              << " and " << p2->getName() << std::endl;
     Negotiate* negotiate = new Negotiate(p1, p2);
     negotiate->execute();
+    std::cout << negotiate->getEffect() << std::endl;
 
     // Try to attack after negotiation
-    Advance* blockedAttack = new Advance(p1, t1, t4, 5);
+    Advance* blockedAttack = new Advance(p1, t3, t4, 5);
+
+    std::cout << "\nPlayer " << p1->getName() << " attempting to attack "
+              << t4->getName() << " from " << t3->getName() << std::endl;
+
+    std::cout << "\nAttack after negotiation should be blocked" << std::endl;
+
     blockedAttack->execute();
-    std::cout << "Attack after negotiation should be blocked" << std::endl;
+    std::cout << blockedAttack->getEffect() << std::endl;
 
     std::cout << "\n5. Testing Blockade Order" << std::endl;
     t2->setArmies(4);
@@ -105,8 +129,9 @@ void testOrderExecution() {
               << (t2->getPlayer() == p1 ? "Player 1" : "Other") << std::endl;
 
     blockade->execute();
+    std::cout << blockade->getEffect() << std::endl;
 
-    std::cout << "After blockade:" << std::endl;
+    std::cout << "\nAfter blockade:" << std::endl;
     std::cout << "Armies in T2: " << t2->getArmies() << std::endl;
     std::cout << "Owner of T2: "
               << (t2->getPlayer() == Blockade::getNeutralPlayer()
@@ -120,11 +145,13 @@ void testOrderExecution() {
     Bomb* bomb = new Bomb(p2, t1);
     std::cout << "Testing Bomb order..." << std::endl;
     bomb->execute();
+    std::cout << bomb->getEffect() << std::endl;
 
     // Test Airlift
     Airlift* airlift = new Airlift(p2, t3, t4, 3);
     std::cout << "Testing Airlift order..." << std::endl;
     airlift->execute();
+    std::cout << airlift->getEffect() << std::endl;
 
     // Cleanup
     delete map;

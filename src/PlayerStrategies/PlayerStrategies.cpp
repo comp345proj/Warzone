@@ -58,9 +58,9 @@ void HumanPlayerStrategy::issueOrder(Player* player, Deck* deck) {
                || choice > static_cast<int>(territoriesToDefend.size())) {
             if (std::cin.fail()) {
                 std::cin.clear();
-                std::cin.ignore(std::numeric_limits<std::streamsize>::max(),
-                                '\n');
             }
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(),
+                            '\n');
             std::cout << "Invalid input. Please enter a number between 1 and "
                       << territoriesToDefend.size() << ": ";
         }
@@ -73,9 +73,9 @@ void HumanPlayerStrategy::issueOrder(Player* player, Deck* deck) {
                || armies > player->getAvailableReinforcementPool()) {
             if (std::cin.fail()) {
                 std::cin.clear();
-                std::cin.ignore(std::numeric_limits<std::streamsize>::max(),
-                                '\n');
             }
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(),
+                            '\n');
             std::cout << "Invalid input. Please enter a number between 1 and "
                       << player->getAvailableReinforcementPool() << ": ";
         }

@@ -27,6 +27,11 @@ class Order : public ILoggable, public Subject {
     // Get the card type associated with the order
     CardType getCardType() const;
 
+    // Get the order description and effect
+    const std::string &getDescription() const;
+    const std::string &getEffect() const;
+    const std::string &getCurrentState() const;
+
     // Pure virtual methods that must be implemented by derived classes
     virtual bool validate() = 0;
     virtual void execute() = 0;
@@ -37,11 +42,6 @@ class Order : public ILoggable, public Subject {
   protected:
     Player* issuingPlayer; // Player who issued the order
     CardType cardType;     // Type of card that made the order
-
-    // Get the order description and effect
-    const std::string &getDescription() const;
-    const std::string &getEffect() const;
-    const std::string &getCurrentState() const;
 
     // Set the effect after execution
     void setEffect(const std::string &effect);
