@@ -25,14 +25,14 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
 
     // testCards();
     // std::cout << SEPARATOR_LINE << std::endl;
-    
-	// testOrdersList();
+
+    // testOrdersList();
     // std::cout << SEPARATOR_LINE << std::endl;
 
     // testPlayers();
     // std::cout << SEPARATOR_LINE << std::endl;
 
-	// -----------------------------------------------
+    // -----------------------------------------------
 
     // std::cout << "\n" << SEPARATOR_LINE << std::endl;
     // std::cout << "ASSIGNMENT 2" << std::endl;
@@ -40,17 +40,17 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
 
     // testCommandProcessor();
     // std::cout << SEPARATOR_LINE << std::endl;
-    
-	// testStartupPhase();
+
+    // testStartupPhase();
     // std::cout << SEPARATOR_LINE << std::endl;
 
     // testMainGameLoop();
     // std::cout << SEPARATOR_LINE << std::endl;
-	
+
     // testOrderExecution();
     // std::cout << SEPARATOR_LINE << std::endl;
-    
-	// testLoggingObserver();
+
+    // testLoggingObserver();
     // std::cout << SEPARATOR_LINE << std::endl;
 
     // -----------------------------------------------
@@ -62,8 +62,20 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
     testPlayerStrategies();
     std::cout << SEPARATOR_LINE << std::endl;
 
-	testTournament();
-	std::cout << SEPARATOR_LINE << std::endl;
+    testTournament();
+    std::cout << SEPARATOR_LINE << std::endl;
+
+    while (true) {
+        char choice;
+        std::cout << "Do you want to run test tournament again? (y/n): ";
+        std::cin >> choice;
+        if (choice == 'y' || choice == 'Y') {
+            testTournament();
+            std::cout << SEPARATOR_LINE << std::endl;
+        } else {
+            break;
+        }
+    }
 
     // -----------------------------------------------
 

@@ -3,6 +3,7 @@
 #include "PlayerStrategies/PlayerStrategies.h"
 #include "Utils/Utils.h"
 #include <algorithm>
+#include <iomanip>
 #include <sstream>
 using std::cin;
 
@@ -777,16 +778,44 @@ void GameEngine::runTournament(const Tournament &tournament) {
 
     // Print results table
     std::cout << "Results:" << std::endl;
-    std::cout << "Map \\ Game";
+    
+    // Find the maximum width needed for map names
+    size_t maxMapNameWidth = 12;
+    for (const auto& mapName : tournament.maps) {
+        maxMapNameWidth = std::max(maxMapNameWidth, mapName.length());
+    }
+    
+    size_t maxCellWidth = 0;
     for (int g = 1; g <= tournament.numGames; ++g) {
-        std::cout << "\t Game " << g;
+        std::string gameHeader = "Game " + std::to_string(g);
+        maxCellWidth = std::max(maxCellWidth, gameHeader.length());
+    }
+    // Also check actual result values
+    for (size_t mapIdx = 0; mapIdx < tournament.maps.size(); ++mapIdx) {
+        for (int gameIdx = 0; gameIdx < tournament.numGames; ++gameIdx) {
+            maxCellWidth = std::max(maxCellWidth, results[mapIdx][gameIdx].length());
+        }
+    }
+    
+    // Print header
+    std::cout << std::left << std::setw(maxMapNameWidth) << "Map \\ Game";
+    for (int g = 1; g <= tournament.numGames; ++g) {
+        std::cout << std::setw(maxCellWidth + 2) << ("Game " + std::to_string(g));
+    }
+    std::cout << std::endl;
+    
+    // Print separator
+    std::cout << std::string(maxMapNameWidth, '-');
+    for (int g = 0; g < tournament.numGames; ++g) {
+        std::cout << std::string(maxCellWidth + 2, '-');
     }
     std::cout << std::endl;
 
+    // Print results rows
     for (size_t mapIdx = 0; mapIdx < tournament.maps.size(); ++mapIdx) {
-        std::cout << tournament.maps[mapIdx];
+        std::cout << std::left << std::setw(maxMapNameWidth) << tournament.maps[mapIdx];
         for (int gameIdx = 0; gameIdx < tournament.numGames; ++gameIdx) {
-            std::cout << "\t" << results[mapIdx][gameIdx];
+            std::cout << std::setw(maxCellWidth + 2) << results[mapIdx][gameIdx];
         }
         std::cout << std::endl;
     }
